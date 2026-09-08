@@ -1,0 +1,12 @@
+{
+  "run_id": "nuclear-challenge-rebuild-2026-09-06",
+  "status": "passed",
+  "checks": {
+    "invisible_unicode": "passed",
+    "system_override": "passed",
+    "path_traversal": "passed",
+    "code_injection": "passed"
+  },
+  "intent": "Implementar o workflow AIOX para reconstruir o nuclear-challenge usando apenas os artefatos existentes.",
+  "scanned_at": "2026-09-06T00:00:00-03:00"
+}

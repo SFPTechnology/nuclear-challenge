@@ -1,0 +1,40 @@
+{
+  "turma": {
+    "code": "5B",
+    "teacher": "Maria Silva",
+    "createdAt": 1630000000000
+  },
+  "operadores": [
+    {
+      "id": "uuid-1",
+      "name": "João",
+      "email": "joao@school.edu",
+      "createdAt": 1630100000000
+    },
+    {
+      "id": "uuid-2",
+      "name": "Maria",
+      "email": "maria@school.edu",
+      "createdAt": 1630110000000
+    }
+  ],
+  "partidas": [
+    {
+      "operadorId": "uuid-1",
+      "diffId": 1,
+      "score": 150,
+      "completedAt": 1630200000000
+    },
+    {
+      "operadorId": "uuid-2",
+      "diffId": 2,
+      "score": 200,
+      "completedAt": 1630210000000
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "lastModified": 1630300000000,
+    "customField_v2": "future extension"
+  }
+}

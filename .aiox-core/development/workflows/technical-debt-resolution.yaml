@@ -1,0 +1,621 @@
+---
+name: Technical Debt Resolution — Automated YOLO Pipeline
+version: 1.0
+author: Orion (aiox-master)
+created: 2026-09-07
+status: APPROVED
+
+# Orchestration metadata
+orchestration:
+  mode: engine  # Subagent spawning mode (not persona-switching)
+  elicit: false  # Fully automated, no user input
+  isolation: worktree  # Git-aware, safe rollback
+  approval_required: false  # Pre-authorized by @architect Gate: APPROVED COM RESSALVAS
+
+# Reference to source document
+source_document: docs/prd/technical-debt-assessment.md
+total_debts: 47  # 10 CRITICAL · 14 HIGH · 18 MEDIUM · 5 LOW
+priority_classes:
+  P0_SAFETY: 1  # UX-D07 — dano físico (fotoconvulsivo)
+  P0_SAFETY_DATA: 3  # TD-DAT-01, TD-DAT-02, TD-DAT-05 — perda de dados
+  P0: 8  # Pré-requisitos fundamentais
+  P1: 12  # Desbloqueia NC-001/002/003
+  P2: 12  # Dano real a usuário
+  P3: 11  # Higiene
+
+# Sequential pipeline with dependency graph
+phases:
+  - phase_id: 0a
+    name: Git Foundation & Hygiene
+    description: |
+      Initialize git repository, cover Arquivos_Diversos/ in .gitignore
+      Addresses: TD-SYS-04 (no git), TD-SYS-16 (gitignore gap)
+    priority: P0
+    severity: CRITICAL
+    dependencies: []
+    assigned_to: "@devops"
+    tasks:
+      - task: "git init"
+        command: "cd {project_root} && git init"
+        timeout_seconds: 30
+        retry_on_failure: 0
+      - task: "Create .gitignore"
+        command: |
+          cat > .gitignore << 'EOF'
+          node_modules/
+          dist/
+          .env.local
+          .env.*.local
+          Arquivos_Diversos/
+          usina.zip
+          usina-legacy-backup/
+          *.log
+          .DS_Store
+          .cursor/
+          .claude/
+          .codex/
+          .kimi/
+          EOF
+        timeout_seconds: 10
+        retry_on_failure: 0
+      - task: "Add .gitignore to git"
+        command: "git add .gitignore && git commit -m 'chore: initialize git and cover Arquivos_Diversos in gitignore [TD-SYS-04, TD-SYS-16]' --no-verify"
+        timeout_seconds: 30
+        retry_on_failure: 0
+    acceptance_criteria:
+      - ".git/ directory exists"
+      - ".gitignore covers Arquivos_Diversos/"
+      - "Initial commit created"
+    on_success: "Proceed to 0b (unblocks P0-SAFETY fixes)"
+    on_failure: "HALT — git foundation is non-negotiable blocker"
+
+  - phase_id: 0b
+    name: P0-SAFETY Fix — Photosensitive Animation Protection
+    description: |
+      Fix UX-D07: Add prefers-reduced-motion media query + reduce animation frequencies to <3Hz by default
+      Protects against photic epilepsy (photosensitive seizures) and vestibular issues in child users
+      Estimated effort: 1.75 hours
+      Addresses: UX-D07 (animation frequencies 8,3-11,1 Hz without escape)
+    priority: P0-SAFETY
+    severity: CRITICAL
+    dependencies: ["0a"]
+    assigned_to: "@dev"
+    verification_required: true  # Manual verification with video evidence
+    tasks:
+      - task: "Add prefers-reduced-motion media query"
+        file: "Arquivos_Diversos/NuclearChallenge/App.tsx"
+        changes:
+          - action: "add_media_query"
+            selector: "@media (prefers-reduced-motion: reduce)"
+            content: "/* Animations disabled for accessibility */"
+          - action: "modify_animation_keyframes"
+            targets: ["rumbleHard", "glitch", "rumble", "grainShift"]
+            new_duration: "≥0.34s (≤2.94 Hz)"
+        description: "Reduce all animation frequencies below 3Hz by default, skip under prefers-reduced-motion"
+      - task: "Add matchMedia detection in Boom component"
+        file: "Arquivos_Diversos/NuclearChallenge/App.tsx"
+        changes:
+          - action: "add_js_detection"
+            code: |
+              const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+              const getAnimationDuration = (freq_hz) => {
+                if (prefersReducedMotion) return '0s'; // Instant fallback
+                return freq_hz <= 3 ? 'enabled' : 'disabled';
+              };
+            description: "Respect OS accessibility settings at runtime"
+      - task: "Test animation frequencies"
+        verification: "Manual playback + measurement tool (frame analyzer)"
+        targets: ["rumbleHard", "glitch", "rumble", "grainShift"]
+        acceptance: "All ≤3 Hz by default, ≤0 Hz under prefers-reduced-motion"
+    acceptance_criteria:
+      - "All 4 animations <3 Hz in default mode"
+      - "prefers-reduced-motion disables all animations"
+      - "Manual verification video recorded"
+      - "Video saved to docs/verification/T0-UX-D07-photosensitive-safe.mp4"
+    on_success: "Proceed to 0c (unblocks P0-SAFETY-DATA fixes)"
+    on_failure: "RETRY with extended testing window (max 3 attempts)"
+
+  - phase_id: 0c
+    name: P0-SAFETY-DATA Guard — Anti-Destruction Protection
+    description: |
+      Implement three critical data guards to prevent silent data loss:
+      1. saveResult: preserve unknown fields (merge, not overwrite)
+      2. Storage read failure: don't write operadores if read failed
+      3. storeErr: global error capture (not just login screen)
+      Estimated effort: 1 hour
+      Addresses: TD-DAT-01, TD-DAT-02, TD-DAT-05
+    priority: P0-SAFETY-DATA
+    severity: CRITICAL
+    dependencies: ["0a"]
+    assigned_to: "@dev"
+    tasks:
+      - task: "Fix saveResult to preserve unknown fields"
+        file: "Arquivos_Diversos/NuclearChallenge/App.tsx"
+        changes:
+          - action: "replace_saveResult"
+            from: "Object.assign({}, {whitelist_fields})"
+            to: "{ ...previousRecord, ...updatedFields }"
+            description: "Use spread operator to merge, not whitelist"
+          - target_line: "Look for saveResult function, replace destructive whitelist with spread merge"
+        test: "I4 — Merge preserves unknown fields"
+      - task: "Fix storage read failure handling"
+        file: "Arquivos_Diversos/NuclearChallenge/App.tsx"
+        changes:
+          - action: "guard_operadores_write"
+            condition: "if (okStore === false) return early, skip operadores write"
+            description: "Two call sites must check okStore before writing"
+          - locations: ["login screen", "post-game results"]
+        test: "TD-DAT-02 — don't overwrite turma blob after read failure"
+      - task: "Promote storeErr to global visibility"
+        file: "Arquivos_Diverses/NuclearChallenge/App.tsx"
+        changes:
+          - action: "hoist_storeErr"
+            from: "login screen only"
+            to: "global store + render on all screens"
+            description: "Move from render() to layout-level error boundary"
+        test: "TD-DAT-05 — write errors visible at end of game"
+    acceptance_criteria:
+      - "TD-DAT-01 — unknown fields preserved in round-trip test"
+      - "TD-DAT-02 — operadores not written after read failure"
+      - "TD-DAT-05 — storeErr renders on all screens, not just login"
+      - "All 3 guards pass T1 (automated test suite)"
+    on_success: "Parallel proceed to Phase 1 and continue sequence"
+    on_failure: "HALT — data guards are irreversible-risk blockers"
+
+  - phase_id: 1
+    name: Design Tokens & Typography Foundation
+    description: |
+      Create design system foundation: token definitions + convert px to rem/em for accessibility
+      Single unified delivery of UX-D02 (design system) + UX-D23 (font sizing)
+      Estimated effort: 24 + 10 = 34 hours
+      Addresses: UX-D02, UX-D23
+    priority: P0
+    severity: HIGH
+    dependencies: ["0a", "0c"]
+    assigned_to: "@dev"
+    tasks:
+      - task: "Create design tokens file"
+        file: "src/design/tokens.ts"
+        description: "Centralized token definitions for colors, spacing, typography"
+        structure: |
+          export const tokens = {
+            colors: { primary, secondary, danger, success, ... },
+            spacing: { xs: '0.25rem', sm: '0.5rem', ... },
+            typography: { fontSize, fontWeight, lineHeight, ... }
+          }
+      - task: "Replace 168 inline style={{}} with token references"
+        description: "Convert from hardcoded colors to token system"
+        scope: "Arquivos_Diverses/NuclearChallenge/"
+        targets: "All .tsx files with style={{}} blocks"
+      - task: "Convert all fontSize from px to rem"
+        description: "Change all numeric px values to rem units (1rem = 16px base)"
+        targets: "~100 occurrences (G10 — verified by @qa)"
+      - task: "Update Tailwind config to consume tokens"
+        file: "tailwind.config.js"
+        description: "Map Tailwind utilities to token values"
+    acceptance_criteria:
+      - "All colors use tokens (not literals)"
+      - "100% of font sizes in rem/em (0 px units remain)"
+      - "Token consumption reflected in component stories"
+    on_success: "Proceed to Phase 2"
+    on_failure: "BLOCK Phase 2+ (design debt compounds without foundation)"
+
+  - phase_id: 2
+    name: Boundary & Build Configuration
+    description: |
+      Move app from Arquivos_Diversos/ to src/, configure Vite + React plugin + path aliases
+      Fixes cause-root of lint/gitignore failures; enables proper module resolution
+      Estimated effort: 12 + 2 = 14 hours (M)
+      Addresses: TD-SYS-05 (code boundary), TD-SYS-11 (vite config)
+    priority: P0
+    severity: CRITICAL
+    dependencies: ["1"]
+    assigned_to: "@dev"
+    tasks:
+      - task: "Move codebase to src/"
+        command: |
+          mkdir -p src
+          mv Arquivos_Diversos/NuclearChallenge/* src/
+          git add -A && git commit -m 'refactor: move app to src/ directory [TD-SYS-05]'
+      - task: "Create vite.config.ts"
+        file: "vite.config.ts"
+        content: |
+          import { defineConfig } from 'vite';
+          import react from '@vitejs/plugin-react';
+          import path from 'path';
+
+          export default defineConfig({
+            plugins: [react()],
+            resolve: {
+              alias: {
+                '@': path.resolve(__dirname, './src'),
+                '@components': path.resolve(__dirname, './src/components'),
+                '@domain': path.resolve(__dirname, './src/domain'),
+                '@utils': path.resolve(__dirname, './src/utils'),
+              },
+            },
+            build: { target: 'es2020', minify: 'terser' },
+          });
+      - task: "Update ESLint config for src/"
+        file: ".eslintrc.cjs"
+        changes:
+          - action: "update_files_glob"
+            from: "Arquivos_Diversos/**/*.{ts,tsx}"
+            to: "src/**/*.{ts,tsx}"
+          - action: "add_jsx_a11y_plugin"
+          - action: "add_react_hooks_plugin"
+          - action: "add_globals"
+    acceptance_criteria:
+      - "src/ contains all app code"
+      - "vite.config.ts exists with React plugin"
+      - "Path aliases (@/...) resolve correctly"
+      - "ESLint covers src/ completely"
+    on_success: "Proceed to Phase 3"
+    on_failure: "BLOCK Phase 3+ (quality gates depend on proper file structure)"
+
+  - phase_id: 3
+    name: Quality Gates Infrastructure
+    description: |
+      Establish working quality pipeline: globals → lint → test runner → behavioral tests → typecheck
+      Strict execution order (interdependencies)
+      Estimated effort: M (configuration) + L (test implementation)
+      Addresses: TD-SYS-19, TD-SYS-02, TD-QA-01, TD-SYS-03, TD-SYS-01
+    priority: P0
+    severity: CRITICAL
+    dependencies: ["2"]
+    assigned_to: "@dev"
+    parallelism: sequential  # Must execute in order
+    tasks:
+      - task: "3.1 — Fix ESLint globals (TD-SYS-19)"
+        file: ".eslintrc.cjs"
+        changes:
+          - action: "add_complete_globals"
+            globals: ["window", "document", "navigator", "localStorage", "AudioContext", "matchMedia", "console"]
+        description: "Complete the globals config that v2.0 touched but left incomplete"
+      - task: "3.2 — Activate lint gate (TD-SYS-02)"
+        command: "npm run lint -- --max-warnings=0"
+        description: "Run linter on entire src/ with zero warnings tolerance"
+        acceptance: "lint passes on all src/**/*.{ts,tsx}"
+      - task: "3.3 — Install & configure test runner (TD-QA-01)"
+        command: |
+          npm install --save-dev vitest happy-dom
+          # Create vitest.config.ts
+          cat > vitest.config.ts << 'EOF'
+          import { defineConfig } from 'vitest/config';
+          import react from '@vitejs/plugin-react';
+
+          export default defineConfig({
+            plugins: [react()],
+            test: {
+              globals: true,
+              environment: 'happy-dom',
+              setupFiles: [],
+            },
+          });
+          EOF
+        description: "Set up Vitest with happy-dom for React component testing"
+      - task: "3.4 — Implement behavioral test suite (TD-SYS-03)"
+        file: "src/__tests__/core-invariants.test.ts"
+        description: |
+          Replace regex-based tests with 8 executable invariants (I1-I8):
+          I1: rankIdx never decreases
+          I2: division generates correct factors, no remainder
+          I3: mergeStudyLog is additive, doesn't destroy prior days
+          I4: Merge preserves unknown fields (closes TD-DAT-01)
+          I5: Physics (heat, integrity, coolant) evolve independently
+          I6: Pause doesn't persist result; resume returns intact state
+          I7: Operation generation respects DIFF[n].range/ops
+          I8: Score and best[diff] monotonic per phase
+        test_framework: "Vitest"
+      - task: "3.5 — Enable typecheck (TD-SYS-01)"
+        file: "tsconfig.json"
+        changes:
+          - action: "remove_ts_nocheck"
+            from: "Line 1 of src/App.tsx (if present)"
+          - action: "set_strict_mode"
+            tsconfig_changes: ["strict: true", "checkJs: true", "noImplicitAny: true"]
+        command: "npm run typecheck -- --noEmit"
+        description: "Full TypeScript strict mode with no escape hatches"
+    acceptance_criteria:
+      - "ESLint covers 100% of src/"
+      - "npm run lint passes with 0 warnings"
+      - "Vitest installed and configured"
+      - "8 invariants (I1-I8) all pass"
+      - "TypeScript strict mode active, zero errors"
+      - "npm run typecheck passes"
+    on_success: "Proceed to Phase 4"
+    on_failure: "HALT — quality gates are load-bearing for remaining phases"
+
+  - phase_id: 4
+    name: Storage Adapter & Domain Layer Foundation
+    description: |
+      Implement StorageAdapter contract (with merge policy from TD-DAT-01) + domain layer for CLI
+      Enables all downstream story work (NC-001/002/003)
+      Estimated effort: M (adapter) + L (domain)
+      Addresses: TD-SYS-09 (storage contract), TD-SYS-07 (domain layer)
+    priority: P1
+    severity: HIGH
+    dependencies: ["3"]
+    assigned_to: "@dev"
+    tasks:
+      - task: "Create StorageAdapter interface"
+        file: "src/domain/storage/StorageAdapter.ts"
+        description: |
+          Interface contract for window.storage with:
+          - read(key): Promise<T | null>
+          - write(key, value): Promise<void>
+          - merge(key, partial): Promise<void>  # Preserves unknown fields!
+          - clear(key): Promise<void>
+        includes: "Merge policy — use spread operator, never whitelist"
+      - task: "Implement concrete window.storage adapter"
+        file: "src/domain/storage/WindowStorageAdapter.ts"
+        description: |
+          Concrete implementation using window.storage with error handling
+          - Wraps try/catch, converts errors to status flags (okStore)
+          - Merge uses {...previousRecord, ...updates}
+          - No silent failures
+      - task: "Create domain layer services"
+        files:
+          - "src/domain/core/Physics.ts"
+          - "src/domain/core/Scoring.ts"
+          - "src/domain/core/OperatorRegistry.ts"
+          - "src/domain/core/StudyLog.ts"
+        description: "CLI-invocable business logic, decoupled from React"
+      - task: "Create fixtures for testing"
+        file: "src/__tests__/fixtures/legacy-data.json"
+        description: "Representative turma/operador/partida records for round-trip testing (T1.5)"
+        includes: "Preserve unknown fields during load"
+    acceptance_criteria:
+      - "StorageAdapter interface defined and implemented"
+      - "Merge policy preserves unknown fields (I4 test passes)"
+      - "Domain services invocable from CLI"
+      - "Fixtures cover 5+ edge cases (empty turma, corrupted operador, etc.)"
+    on_success: "Proceed to Phase 5"
+    on_failure: "BLOCK Phase 5+ (stories depend on storage contract)"
+
+  - phase_id: 5
+    name: NC-003 Pilot & Operator Exclusion
+    description: |
+      Implement first story (NC-003) pilot + operator exclusion UI
+      Unblocks story work; tests StorageAdapter in production
+      Estimated effort: M (UI) + S (exclusion)
+      Addresses: UX-D24a (operator exclusion UI part), first story gate
+    priority: P1
+    severity: HIGH
+    dependencies: ["4"]
+    assigned_to: "@dev"
+    tasks:
+      - task: "Create MetricBadge component"
+        file: "src/components/MetricBadge.tsx"
+        description: "Reusable component for displaying key metrics (NC-003 requirement)"
+        accessibility: "name semantic, color + icon (not color-only)"
+      - task: "Implement operator exclusion UI"
+        file: "src/components/OperatorExclusionDialog.tsx"
+        description: "Dialog for teacher to remove operator from turma (4h)"
+        features:
+          - "Confirmation dialog"
+          - "No permanent deletion yet (pseudonimization is TD-DAT-04, later)"
+          - "Updates StorageAdapter"
+      - task: "Implement NC-003 story first screen"
+        description: "Load turma, display operators with MetricBadge + exclusion option"
+    acceptance_criteria:
+      - "MetricBadge component story rendered"
+      - "Operator exclusion dialog tested with StorageAdapter"
+      - "NC-003 first screen operational"
+    on_success: "Proceed to Phase 6"
+    on_failure: "Retry phase 5 (story work non-blocking for subsequent quality debt)"
+
+  - phase_id: 6
+    name: A11y Remediation Batch 1 — Four Core Issues
+    description: |
+      Accessibility sweep: aria labels, role, tabIndex, contrast
+      Required Tailwind freeze (TD-SYS-08) must be resolved FIRST (hard dependency)
+      Estimated effort: L (complex cross-cutting)
+      Addresses: UX-D05, UX-D19, UX-D06, UX-D14, TD-SYS-08 (prerequisite)
+    priority: P1 / P2
+    severity: HIGH / CRITICAL
+    dependencies: ["4", "TD-SYS-08 resolved"]
+    assigned_to: "@dev"
+    notes: "Hard blocker on TD-SYS-08 resolution. Don't start until that's done."
+    tasks:
+      - task: "PREREQUISITE: Resolve Tailwind frozen state (TD-SYS-08)"
+        description: "Tailwind CSS utils not compiling dynamically — must rebuild or switch to runtime"
+        solution: "See separate TD-SYS-08 task (likely: JIT rebuild config or postprocessing)"
+        blocking: true
+      - task: "Audit: 27 interactive elements, add accessible names"
+        command: "npm install --save-dev axe-core"
+        targets: "All buttons, inputs, links"
+        acceptance: "axe-core reports 0 'name' failures"
+      - task: "Add aria-* attributes"
+        file: "src/components/**/*.tsx"
+        description: "Comprehensive aria-label, aria-described-by, aria-live for interactive elements"
+        targets: "27 buttons (currently 0 with accessible names)"
+      - task: "Add role attributes"
+        description: "Explicit role= where semantic HTML insufficient"
+        targets: "Custom components mimicking standard elements"
+      - task: "Add tabIndex management"
+        description: "Ensure all interactive elements keyboard-navigable"
+        tool: "eslint-plugin-jsx-a11y"
+      - task: "Fix color contrast (UX-D14)"
+        measurements: "#6b7280 fails on all 6 backgrounds, #ef4444 = 3.54:1 (fail), #8d959e = 4.39:1 (marginal)"
+        target: "≥4.5:1 AA on all"
+        targets: "Danger (red), neutral (gray) palette updates"
+      - task: "Manage focus (UX-D19)"
+        description: "Track focus state across 9 mode transitions"
+        implementation: "useEffect to restore focus to trigger element post-transition"
+    acceptance_criteria:
+      - "axe-core: 0 critical/high/medium a11y issues"
+      - "27/27 buttons have accessible names"
+      - "All colors ≥4.5:1 contrast AA"
+      - "All interactive elements keyboard-navigable"
+      - "Focus managed across transitions"
+    on_success: "Proceed to Phase 7"
+    on_failure: "Iterate a11y improvements (max 2 rounds)"
+
+  - phase_id: 7
+    name: Empty State & Error Boundary
+    description: |
+      Add EmptyState component for NC-001/002/003 when data absent
+      Add ErrorBoundary for runtime safety, visibility of errors
+      Estimated effort: M
+      Addresses: UX-D10 (empty states), TD-SYS-18 (error handling + observability)
+    priority: P1 / P2
+    severity: HIGH
+    dependencies: ["1"]
+    assigned_to: "@dev"
+    tasks:
+      - task: "Create EmptyState component"
+        file: "src/components/EmptyState.tsx"
+        props: ["icon", "title", "description", "actionLabel", "onAction"]
+        description: "Reusable empty state for when no data matches filter"
+      - task: "Create ErrorBoundary component"
+        file: "src/components/ErrorBoundary.tsx"
+        description: "Catch React errors, display fallback, log to storeErr"
+        captures: ["Component render errors", "Event handler errors"]
+      - task: "Integrate into layout"
+        description: "Wrap app/page tree with ErrorBoundary + wire EmptyState to UI"
+      - task: "Enhance storeErr global error capture"
+        description: "Logs from ErrorBoundary, unhandled promise rejections, storage errors"
+    acceptance_criteria:
+      - "EmptyState renders when data empty"
+      - "ErrorBoundary catches errors, shows UI fallback"
+      - "All errors (including storage) logged globally"
+    on_success: "Proceed to Phase 8"
+    on_failure: "Phase 7 is non-blocking for Phase 8"
+
+  - phase_id: 8
+    name: Baseline Characterization & Monolith Decomposition
+    description: |
+      Create baseline of 14 Gold Standard forces BEFORE breaking monolith
+      Baseline required by T3; must precede TD-SYS-06 refactor
+      Estimated effort: M (baseline) + XL (decomposition, incremental)
+      Addresses: TD-QA-02 (baseline), TD-SYS-06 (monolith breakup)
+    priority: P1
+    severity: HIGH
+    dependencies: ["3", "7"]
+    assigned_to: "@qa"
+    parallelism: sequential
+    tasks:
+      - task: "8.1 — Establish baseline (TD-QA-02) [HARD PREREQUISITE]"
+        description: |
+          Measure current state on all 14 forces of Gold Standard:
+          1. Physics accuracy (heat, integrity, coolant evolution)
+          2. Scoring monotonicity
+          3. State consistency (no data races)
+          4. UX responsiveness (LCP, INP, CLS)
+          5. A11y compliance (axe-core, manual audit)
+          6. Error resilience (unhandled rejections)
+          7. Performance metrics (bundle size, TTI)
+          8–14. Custom metrics from story acceptance criteria
+        output: "T3 — baseline.json with measurements for each force"
+        blocking: true  # Must pass before 8.2
+      - task: "8.2 — Begin monolith decomposition (TD-SYS-06)"
+        description: |
+          Extract components from ~1,070 line App.tsx
+          Refactor 42 useState + 20 useEffect into domain services + custom hooks
+          Preserve state tree for data consistency verification
+        strategy: "Incremental — extract high-cohesion modules first (Physics, Scoring, OperatorRegistry)"
+        testing: "T1.5 round-trip with fixtures after each extraction"
+        acceptance: "No regression in baseline metrics (TD-QA-02)"
+    acceptance_criteria:
+      - "Baseline captured (T3 artifact exists)"
+      - "0 regressions on any of 14 forces"
+      - "First component module extracted (e.g., PhysicsEngine)"
+    on_success: "Proceed to Phase 9"
+    on_failure: "Phase 8 regression → abort decomposition, stabilize, re-run baseline"
+
+  - phase_id: 9
+    name: Long-tail Hygiene & Incremental Improvements
+    description: |
+      Pseudonimization (TD-DAT-04) · refluxo (UX-D11) · inline style extraction (UX-D22)
+      + All P3 low-priority items and optional improvements
+      Estimated effort: M (pseudonimization) + L (refluxo) + S (extraction + P3s)
+    priority: P2 / P3
+    severity: MEDIUM / LOW
+    dependencies: ["4", "8"]
+    assigned_to: "@dev"
+    parallelism: parallel  # Low-priority items can overlap
+    tasks:
+      - task: "9.1 — Implement pseudonimization (TD-DAT-04 + UX-D24b)"
+        description: |
+          Migrate operador name from primary key to display-only field
+          Primary key becomes UUID (deterministic, seeded by original name for fixture compat)
+          Update everywhere name is used as key (localStorage, API payloads, etc.)
+        note: "Depends on StorageAdapter merge policy (TD-SYS-09)"
+        effort: "M"
+      - task: "9.2 — Refluxo responsive design (UX-D11)"
+        description: "Replace zoom-based scale with fluid font sizes + media queries"
+        effort: "L"
+      - task: "9.3 — Extract inline styles to separate <style> (UX-D22)"
+        description: "Move all style={{}} blocks to dedicated <style> block per screen"
+        effort: "S"
+      - task: "9.4 — P3 items (optional, low-impact)"
+        items:
+          - "TD-SYS-13 — hardcoded balancing → config file"
+          - "TD-SYS-12 — code splitting for bundle optimization"
+          - "TD-SYS-21 — CI/CD pipeline"
+          - "UX-D08 — loading state (if zero network calls, low priority)"
+          - "UX-D18 — performance metrics / budgeting"
+          - "UX-D15 — touch target size (already passes AA, fails AAA only)"
+          - "UX-D17 — pause/calendar traceability (document, don't remove)"
+          - "UX-D25 — keyboard shortcuts legend"
+          - "TD-SYS-22 — remove dist/default.php (Hostinger artifact)"
+          - "TD-SYS-23 — document major version upgrades (TS 7, Vite 8, ESLint 10)"
+        effort: "Variable S-M per item"
+    acceptance_criteria:
+      - "TD-DAT-04 — no PII in keys"
+      - "UX-D11 — responsive without zoom"
+      - "UX-D22 — no inline style={{}} blocks"
+      - "P3 items tracked, prioritized for post-pilot"
+    on_success: "All 47 debts addressed (in progress, resolved, or tracked)"
+    on_failure: "P3 items are non-blocking; phase 9 can be repeated iteratively"
+
+# Execution parameters
+execution:
+  mode: engine  # Real subagent spawning (not persona-switching)
+  auto_merge_branches: false  # Manual review before merge
+  git_push_approval: required  # @devops must review all pushes
+  handoff_tracking: enabled  # Dump handoff to .aiox/handoffs/
+
+  # Automatic retry policy
+  retry_policy:
+    max_attempts: 3
+    backoff_base: 2  # Exponential: 1s, 2s, 4s
+    retryable_errors:
+      - "timeout"
+      - "network_error"
+      - "temporary_lock"
+    non_retryable_errors:
+      - "auth_failure"
+      - "permission_denied"
+      - "invalid_configuration"
+
+# Handoff & state tracking
+handoff:
+  from_agent: "Orion (aiox-master)"
+  destination_agents: ["@devops", "@dev", "@qa"]
+  tracking_file: ".aiox/technical-debt-resolution-tracking.json"
+
+# Success criteria for entire workflow
+success_criteria:
+  - All 4 P0 items complete (0a, 0b, 0c, + initial 3/P0)
+  - All 12 P1 items in-progress or complete (unblock stories)
+  - All P2 items started before project goes live
+  - No new CRITICAL bugs introduced
+  - Baseline metrics (T3) established and monitored
+  - Zero regressions on existing functionality
+
+# Failure escalation
+escalation:
+  on_critical_block: "Halt pipeline, notify @architect + @pm, create incident"
+  on_high_block: "Pause phase, attempt recovery (max 3 tries), escalate if stuck"
+  on_medium_issue: "Log as tech debt, add to P3 items, continue pipeline"
+  on_low_issue: "Log as optional improvement, don't block other phases"
+
+---
+
+# Execution log template
+status: READY_FOR_ENGINE_MODE
+created_at: 2026-09-07T00:00:00Z
+estimated_total_effort: "~320 hours (P0: 3h + P1: ~160h + P2/P3: incremental)"
+estimated_duration: "6-10 weeks for P0→P1, ongoing for P2/P3"

@@ -1,0 +1,24 @@
+run_id: nuclear-challenge-rebuild-2026-09-06
+waves:
+  - id: 0
+    status: blocked
+    items:
+      - provision-executable-project
+      - define-cli-contracts
+      - create-data-fixtures
+  - id: 1
+    status: pending
+    depends_on: [0]
+    items: [NC-001, NC-003]
+  - id: 2
+    status: pending
+    depends_on: [1]
+    items: [NC-002]
+  - id: 3
+    status: pending
+    depends_on: [2]
+    items: [adaptive-progression, interrupted-session]
+  - id: 4
+    status: pending
+    depends_on: [3]
+    items: [independent-instruments, local-multiplayer]

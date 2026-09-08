@@ -1,0 +1,28 @@
+run_id: nuclear-challenge-rebuild-2026-09-06
+workflow: docs/workflows/plano-aiox-reconstruir-nuclear-challenge-yolo.md
+orchestrator: aiox-master
+mode: yolo
+started_at: 2026-09-06T00:00:00-03:00
+intent: Implementar o workflow AIOX para reconstruir o nuclear-challenge usando apenas os artefatos existentes.
+budget_ceiling_usd: 5
+story_binding:
+  required: true
+  status: created
+  stories:
+    - NC-001
+    - NC-002
+    - NC-003
+scope:
+  - inventário brownfield
+  - baseline e rastreabilidade
+  - treino dirigido baseado em stats.tabs
+  - relatório pedagógico baseado em stats e matches
+  - ponderação de taxa por dificuldade com retrocompatibilidade
+  - validação e handoff
+out_of_scope:
+  - propostas rejeitadas no handoff-03
+  - soma e subtração sem decisão de escopo
+  - publicação externa, pois não há Git configurado
+status: partial_blocked
+blocking_reason: Workspace sem package.json, runtime React configurado, testes, docs/stories inicial e repositório Git.
+next_action: Provisionar o projeto executável ou anexar a estrutura React original antes da implementação de código.

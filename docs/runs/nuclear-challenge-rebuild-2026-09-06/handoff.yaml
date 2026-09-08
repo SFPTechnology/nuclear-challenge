@@ -1,0 +1,23 @@
+run_id: nuclear-challenge-rebuild-2026-09-06
+from_agent: aiox-master
+status: partial_blocked
+completed:
+  - intent scan
+  - run manifest
+  - brownfield inventory
+  - documentary baseline
+  - prioritized stories NC-001, NC-002, NC-003
+  - dependency graph
+  - quality report
+blocked:
+  - executable project provisioning
+  - CLI contracts
+  - implementation waves
+  - automated tests and build
+  - QA verdict
+required_next:
+  - Provide package.json and React project structure, or explicitly authorize reconstruction of missing scaffolding.
+  - Then delegate stories to @dev and validation to @qa.
+preserve:
+  - Do not implement proposals rejected in handoff-03 without a new approved story.
+  - Keep `window.storage`, inline fine-grained styles, pt-BR and existing physics invariants.

@@ -1,0 +1,197 @@
+{
+  "workflow": "Technical Debt Resolution — Automated YOLO Pipeline",
+  "version": "1.0",
+  "started_at": "2026-09-07T00:00:00Z",
+  "mode": "engine",
+  "total_phases": 10,
+  "priority_breakdown": {
+    "P0_SAFETY": 1,
+    "P0_SAFETY_DATA": 3,
+    "P0": 8,
+    "P1": 12,
+    "P2": 12,
+    "P3": 11
+  },
+  "phases": [
+    {
+      "phase_id": "0a",
+      "name": "Git Foundation & Hygiene",
+      "status": "COMPLETED",
+      "assigned_to": "@devops",
+      "debts": ["TD-SYS-04", "TD-SYS-16"],
+      "severity": "CRITICAL",
+      "priority": "P0",
+      "dependencies": [],
+      "agent_id": "a98807ed40ef9d759",
+      "started_at": "2026-09-07T00:00:00Z",
+      "completed_at": "2026-09-07T00:30:00Z",
+      "commit": "8468f30",
+      "tasks": [
+        {
+          "task": "git init",
+          "status": "COMPLETED",
+          "command": "git init"
+        },
+        {
+          "task": "Create .gitignore",
+          "status": "COMPLETED",
+          "command": "cat > .gitignore"
+        },
+        {
+          "task": "Add .gitignore to git",
+          "status": "COMPLETED",
+          "command": "git add .gitignore && git commit"
+        }
+      ]
+    },
+    {
+      "phase_id": "0b",
+      "name": "P0-SAFETY Fix — Photosensitive Animation Protection",
+      "status": "COMPLETED",
+      "assigned_to": "@dev",
+      "debts": ["UX-D07"],
+      "severity": "CRITICAL",
+      "priority": "P0-SAFETY",
+      "dependencies": ["0a"],
+      "agent_id": "a6464c6149fafb175",
+      "started_at": "2026-09-07T00:30:00Z",
+      "completed_at": "2026-09-07T02:00:00Z",
+      "actual_duration_minutes": 90,
+      "changes": {
+        "animations_reduced": ["rumbleHard", "glitch", "rumble", "grainShift"],
+        "frequency_reduction": "11.1 Hz → 2.94 Hz",
+        "wcag_compliance": "Level AAA",
+        "prefers_reduced_motion": "enabled"
+      }
+    },
+    {
+      "phase_id": "0c",
+      "name": "P0-SAFETY-DATA Guard — Anti-Destruction Protection",
+      "status": "COMPLETED",
+      "assigned_to": "@dev",
+      "debts": ["TD-DAT-01", "TD-DAT-02", "TD-DAT-05"],
+      "severity": "CRITICAL",
+      "priority": "P0-SAFETY-DATA",
+      "dependencies": ["0a"],
+      "agent_id": "ad008316b166e4be5",
+      "started_at": "2026-09-07T00:30:00Z",
+      "completed_at": "2026-09-07T03:00:00Z",
+      "actual_duration_minutes": 150,
+      "parallelism": "parallel_with_0b",
+      "changes": {
+        "td_dat_01": "Preserve unknown fields via spread operator",
+        "td_dat_02": "Guard operadores write with okStore ref",
+        "td_dat_05": "Global error banner on all screens"
+      },
+      "tests": "tests/data-safety.test.ts",
+      "documentation": ["PHASE-0C-VERIFICATION.md", "PHASE-0C-IMPLEMENTATION-SUMMARY.md"]
+    },
+    {
+      "phase_id": "1",
+      "name": "Design Tokens & Typography Foundation",
+      "status": "AWAITING_PHASE_0c",
+      "assigned_to": "@dev",
+      "debts": ["UX-D02", "UX-D23"],
+      "severity": "HIGH",
+      "priority": "P0",
+      "dependencies": ["0a", "0c"],
+      "estimated_duration_hours": 34
+    },
+    {
+      "phase_id": "2",
+      "name": "Boundary & Build Configuration",
+      "status": "AWAITING_PHASE_1",
+      "assigned_to": "@dev",
+      "debts": ["TD-SYS-05", "TD-SYS-11"],
+      "severity": "CRITICAL",
+      "priority": "P0",
+      "dependencies": ["1"],
+      "estimated_duration_hours": 14
+    },
+    {
+      "phase_id": "3",
+      "name": "Quality Gates Infrastructure",
+      "status": "AWAITING_PHASE_2",
+      "assigned_to": "@dev",
+      "debts": ["TD-SYS-19", "TD-SYS-02", "TD-QA-01", "TD-SYS-03", "TD-SYS-01"],
+      "severity": "CRITICAL",
+      "priority": "P0",
+      "dependencies": ["2"],
+      "estimated_duration_hours": null,
+      "note": "M (config) + L (tests)"
+    },
+    {
+      "phase_id": "4",
+      "name": "Storage Adapter & Domain Layer Foundation",
+      "status": "AWAITING_PHASE_3",
+      "assigned_to": "@dev",
+      "debts": ["TD-SYS-09", "TD-SYS-07"],
+      "severity": "HIGH",
+      "priority": "P1",
+      "dependencies": ["3"]
+    },
+    {
+      "phase_id": "5",
+      "name": "NC-003 Pilot & Operator Exclusion",
+      "status": "AWAITING_PHASE_4",
+      "assigned_to": "@dev",
+      "debts": ["UX-D24a"],
+      "severity": "HIGH",
+      "priority": "P1",
+      "dependencies": ["4"]
+    },
+    {
+      "phase_id": "6",
+      "name": "A11y Remediation Batch 1",
+      "status": "AWAITING_PHASE_4",
+      "assigned_to": "@dev",
+      "debts": ["UX-D05", "UX-D19", "UX-D06", "UX-D14", "TD-SYS-08"],
+      "severity": "HIGH / CRITICAL",
+      "priority": "P1 / P2",
+      "dependencies": ["1", "2", "TD-SYS-08 resolved"]
+    },
+    {
+      "phase_id": "7",
+      "name": "Empty State & Error Boundary",
+      "status": "AWAITING_PHASE_4",
+      "assigned_to": "@dev",
+      "debts": ["UX-D10", "TD-SYS-18"],
+      "severity": "HIGH",
+      "priority": "P1 / P2",
+      "dependencies": ["1"]
+    },
+    {
+      "phase_id": "8",
+      "name": "Baseline Characterization & Monolith Decomposition",
+      "status": "AWAITING_PHASE_3_7",
+      "assigned_to": "@qa / @dev",
+      "debts": ["TD-QA-02", "TD-SYS-06"],
+      "severity": "HIGH",
+      "priority": "P1",
+      "dependencies": ["3", "7"]
+    },
+    {
+      "phase_id": "9",
+      "name": "Long-tail Hygiene & Incremental Improvements",
+      "status": "AWAITING_PHASE_8",
+      "assigned_to": "@dev",
+      "debts": ["TD-DAT-04", "UX-D11", "UX-D22", "P3 items"],
+      "severity": "MEDIUM / LOW",
+      "priority": "P2 / P3",
+      "dependencies": ["4", "8"],
+      "note": "Parallelizable, low-priority items"
+    }
+  ],
+  "summary": {
+    "total_debts": 47,
+    "debts_critical": 10,
+    "debts_high": 14,
+    "debts_medium": 18,
+    "debts_low": 5,
+    "phases_completed": 0,
+    "phases_in_progress": 1,
+    "phases_pending": 9,
+    "estimated_total_effort": "~320 hours (P0: 3h + P1: ~160h + P2/P3: incremental)",
+    "estimated_duration": "6-10 weeks for P0→P1, ongoing for P2/P3"
+  }
+}
