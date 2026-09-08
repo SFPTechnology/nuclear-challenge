@@ -6,6 +6,16 @@ import { EmptyState } from '@components/EmptyState';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { MetricBadge } from '@components/MetricBadge';
 import { OperatorExclusionDialog } from '@components/OperatorExclusionDialog';
+import { Ambient } from '@components/Ambient';
+import { CoreGauge } from '@components/CoreGauge';
+import { Label } from '@components/Label';
+import { Lamp } from '@components/Lamp';
+import { Lcd } from '@components/Lcd';
+import { Plate } from '@components/Plate';
+import { PauseButton } from '@components/PauseButton';
+import { PreMelt } from '@components/PreMelt';
+import { Support } from '@components/Support';
+import { Valve } from '@components/Valve';
 import { usePhysics } from '@hooks/usePhysics';
 import { useScore } from '@hooks/useScore';
 import { useTurmaRegistry } from '@hooks/useTurmaRegistry';
@@ -33,144 +43,6 @@ const DS = {
   brush: 'repeating-linear-gradient(94deg,rgba(255,255,255,.022) 0px,rgba(255,255,255,.022) 1px,transparent 1px,transparent 3px)'
 };
 
-const GRAIN = [...Array(90)].map(() => ({ x: Math.random() * 100, y: Math.random() * 100, s: Math.random() * 1.8 + 0.6, t: Math.random() }));
-
-const Ambient = ({ heat }) => {
-  if (heat < 30) return null;
-  const band = heat >= 90 ? 4 : heat >= 75 ? 3 : heat >= 55 ? 2 : 1;
-  const vig = [0, .10, .26, .44, .62][band];
-  const hue = band <= 1 ? '245,158,11' : '239,68,68';
-  const g = Math.max(0, (heat - 45) / 55);
-  return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 40 }}>
-      <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 50% 50%, transparent 34%, rgba(${hue},${vig}) 100%)`, animation: band >= 3 ? 'vigPulse 1.4s ease-in-out infinite' : 'none' }} />
-      {band >= 3 && <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(0deg,rgba(0,0,0,.30) 0px,rgba(0,0,0,.30) 1px,transparent 1px,transparent 3px)', opacity: band === 4 ? .6 : .3 }} />}
-      {g > .05 && <div className="absolute inset-0" style={{ opacity: Math.min(.75, g), animation: 'grainShift .34s steps(2) infinite' }}>
-        {GRAIN.map((p, i) => p.t < g ? <div key={i} className="absolute rounded-full" style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.s, height: p.s, background: '#e8f4ff' }} /> : null)}
-      </div>}
-      {band === 4 && <div className="absolute inset-0" style={{ background: 'rgba(239,68,68,.06)', animation: 'glitch .34s steps(2) infinite' }} />}
-    </div>
-  );
-};
-
-const PreMelt = ({ secs }) => (
-  <div className="fixed left-1/2" style={{ top: '36%', transform: 'translateX(-50%)', zIndex: 45, animation: 'warnPulse .5s ease-in-out infinite' }}>
-    <div className="rounded text-center" style={{ padding: '10px 20px', background: 'linear-gradient(180deg,#450a0a,#1a0505)', border: '2px solid #dc2626', boxShadow: '0 0 26px rgba(239,68,68,.75)' }}>
-      <div className="font-bold" style={{ fontSize: 13, letterSpacing: '.18em', color: '#fecaca' }}>⚠ MELTDOWN IMINENTE</div>
-      <div className="font-mono font-bold" style={{ fontSize: 26, color: '#f87171', textShadow: '0 0 12px #dc2626' }}>{secs}</div>
-      <div style={{ fontSize: 9, letterSpacing: '.12em', color: '#fca5a5' }}>ACERTE OU ACIONE O SCRAM</div>
-    </div>
-  </div>
-);
-
-const Screw = ({ className }) => (
-  <div className={`absolute rounded-full ${className}`} style={{ width: 7, height: 7, background: 'radial-gradient(circle at 32% 28%,#6b7480,#333940 60%,#191d21)', boxShadow: 'inset 0 -1px 1px rgba(0,0,0,.7)' }}>
-    <div className="absolute inset-0 flex items-center justify-center"><div style={{ width: 4, height: 1, background: 'rgba(0,0,0,.7)', transform: 'rotate(45deg)' }} /></div>
-  </div>
-);
-
-const Plate = ({ children, className = '', glow }) => (
-  <div className={`relative rounded-md ${className}`} style={{ background: DS.metal, boxShadow: `${DS.raised}${glow ? `, 0 0 14px ${glow}` : ''}`, border: '1px solid #171b1f' }}>
-    <div className="absolute inset-0 rounded-md pointer-events-none" style={{ background: DS.brush }} />
-    <Screw className="top-1 left-1" /><Screw className="top-1 right-1" />
-    <Screw className="bottom-1 left-1" /><Screw className="bottom-1 right-1" />
-    <div className="relative">{children}</div>
-  </div>
-);
-
-const Label = ({ children, className = '', size = 9 }) => (
-  <div className={`font-semibold uppercase ${className}`} style={{ fontSize: size, letterSpacing: '.16em', color: '#8d959e', textShadow: '0 1px 0 rgba(0,0,0,.9)' }}>{children}</div>
-);
-
-const PauseButton = ({ onClick }) => (
-  <button type="button" onClick={onClick} aria-label="Pausar sistema">
-    <Plate className="px-2.5 py-1.5 h-full flex items-center"><Label size={8}>Pausar</Label></Plate>
-  </button>
-);
-
-const Lcd = ({ value, unit, color = '#7dd3fc', size = 13 }) => (
-  <div className="rounded" style={{ background: 'linear-gradient(180deg,#0a1418,#050b0e)', boxShadow: DS.recess, padding: '2px 6px' }}>
-    <span className="font-mono font-bold" style={{ fontSize: size, color, textShadow: `0 0 6px ${color}90` }}>{value}</span>
-    {unit ? <span className="font-mono" style={{ fontSize: 8, marginLeft: 2, color: '#4b5563' }}>{unit}</span> : null}
-  </div>
-);
-
-const Lamp = ({ on, hue, label }) => {
-  const c = hue === 'red' ? '#dc2626' : hue === 'amber' ? '#f59e0b' : '#22c55e';
-  const statusText = hue === 'red' ? 'ALERTA' : hue === 'amber' ? 'AVISO' : 'OK';
-  const fullLabel = `${label}: ${on ? statusText : 'normal'}`;
-  return (
-    <div className="flex flex-col items-center" style={{ gap: 2 }} role="status" aria-label={fullLabel}>
-      <div style={{ width: 12, height: 12, borderRadius: '50%', background: on ? `radial-gradient(circle at 34% 30%,#ffffff99,${c} 42%,${c}bb 75%,#00000066)` : 'radial-gradient(circle at 34% 30%,#4b535c,#23282e 60%,#14181c)', boxShadow: on ? `0 0 9px ${c}, inset 0 -1px 2px rgba(0,0,0,.6)` : 'inset 0 -1px 2px rgba(0,0,0,.8)', border: '1px solid #12161a', animation: on ? 'lampPulse 1.1s ease-in-out infinite' : 'none' }} />
-      <span style={{ fontSize: 6.5, color: on ? c : '#5b636c' }}>{label}</span>
-    </div>
-  );
-};
-
-const CoreGauge = ({ temp, delta, danger, frozen }) => {
-  const pct = Math.max(0, Math.min(1, (temp - 280) / 420));
-  const ang = -120 + pct * 240;
-  const col = frozen ? '#38bdf8' : pct > .78 ? '#dc2626' : pct > .55 ? '#f59e0b' : '#22c55e';
-  const arc = (f, t, c) => {
-    const r = 55, cx = 85, cy = 80;
-    const p = a => [cx + r * Math.cos((a - 90) * Math.PI / 180), cy + r * Math.sin((a - 90) * Math.PI / 180)];
-    const [x1, y1] = p(f), [x2, y2] = p(t);
-    return <path d={`M ${x1} ${y1} A ${r} ${r} 0 ${t - f > 180 ? 1 : 0} 1 ${x2} ${y2}`} fill="none" stroke={c} strokeWidth="7" />;
-  };
-  return (
-    <Plate className="p-1.5" glow={danger ? 'rgba(239,68,68,.35)' : frozen ? 'rgba(56,189,248,.35)' : null}>
-      <div className="flex justify-center"><Label size={8}>{frozen ? 'Núcleo · Boro Ativo' : 'Temperatura do Núcleo'}</Label></div>
-      <div className="mx-auto rounded-full relative" style={{ width: 168, height: 124, background: DS.bezel, boxShadow: DS.raised, padding: 5 }}>
-        <div className="w-full h-full rounded-full relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 20%,#20262c,#0d1114 70%)', boxShadow: DS.recess }}>
-          <svg viewBox="0 0 170 120" className="w-full h-full">
-            {arc(-120, 12, '#14532d')}{arc(12, 67, '#78350f')}{arc(67, 120, '#7f1d1d')}
-            {[...Array(13)].map((_, i) => {
-              const a = -120 + i * 20, maj = i % 3 === 0, r1 = maj ? 42 : 46, rd = (a - 90) * Math.PI / 180;
-              return <line key={i} x1={85 + r1 * Math.cos(rd)} y1={80 + r1 * Math.sin(rd)} x2={85 + 51 * Math.cos(rd)} y2={80 + 51 * Math.sin(rd)} stroke={maj ? '#9ca3af' : '#4b5563'} strokeWidth={maj ? 1.6 : 1} />;
-            })}
-            <text x="85" y="62" textAnchor="middle" fill={col} fontSize="26" fontFamily="monospace" fontWeight="bold">{Math.round(temp)}</text>
-            <text x="85" y="72" textAnchor="middle" fill="#6b7280" fontSize="8" fontFamily="monospace">°C</text>
-            <line x1="85" y1="80" x2={85 + 45 * Math.cos((ang - 90) * Math.PI / 180)} y2={80 + 45 * Math.sin((ang - 90) * Math.PI / 180)} stroke="#f4f4f5" strokeWidth="2.2" strokeLinecap="round" />
-            <line x1="85" y1="80" x2={85 - 11 * Math.cos((ang - 90) * Math.PI / 180)} y2={80 - 11 * Math.sin((ang - 90) * Math.PI / 180)} stroke="#71717a" strokeWidth="2.8" strokeLinecap="round" />
-            <circle cx="85" cy="80" r="5" fill="#4b535c" stroke="#0b0e11" />
-            <text x="85" y="100" textAnchor="middle" fill={frozen ? '#38bdf8' : delta > .4 ? '#f87171' : delta < -.4 ? '#4ade80' : '#6b7280'} fontSize="10" fontFamily="monospace">{frozen ? 'CONGELADO' : `${delta >= 0 ? '+' : ''}${delta.toFixed(1)} °C/s`}</text>
-          </svg>
-          <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: DS.glass }} />
-        </div>
-      </div>
-    </Plate>
-  );
-};
-
-const Support = ({ label, value, unit, pct, I, inv, warn }) => {
-  const c = inv ? (pct < 25 ? '#dc2626' : pct < 55 ? '#f59e0b' : '#22c55e') : '#06b6d4';
-  return (
-    <Plate className="p-1 pt-1.5" glow={warn ? 'rgba(245,158,11,.28)' : null}>
-      <div className="flex items-center justify-center gap-1"><I size={8} color="#8d959e" /><Label size={7}>{label}</Label></div>
-      <div className="flex justify-center my-1"><Lcd value={value} unit={unit} color={c} size={12} /></div>
-      <div className="mx-1" style={{ height: 6, borderRadius: 2, overflow: 'hidden', background: '#0a0e11', boxShadow: DS.recess }}>
-        <div style={{ height: '100%', width: `${Math.max(0, Math.min(100, pct))}%`, background: `linear-gradient(180deg,${c},${c}88)`, boxShadow: `0 0 8px ${c}`, transition: 'width .5s' }} />
-      </div>
-    </Plate>
-  );
-};
-
-const Valve = ({ label, sub, I, cd, maxCd, disabled, color, onClick }) => {
-  const ready = cd === 0 && !disabled;
-  return (
-    <button onClick={onClick} disabled={!ready} style={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 6, padding: '7px 4px',
-      background: ready ? `linear-gradient(180deg,${color.a},${color.b} 60%,${color.c})` : 'linear-gradient(180deg,#2a2f35,#1a1e23)',
-      boxShadow: ready ? `0 1px 0 rgba(255,255,255,.18) inset, 0 3px 5px #000, 0 0 10px ${color.glow}` : 'inset 0 2px 5px #000',
-      border: '1px solid #14181c' }}>
-      {cd > 0 && <div style={{ position: 'absolute', left: 0, bottom: 0, height: '100%', width: `${(cd / maxCd) * 100}%`, background: 'rgba(0,0,0,.45)', transition: 'width 1s linear' }} />}
-      <div className="relative flex flex-col items-center" style={{ gap: 1 }}>
-        <I size={12} color={ready ? color.txt : '#4b5563'} />
-        <span className="font-bold" style={{ fontSize: 8.5, letterSpacing: '.06em', color: ready ? color.txt : '#4b5563' }}>{label}</span>
-        <span style={{ fontSize: 7, color: ready ? color.txt + 'bb' : '#3f464e' }}>{cd > 0 ? `${cd}s` : sub}</span>
-      </div>
-    </button>
-  );
-};
 
 function Boom({ onDone }) {
   const [dots, setDots] = useState([]);
