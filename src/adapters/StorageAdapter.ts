@@ -11,9 +11,9 @@ export class StorageAdapter {
    */
   read<T = any>(key: string): T | null {
     try {
-      if (!window.storage) return null;
+      if (!window.localStorage) return null;
 
-      const raw = window.storage.getItem(key);
+      const raw = window.localStorage.getItem(key);
       if (!raw) return null;
 
       const data = JSON.parse(raw);
@@ -29,7 +29,7 @@ export class StorageAdapter {
    */
   write<T = any>(key: string, value: T): boolean {
     try {
-      if (!window.storage) return false;
+      if (!window.localStorage) return false;
 
       // Merge aditivo: preservar campos desconhecidos
       let toWrite = value;
@@ -46,8 +46,8 @@ export class StorageAdapter {
         timestamp: Date.now(),
       };
 
-      const result = window.storage.setItem(key, JSON.stringify(entry));
-      return !!result;
+      window.localStorage.setItem(key, JSON.stringify(entry));
+      return true;
     } catch {
       return false;
     }
@@ -58,9 +58,9 @@ export class StorageAdapter {
    */
   delete(key: string): boolean {
     try {
-      if (!window.storage) return false;
-      const result = window.storage.removeItem(key);
-      return !!result;
+      if (!window.localStorage) return false;
+      window.localStorage.removeItem(key);
+      return true;
     } catch {
       return false;
     }
@@ -71,8 +71,8 @@ export class StorageAdapter {
    */
   clear(): boolean {
     try {
-      if (!window.storage) return false;
-      window.storage.clear();
+      if (!window.localStorage) return false;
+      window.localStorage.clear();
       return true;
     } catch {
       return false;
@@ -86,9 +86,9 @@ export class StorageAdapter {
   backup(key: string): boolean {
     try {
       const backupKey = `${key}__backup`;
-      const current = window.storage?.getItem(key);
+      const current = window.localStorage?.getItem(key);
       if (current) {
-        window.storage?.setItem(backupKey, current);
+        window.localStorage?.setItem(backupKey, current);
         return true;
       }
       return true; // Sem dado atual = ok
@@ -105,7 +105,7 @@ export class StorageAdapter {
   restore<T = any>(key: string): T | null {
     try {
       const backupKey = `${key}__backup`;
-      const backup = window.storage?.getItem(backupKey);
+      const backup = window.localStorage?.getItem(backupKey);
       if (!backup) return null;
 
       const data = JSON.parse(backup);
@@ -122,7 +122,7 @@ export class StorageAdapter {
   clearBackup(key: string): boolean {
     try {
       const backupKey = `${key}__backup`;
-      window.storage?.removeItem(backupKey);
+      window.localStorage?.removeItem(backupKey);
       return true;
     } catch {
       return false;
