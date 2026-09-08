@@ -14,15 +14,15 @@ describe('StorageAdapter', () => {
   });
 
   it('should handle missing window.storage', () => {
-    const orig = window.storage;
-    delete (window as any).storage;
+    const orig = window.localStorage;
+    delete (window as any).localStorage;
 
     expect(adapter.read('test')).toBeNull();
     expect(adapter.write('test', { x: 1 })).toBe(false);
     expect(adapter.delete('test')).toBe(false);
     expect(adapter.clear()).toBe(false);
 
-    window.storage = orig;
+    (window as any).localStorage = orig;
   });
 
   it('should have StorageAdapter available', () => {
