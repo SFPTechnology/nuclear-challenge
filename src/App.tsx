@@ -8,6 +8,7 @@ import { MetricBadge } from '@components/MetricBadge';
 import { OperatorExclusionDialog } from '@components/OperatorExclusionDialog';
 import { usePhysics } from '@hooks/usePhysics';
 import { useScore } from '@hooks/useScore';
+import { useTurmaRegistry } from '@hooks/useTurmaRegistry';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
 const axisStyle = { fontSize: 8, fill: '#8d959e' };
 const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
@@ -280,14 +281,13 @@ function App() {
   const device = useDeviceClass();
   const viewportScale = useViewportScale();
   const [mode, setMode] = useState('login');
-  const [players, setPlayers] = useState({});
+  const {
+    players, setPlayers, player, setPlayer, loading, setLoading, storeErr, setStoreErr
+  } = useTurmaRegistry();
   const [matches, setMatches] = useState([]);
   const [tab, setTab] = useState('geral');
   const [calendarCursor, setCalendarCursor] = useState(() => new Date());
-  const [player, setPlayer] = useState(null);
   const [nameInput, setNameInput] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [storeErr, setStoreErr] = useState(false);
   const [diff, setDiff] = useState(3);
   const {
     heat, setHeat, integrity, setIntegrity, coolant, setCoolant, shownTemp, setShownTemp, delta, setDelta
