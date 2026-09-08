@@ -18,26 +18,11 @@ import { Valve } from '@components/Valve';
 import { usePhysics } from '@hooks/usePhysics';
 import { useScore } from '@hooks/useScore';
 import { useTurmaRegistry } from '@hooks/useTurmaRegistry';
-
-interface DiffLevel {
-  name: string; sub: string; ops: string[]; range: number[]; time: number; init: number;
-  err: number; ok: number; passive: number; interval: number; scram: number; events?: boolean;
-}
-
-interface Question {
-  profile: string; surge: boolean; prompt: string; key: string; answer: number; full: string;
-  sym: string; hidden: string; factors: number[];
-}
-
-interface Feedback {
-  t: 'ok' | 'err'; m: string;
-}
-
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
 const axisStyle = { fontSize: 8, fill: '#c5cdd8' };
 const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
 
-const DIFF: Record<number, DiffLevel> = {
+const DIFF = {
   1: { name: 'TRAINEE', sub: 'Primeiro dia', ops: ['*'], range: [2,5], time: 35, init: 10, err: 0, ok: -25, passive: 2, interval: 9000, scram: 5 },
   2: { name: 'JÚNIOR', sub: 'Aprendendo', ops: ['*','/'], range: [2,7], time: 30, init: 20, err: 15, ok: -20, passive: 3, interval: 8000, scram: 4 },
   3: { name: 'PLENO', sub: 'Turno normal', ops: ['*','/'], range: [2,10], time: 25, init: 30, err: 20, ok: -18, passive: 4, interval: 7000, scram: 3 },
@@ -58,12 +43,8 @@ const DS = {
 };
 
 
-interface Dot {
-  id: number; x: number; y: number; vx: number; vy: number; s: number; c: string; l: number;
-}
-
-function Boom({ onDone }: { onDone: () => void }) {
-  const [dots, setDots] = useState<Dot[]>([]);
+function Boom({ onDone }) {
+  const [dots, setDots] = useState([]);
   const [step, setStep] = useState(0);
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -76,7 +57,7 @@ function Boom({ onDone }: { onDone: () => void }) {
       return;
     }
 
-    const d: Dot[] = [];
+    const d = [];
     for (let i = 0; i < 50; i++) { const a = (Math.PI * 2 * i) / 50; d.push({ id: i, x: 50, y: 50, vx: Math.cos(a) * (80 + Math.random() * 150), vy: Math.sin(a) * (80 + Math.random() * 150), s: 4 + Math.random() * 12, c: ['#f50','#f80','#fa0','#ff0','#f00'][i % 5], l: 1 }); }
     setDots(d);
     setTimeout(() => setStep(1), 80); setTimeout(() => setStep(2), 400); setTimeout(() => setStep(3), 1200); setTimeout(onDone, 4000);
@@ -120,7 +101,7 @@ const localDay = (date = new Date()) => {
   };
 };
 
-const emptyStudyDay = (day: { year: number; month: number; day: number; weekday: number; key: string }) => ({
+const emptyStudyDay = day => ({
   ...day, total: 0, hits: 0, misses: 0,
   types: { multiplication: { hits: 0, misses: 0 }, division: { hits: 0, misses: 0 }, direct: { hits: 0, misses: 0 }, inverse: { hits: 0, misses: 0 } },
   tables: {}, updatedAt: Date.now()
@@ -205,7 +186,7 @@ function App() {
   } = useScore();
   const [rankIdx, setRankIdx] = useState(0);
   const [pair, setPair] = useState([null, null]);
-  const [picked, setPicked] = useState<number | null>(null);
+  const [picked, setPicked] = useState(null);
   const [grace, setGrace] = useState(0);
   const [ans, setAns] = useState('');
   const [tmr, setTmr] = useState(25);
@@ -216,8 +197,8 @@ function App() {
   const [tot, setTot] = useState(0);
   const [corr, setCorr] = useState(0);
   const [elapsed, setElapsed] = useState(0);
-  const [fb, setFb] = useState<Feedback | null>(null);
-  const [evt, setEvt] = useState<string | null>(null);
+  const [fb, setFb] = useState(null);
+  const [evt, setEvt] = useState(null);
   const [snd, setSnd] = useState(true);
   const [boom, setBoom] = useState(false);
   const [melt, setMelt] = useState(0);
@@ -225,11 +206,11 @@ function App() {
     id: string;
     name: string;
   } | null>(null);
-  const ctx = useRef<AudioContext | null>(null), alm = useRef<number | null>(null), gei = useRef<number | null>(null), hotRef = useRef(0), vel = useRef(0), frz = useRef<NodeJS.Timeout | null>(null), recent = useRef<string[]>([]), saved = useRef(false);
-  const sess = useRef<{ tabs: Record<string, {h: number; m: number}>; ops: Record<string, {h: number; m: number}>; forms: Record<string, {h: number; m: number}>; daily: Record<string, unknown> }>({ tabs: {}, ops: {}, forms: {}, daily: {} });
+  const ctx = useRef(null), alm = useRef(null), gei = useRef(null), hotRef = useRef(0), vel = useRef(0), frz = useRef(null), recent = useRef([]), saved = useRef(false);
+  const sess = useRef({ tabs: {}, ops: {}, forms: {}, daily: {} });
   const okStore = useRef(true); // TD-DAT-02: Track storage read health to prevent overwrites on corruption
   const prevModeRef = useRef(mode);
-  const triggerButtonRef = useRef<HTMLButtonElement | null>(null); // Focus management for mode transitions
+  const triggerButtonRef = useRef(null); // Focus management for mode transitions
 
   const bump = (q, hit) => {
     const s = sess.current, k = hit ? 'h' : 'm';
@@ -264,20 +245,20 @@ function App() {
   const loadAll = useCallback(async () => {
     let storeHealth = true;
     try {
-      const r = window.localStorage.getItem('operadores');
-      if (r) setPlayers(JSON.parse(r));
+      const r = await window.storage.get('operadores', true);
+      if (r && r.value) setPlayers(JSON.parse(r.value));
     } catch {
       storeHealth = false;
       setStoreErr(true); // TD-DAT-05: Show error immediately on read failure
     }
     try {
-      const m = window.localStorage.getItem('partidas');
-      if (m) setMatches(JSON.parse(m));
+      const m = await window.storage.get('partidas', true);
+      if (m && m.value) setMatches(JSON.parse(m.value));
     } catch { /* sem partidas ainda */ }
     okStore.current = storeHealth; // TD-DAT-02: Store read health for guards
     setLoading(false);
     return storeHealth;
-  }, [setPlayers, setMatches, setLoading, setStoreErr]);
+  }, []);
 
   useEffect(() => { loadAll(); }, [loadAll]);
   useEffect(() => { if (mode === 'login') loadAll(); }, [mode, loadAll]);
@@ -303,7 +284,7 @@ function App() {
     }
   }, [mode]);
 
-  const persist = async (next: Record<string, unknown>) => {
+  const persist = async next => {
     setPlayers(next);
     // TD-DAT-02: Guard against writing if previous read failed (corrupted storage)
     if (!okStore.current) {
@@ -311,16 +292,20 @@ function App() {
       return false;
     }
     try {
-      window.localStorage.setItem('operadores', JSON.stringify(next));
-      setStoreErr(false);
-      return true;
+      const r = await window.storage.set('operadores', JSON.stringify(next), true);
+      if (!r) {
+        setStoreErr(true); // TD-DAT-05: Make write errors visible
+      } else {
+        setStoreErr(false);
+      }
+      return !!r;
     } catch {
       setStoreErr(true); // TD-DAT-05: Capture write errors
       return false;
     }
   };
 
-  const persistMatches = async (next: unknown[]) => {
+  const persistMatches = async next => {
     setMatches(next);
     // TD-DAT-02: Guard against writing if previous read failed (corrupted storage)
     if (!okStore.current) {
@@ -328,9 +313,13 @@ function App() {
       return false;
     }
     try {
-      window.localStorage.setItem('partidas', JSON.stringify(next));
-      setStoreErr(false);
-      return true;
+      const r = await window.storage.set('partidas', JSON.stringify(next), true);
+      if (!r) {
+        setStoreErr(true); // TD-DAT-05: Make write errors visible
+      } else {
+        setStoreErr(false);
+      }
+      return !!r;
     } catch {
       setStoreErr(true); // TD-DAT-05: Capture write errors
       return false;
