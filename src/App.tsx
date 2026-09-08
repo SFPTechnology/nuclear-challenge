@@ -22,6 +22,8 @@ import { useGameState } from '@hooks/useGameState';
 import { useUIState } from '@hooks/useUIState';
 import { useAudio } from '@hooks/useAudio';
 import { LoginPanel } from '@components/LoginPanel';
+import { MenuPanel } from '@components/MenuPanel';
+import { EndGamePanel } from '@components/EndGamePanel';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
 const axisStyle = { fontSize: 8, fill: '#c5cdd8' };
 const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
@@ -175,7 +177,7 @@ function App() {
   const viewportScale = useViewportScale();
 
   // Extract UI state into custom hook
-  const { mode, setMode, boom, setBoom, snd, setSnd, diff, setDiff, selectedOperatorToExclude, setSelectedOperatorToExclude, calendarCursor, setCalendarCursor, nameInput, setNameInput, triggerButtonRef } = useUIState();
+  const { mode, setMode, boom, setBoom, diff, setDiff, selectedOperatorToExclude, setSelectedOperatorToExclude, calendarCursor, setCalendarCursor, nameInput, setNameInput, triggerButtonRef } = useUIState();
 
   // Extract audio management into custom hook
   const { snd, initA, tone, okSnd, errSnd, scrmSnd, boomSnd, startAlm, stopAlm, startGei, stopGei } = useAudio();
@@ -1151,107 +1153,48 @@ function App() {
     );
   }
 
-  if (mode === 'menu') {
-    const operatorList = Object.keys(players);
-    const menuPlayer: string = player || (operatorList.length > 0 ? operatorList[0] : '');
-    if (!menuPlayer) {
-      // Fallback: nenhum operador disponível, voltar para login
-      setMode('login');
-      return null;
-    }
-    if (!player) setPlayer(menuPlayer); // Ensure player state is set
+  if (mode === 'menu') return (
+    <MenuPanel
+      player={player}
+      players={players}
+      diff={diff}
+      setDiff={setDiff}
+      snd={snd}
+      setSnd={setSnd}
+      setMode={setMode}
+      setPlayer={setPlayer}
+      initA={initA}
+      bg={bg}
+      css={css}
+      shellClass={shellClass}
+      shellStyle={shellStyle}
+    />
+  );
 
+  if (mode === 'win' || mode === 'lose' || mode === 'quit' || mode === 'pause')
     return (
-    <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
-      <GlobalErrorBanner />
-      <div className={`${shellClass} mx-auto`} style={shellStyle}>
-        <Plate className="p-3 mb-2">
-          <div className="flex justify-between items-center">
-            <div>
-              <Label size={7}>Operador</Label>
-              <div className="font-mono font-bold" style={{ fontSize: 14, color: '#7dd3fc', letterSpacing: '.06em' }}>{menuPlayer}</div>
-              <div style={{ fontSize: 9, color: '#c5cdd8' }}>{TITLES[(players[menuPlayer] && players[menuPlayer].rank) || 0]}</div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <button onClick={() => setMode('analise')} aria-label="Ir para análise de desempenho"><div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#0e7490,#0c4a5e)', color: '#e0f2fe', border: '1px solid #083344' }}>ANÁLISE</div></button>
-              <button onClick={() => setMode('ranking')} aria-label="Ir para ranking de operadores"><div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#3f464e,#23282e)', color: '#cbd5e1', border: '1px solid #14181c' }}>RANKING</div></button>
-              <button onClick={() => { setPlayer(null); setMode('login'); }} aria-label="Trocar operador"><div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#2a2f35,#1a1e23)', color: '#c5cdd8', border: '1px solid #14181c' }}>TROCAR</div></button>
-            </div>
-          </div>
-        </Plate>
-        <div className="space-y-1.5">
-          {Object.entries(DIFF).map(([k, v]) => {
-            const rec = players[menuPlayer] && players[menuPlayer].best ? players[menuPlayer].best[k] : null;
-            return (
-              <button key={k} onClick={() => { setDiff(+k); initA(); setMode('nc003'); }} className="w-full text-left" aria-label={`Selecionar nível ${v.name} - ${v.sub}`}>
-                <Plate className="px-3 py-2" glow={diff === +k ? 'rgba(6,182,212,.4)' : null}>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: diff === +k ? 'radial-gradient(circle at 35% 30%,#ffffff99,#06b6d4 45%,#0891b2)' : '#2a2f35', boxShadow: diff === +k ? '0 0 8px #06b6d4' : 'inset 0 -1px 2px #000' }} />
-                      <span className="font-bold" style={{ fontSize: 12, color: +k === 5 ? '#f87171' : '#e2e8f0' }}>{v.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      {rec ? <span style={{ fontSize: 8, color: '#fbbf24' }}>★ {rec}</span> : null}
-                      <Lcd value={v.time} unit="s" size={12} />
-                    </div>
-                  </div>
-                  <Label className="mt-1 ml-5">{v.sub}</Label>
-                </Plate>
-              </button>
-            );
-          })}
-        </div>
-        <div className="flex gap-2 mt-3">
-          <button onClick={() => { initA(); setSnd(!snd); }} style={{ flex: 1 }} aria-label={snd ? 'Desativar som' : 'Ativar som'} aria-pressed={snd}>
-            <Plate className="py-2 flex items-center justify-center gap-2">{snd ? <Volume2 size={13} color="#c5cdd8" /> : <VolumeX size={13} color="#c5cdd8" />}<Label>{snd ? 'Áudio On' : 'Áudio Off'}</Label></Plate>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-  }
-
-  if (mode === 'win' || mode === 'lose' || mode === 'quit' || mode === 'pause') return (
-    <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
-      <GlobalErrorBanner />
-      <div className={`${shellClass} mx-auto`} style={shellStyle}>
-        <Plate className="p-4 text-center mb-2">
-          <div style={{ fontSize: 38 }}>{mode === 'win' ? '✅' : mode === 'lose' ? '💥' : mode === 'pause' ? '⏸️' : '🛑'}</div>
-          <div className="font-bold" style={{ fontSize: 16, letterSpacing: '.15em', color: mode === 'win' ? '#4ade80' : mode === 'lose' ? '#f87171' : mode === 'pause' ? '#fbbf24' : '#fbbf24' }}>
-            {mode === 'win' ? 'REATOR ESTABILIZADO' : mode === 'lose' ? 'MELTDOWN' : mode === 'pause' ? 'TURNO PAUSADO' : 'TURNO ENCERRADO'}
-          </div>
-          <div className="inline-block mt-2 rounded" style={{ padding: '4px 12px', background: '#0a1418', boxShadow: DS.recess, color: '#7dd3fc', fontSize: 11 }}>{rank}</div>
-        </Plate>
-        {mode === 'win' && diff < 5 && (
-          <Plate className="p-3 mb-2 text-center" glow="rgba(6,182,212,.3)">
-            <Label className="mb-1">Promoção Disponível</Label>
-            <div style={{ fontSize: 12, color: '#cbd5e1' }}>Avance para <b style={{ color: '#7dd3fc' }}>{DIFF[Math.min(5, diff + 1)].name}</b></div>
-            <Label className="mt-1">Nova meta · {goal + 1000} pts</Label>
-          </Plate>
-        )}
-        <Plate className="p-3 mb-2">
-          <div className="text-center mb-2 pb-2" style={{ borderBottom: '1px solid #171b1f' }}><Label>Relatório de Desempenho</Label></div>
-          {[['Operador', player], ['Nível', DIFF[diff].name], ['Título', rank], ['Tempo', `${Math.floor(elapsed / 60)}:${(elapsed % 60).toString().padStart(2, '0')}`], ['Pontuação', pts], ['Recorde no nível', (players[player] && players[player].best && players[player].best[diff]) || pts], ['Operações', tot], ['Corretas', corr], ['Erradas', tot - corr], ['Taxa de acerto', `${tot ? Math.round((corr / tot) * 100) : 0}%`], ['Maior sequência', bestStrk], ['Integridade final', `${integrity}%`]].map(([k, v], i) => (
-            <div key={i} className="flex justify-between items-center py-0.5"><Label>{k}</Label><span className="font-mono" style={{ fontSize: 12, color: '#cbd5e1' }}>{v}</span></div>
-          ))}
-        </Plate>
-        <div className="flex gap-1.5 mb-1.5">
-          <button onClick={() => setMode('analise')} style={{ flex: 1 }} aria-label="Ver análise de desempenho">
-            <Plate className="py-2 text-center"><Label>Análise de Desempenho</Label></Plate>
-          </button>
-          <button onClick={() => setMode('ranking')} style={{ flex: 1 }} aria-label="Ver ranking de operadores">
-            <Plate className="py-2 text-center"><Label>Ranking</Label></Plate>
-          </button>
-        </div>
-        <div className="flex gap-1.5">
-          <button onClick={() => setMode('menu')} style={{ flex: 1 }} aria-label="Voltar para menu principal"><Plate className="py-2 text-center"><Label>Menu</Label></Plate></button>
-          {mode === 'pause' && <button type="button" onClick={resumeGame} style={{ flex: 1 }} aria-label="Retomar partida pausada"><div className="rounded-md text-center font-bold" style={{ padding: '10px 0', fontSize: 11, background: 'linear-gradient(180deg,#16a34a,#15803d)', boxShadow: '0 0 14px rgba(34,197,94,.4),0 3px 6px #000', color: '#dcfce7' }}>RETOMAR</div></button>}
-          {mode === 'win' && diff < 5 && <button onClick={continueGame} style={{ flex: 1 }} aria-label="Continuar para próximo nível"><div className="rounded-md text-center font-bold" style={{ padding: '10px 0', fontSize: 11, background: 'linear-gradient(180deg,#16a34a,#15803d)', boxShadow: '0 0 14px rgba(34,197,94,.4),0 3px 6px #000', color: '#dcfce7' }}>CONTINUAR</div></button>}
-          <button onClick={start} style={{ flex: 1 }} aria-label="Reiniciar partida no mesmo nível"><div className="rounded-md text-center font-bold" style={{ padding: '10px 0', fontSize: 11, background: 'linear-gradient(180deg,#0e7490,#155e75)', boxShadow: '0 3px 6px #000', color: '#e0f2fe' }}>REINICIAR</div></button>
-        </div>
-      </div>
-    </div>
-  );
+      <EndGamePanel
+        mode={mode as 'win' | 'lose' | 'quit' | 'pause'}
+        diff={diff}
+        player={player || ''}
+        rank={rank}
+        elapsed={elapsed}
+        pts={pts}
+        tot={tot}
+        corr={corr}
+        bestStrk={bestStrk}
+        integrity={integrity}
+        players={players}
+        setMode={setMode}
+        start={start}
+        resumeGame={resumeGame}
+        continueGame={continueGame}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+      />
+    );
 
   const ringPct = (tmr / DIFF[diff].time) * 100;
   const ringCol = ringPct < 25 ? '#dc2626' : ringPct < 55 ? '#f59e0b' : '#06b6d4';
