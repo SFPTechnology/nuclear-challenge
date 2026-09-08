@@ -20,7 +20,7 @@ import { usePhysics } from '@hooks/usePhysics';
 import { useScore } from '@hooks/useScore';
 import { useTurmaRegistry } from '@hooks/useTurmaRegistry';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
-const axisStyle = { fontSize: 8, fill: '#8d959e' };
+const axisStyle = { fontSize: 8, fill: '#c5cdd8' };
 const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
 
 const DIFF = {
@@ -671,9 +671,9 @@ function App() {
         <Plate className="p-3">
           <div className="flex justify-between items-center mb-1.5">
             <Label>Operadores Registrados</Label>
-            <span style={{ fontSize: 8, color: '#6b7280' }}>{Object.keys(players).length}</span>
+            <span style={{ fontSize: 8, color: '#a1aab8' }}>{Object.keys(players).length}</span>
           </div>
-          {loading ? <div style={{ fontSize: 11, color: '#6b7280' }}>Consultando registros…</div>
+          {loading ? <div style={{ fontSize: 11, color: '#a1aab8' }}>Consultando registros…</div>
             : Object.keys(players).length === 0 ? <EmptyState
                 icon="👤"
                 title="Nenhum operador cadastrado"
@@ -730,7 +730,7 @@ function App() {
               {[['geral', 'GERAL'], ['partidas', 'PARTIDAS'], ['graficos', 'GRÁFICOS']].map(([k, l]) => (
                 <button key={k} onClick={() => setTab(k)} aria-label={`Ver aba de ${l.toLowerCase()}`} aria-selected={tab === k} style={{ flex: 1, borderRadius: 4, padding: '6px 0', fontSize: 8, fontWeight: 'bold', letterSpacing: '.08em',
                   background: tab === k ? 'linear-gradient(180deg,#0e7490,#0c4a5e)' : 'linear-gradient(180deg,#2a2f35,#1a1e23)',
-                  color: tab === k ? '#e0f2fe' : '#6b7280', border: '1px solid #14181c',
+                  color: tab === k ? '#e0f2fe' : '#a1aab8', border: '1px solid #14181c',
                   boxShadow: tab === k ? '0 0 10px rgba(6,182,212,.3)' : 'inset 0 2px 4px #000' }}>{l}</button>
               ))}
             </div>
@@ -755,7 +755,7 @@ function App() {
                 <div className="flex gap-1">
                   {[['TOTAL', r.total], ['ACERTO', `${r.acc}%`], ['SEQ', r.streak], ['VITÓRIAS', `${r.wins}/${r.games}`]].map(([l, v], j) => (
                     <div key={j} style={{ flex: 1, textAlign: 'center', background: '#0a1418', boxShadow: DS.recess, borderRadius: 4, padding: '3px 0' }}>
-                      <div style={{ fontSize: 6.5, color: '#6b7280', letterSpacing: '.1em' }}>{l}</div>
+                      <div style={{ fontSize: 6.5, color: '#a1aab8', letterSpacing: '.1em' }}>{l}</div>
                       <div className="font-mono font-bold" style={{ fontSize: 10, color: '#cbd5e1' }}>{v}</div>
                     </div>
                   ))}
@@ -763,7 +763,7 @@ function App() {
                 <div className="flex gap-1 mt-1">
                   {[1,2,3,4,5].map(k => (
                     <div key={k} style={{ flex: 1, textAlign: 'center', borderRadius: 3, padding: '2px 0', background: r.best[k] ? 'rgba(6,182,212,.12)' : 'transparent', border: '1px solid #1c2126' }}>
-                      <div style={{ fontSize: 6, color: '#6b7280' }}>{DIFF[k].name.slice(0, 5)}</div>
+                      <div style={{ fontSize: 6, color: '#a1aab8' }}>{DIFF[k].name.slice(0, 5)}</div>
                       <div className="font-mono" style={{ fontSize: 9, color: r.best[k] ? '#7dd3fc' : '#3f464e' }}>{r.best[k] || '—'}</div>
                     </div>
                   ))}
@@ -791,10 +791,10 @@ function App() {
                   <div key={m.ts + '' + i} className="flex items-center px-1" style={{ padding: '3px 4px', borderRadius: 3, background: m.n === player ? 'rgba(6,182,212,.10)' : 'transparent' }}>
                     <div style={{ width: 22 }}><span className="font-mono font-bold" style={{ fontSize: 10, color: medal(i) }}>{i + 1}º</span></div>
                     <div style={{ flex: 1, overflow: 'hidden' }}><span className="font-mono" style={{ fontSize: 10, color: m.n === player ? '#7dd3fc' : '#e2e8f0' }}>{m.n}</span></div>
-                    <div style={{ width: 42 }}><span style={{ fontSize: 7.5, color: m.d === 5 ? '#f87171' : '#8d959e' }}>{DIFF[m.d].name.slice(0, 6)}</span></div>
+                    <div style={{ width: 42 }}><span style={{ fontSize: 7.5, color: m.d === 5 ? '#f87171' : '#c5cdd8' }}>{DIFF[m.d].name.slice(0, 6)}</span></div>
                     <div style={{ width: 34, textAlign: 'right' }}><span className="font-mono font-bold" style={{ fontSize: 10, color: '#fbbf24' }}>{m.pts}</span></div>
-                    <div style={{ width: 30, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: 9, color: m.acc >= 80 ? '#4ade80' : '#8d959e' }}>{m.acc}%</span></div>
-                    <div style={{ width: 26, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: 9, color: '#8d959e' }}>{m.streak}</span></div>
+                    <div style={{ width: 30, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: 9, color: m.acc >= 80 ? '#4ade80' : '#c5cdd8' }}>{m.acc}%</span></div>
+                    <div style={{ width: 26, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: 9, color: '#c5cdd8' }}>{m.streak}</span></div>
                   </div>
                 ))}
                 <div className="text-center mt-1.5 pt-1.5" style={{ borderTop: '1px solid #171b1f' }}>
@@ -867,11 +867,11 @@ function App() {
                       <ResponsiveContainer width="100%" height={190}>
                         <RadarChart data={radarData} outerRadius={62}>
                           <PolarGrid stroke="#2a3138" />
-                          <PolarAngleAxis dataKey="fase" tick={{ fontSize: 7.5, fill: '#8d959e' }} />
+                          <PolarAngleAxis dataKey="fase" tick={{ fontSize: 7.5, fill: '#c5cdd8' }} />
                           {top.slice(0, 4).map((r, i) => (
                             <Radar key={r.n} name={r.n} dataKey={r.n} stroke={CHART_COLORS[i % CHART_COLORS.length]} fill={CHART_COLORS[i % CHART_COLORS.length]} fillOpacity={.18} strokeWidth={r.n === player ? 2.4 : 1.4} />
                           ))}
-                          <Legend wrapperStyle={{ fontSize: 8, color: '#8d959e' }} iconSize={7} />
+                          <Legend wrapperStyle={{ fontSize: 8, color: '#c5cdd8' }} iconSize={7} />
                           <Tooltip contentStyle={tipStyle} />
                         </RadarChart>
                       </ResponsiveContainer>
@@ -903,7 +903,7 @@ function App() {
                           <XAxis dataKey="i" tick={axisStyle} axisLine={{ stroke: '#2a3138' }} tickLine={false} label={{ value: 'partida do operador', position: 'insideBottom', offset: -2, style: { fontSize: 7, fill: '#4b5563' } }} />
                           <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
                           <Tooltip contentStyle={tipStyle} labelFormatter={v => `Partida ${v}`} />
-                          <Legend wrapperStyle={{ fontSize: 8, color: '#8d959e' }} iconSize={7} />
+                          <Legend wrapperStyle={{ fontSize: 8, color: '#c5cdd8' }} iconSize={7} />
                           {evoNames.map((n, i) => (
                             <Line key={n} type="monotone" dataKey={n} name={n} stroke={CHART_COLORS[i % CHART_COLORS.length]}
                               strokeWidth={n === player ? 2.6 : 1.5} dot={{ r: n === player ? 3 : 2, fill: CHART_COLORS[i % CHART_COLORS.length] }} connectNulls />
@@ -970,7 +970,7 @@ function App() {
           <Plate className="p-3 mb-2 text-center">
             <Label>Análise de Desempenho</Label>
             <div className="font-mono font-bold mt-1" style={{ fontSize: 13, color: '#7dd3fc' }}>{player}</div>
-            <div style={{ fontSize: 9, color: '#6b7280' }}>{totalOps} operações analisadas</div>
+            <div style={{ fontSize: 9, color: '#a1aab8' }}>{totalOps} operações analisadas</div>
           </Plate>
 
           <Plate className="p-2 mb-1.5">
@@ -1001,13 +1001,13 @@ function App() {
               <div style={{ flex: 1 }}><div style={{ fontSize: 8.5, color: '#cbd5e1' }}>{item.label}</div><div style={{ height: 4, marginTop: 2, borderRadius: 3, background: '#0a0e11', overflow: 'hidden' }}><div style={{ height: '100%', width: `${100 - item.accuracy}%`, background: item.accuracy < 60 ? 'repeating-linear-gradient(45deg, #dc2626, #dc2626 2px, #991b1b 2px, #991b1b 4px)' : 'repeating-linear-gradient(45deg, #f59e0b, #f59e0b 2px, #b45309 2px, #b45309 4px)' }} /></div></div>
               <span className="font-mono" style={{ width: 76, textAlign: 'right', fontSize: 8, color: item.accuracy < 60 ? '#f87171' : '#fbbf24' }}>{item.accuracy}% · {item.misses} erros</span>
             </div>)}
-            <div style={{ fontSize: 8, color: '#8d959e', marginTop: 5 }}>A ordem combina erros acumulados, taxa de acerto e volume praticado.</div>
+            <div style={{ fontSize: 8, color: '#c5cdd8', marginTop: 5 }}>A ordem combina erros acumulados, taxa de acerto e volume praticado.</div>
           </Plate>}
 
           {totalOps < 10 ? (
             <Plate className="p-4 text-center">
               <Label>Dados insuficientes</Label>
-              <div style={{ fontSize: 11, color: '#8d959e', marginTop: 6 }}>Jogue algumas partidas para que a análise identifique seus pontos fortes e fracos.</div>
+              <div style={{ fontSize: 11, color: '#c5cdd8', marginTop: 6 }}>Jogue algumas partidas para que a análise identifique seus pontos fortes e fracos.</div>
             </Plate>
           ) : (
             <>
@@ -1054,10 +1054,10 @@ function App() {
                           <div style={{ height: '100%', width: `${r.p}%`, background: colOf(r.p) }} />
                         </div>
                       </div>
-                      <span className="font-mono" style={{ fontSize: 9, color: '#8d959e', width: 62, textAlign: 'right' }}>{r.p}% · {r.m} erro{r.m === 1 ? '' : 's'}</span>
+                      <span className="font-mono" style={{ fontSize: 9, color: '#c5cdd8', width: 62, textAlign: 'right' }}>{r.p}% · {r.m} erro{r.m === 1 ? '' : 's'}</span>
                     </div>
                   ))}
-                  <div style={{ fontSize: 9, color: '#8d959e', marginTop: 4, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 9, color: '#c5cdd8', marginTop: 4, lineHeight: 1.4 }}>
                     Treine a tabuada do <b style={{ color: '#f87171' }}>{fracos[0].k}</b> antes da próxima partida — é onde você mais perde calor do reator.
                   </div>
                 </Plate>
@@ -1070,7 +1070,7 @@ function App() {
                     {fortes.map(r => (
                       <div key={r.k} style={{ flex: 1, textAlign: 'center', background: '#0a1418', boxShadow: DS.recess, borderRadius: 4, padding: '4px 0' }}>
                         <div className="font-mono font-bold" style={{ fontSize: 13, color: '#4ade80' }}>{r.k}</div>
-                        <div className="font-mono" style={{ fontSize: 8, color: '#8d959e' }}>{r.p}% · {r.n}x</div>
+                        <div className="font-mono" style={{ fontSize: 8, color: '#c5cdd8' }}>{r.p}% · {r.n}x</div>
                       </div>
                     ))}
                   </div>
@@ -1088,7 +1088,7 @@ function App() {
                       <div style={{ flex: 1, height: 7, borderRadius: 3, background: '#0a0e11', boxShadow: DS.recess, overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${p}%`, background: colOf(p), transition: 'width .4s' }} />
                       </div>
-                      <span className="font-mono" style={{ fontSize: 9, color: '#8d959e', width: 66, textAlign: 'right' }}>{p}% · {v.h + v.m} ops</span>
+                      <span className="font-mono" style={{ fontSize: 9, color: '#c5cdd8', width: 66, textAlign: 'right' }}>{p}% · {v.h + v.m} ops</span>
                     </div>
                   );
                 })}
@@ -1102,7 +1102,7 @@ function App() {
                   return (
                     <div key={k} className="mb-1.5">
                       <div className="flex justify-between mb-0.5">
-                        <span style={{ fontSize: 8.5, color: '#8d959e' }}>{l}</span>
+                        <span style={{ fontSize: 8.5, color: '#c5cdd8' }}>{l}</span>
                         <span className="font-mono" style={{ fontSize: 9, color: colOf(p) }}>{p}%</span>
                       </div>
                       <div style={{ height: 5, borderRadius: 3, background: '#0a0e11', boxShadow: DS.recess, overflow: 'hidden' }}>
@@ -1116,7 +1116,7 @@ function App() {
                     ? Math.round((((S.forms.left || { h: 0, m: 0 }).h + (S.forms.right || { h: 0, m: 0 }).h) / Math.max(1, (S.forms.left || { h: 0, m: 0 }).h + (S.forms.left || { h: 0, m: 0 }).m + (S.forms.right || { h: 0, m: 0 }).h + (S.forms.right || { h: 0, m: 0 }).m)) * 100) : null;
                   if (r === null || inv === null) return null;
                   const gap = r - inv;
-                  return <div style={{ fontSize: 9, color: '#8d959e', lineHeight: 1.4, marginTop: 2 }}>
+                  return <div style={{ fontSize: 9, color: '#c5cdd8', lineHeight: 1.4, marginTop: 2 }}>
                     {gap > 15
                       ? <>Você acerta {gap} pontos a mais quando o resultado está oculto. Isso indica que a <b style={{ color: '#fbbf24' }}>operação inversa</b> ainda não está automática — vale treinar “qual número vezes 8 dá 56?”.</>
                       : gap < -15
@@ -1202,12 +1202,12 @@ function App() {
             <div>
               <Label size={7}>Operador</Label>
               <div className="font-mono font-bold" style={{ fontSize: 14, color: '#7dd3fc', letterSpacing: '.06em' }}>{player}</div>
-              <div style={{ fontSize: 9, color: '#8d959e' }}>{TITLES[(players[player] && players[player].rank) || 0]}</div>
+              <div style={{ fontSize: 9, color: '#c5cdd8' }}>{TITLES[(players[player] && players[player].rank) || 0]}</div>
             </div>
             <div className="flex flex-col gap-1">
               <button onClick={() => setMode('analise')} aria-label="Ir para análise de desempenho"><div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#0e7490,#0c4a5e)', color: '#e0f2fe', border: '1px solid #083344' }}>ANÁLISE</div></button>
               <button onClick={() => setMode('ranking')} aria-label="Ir para ranking de operadores"><div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#3f464e,#23282e)', color: '#cbd5e1', border: '1px solid #14181c' }}>RANKING</div></button>
-              <button onClick={() => { setPlayer(null); setMode('login'); }} aria-label="Trocar operador"><div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#2a2f35,#1a1e23)', color: '#8d959e', border: '1px solid #14181c' }}>TROCAR</div></button>
+              <button onClick={() => { setPlayer(null); setMode('login'); }} aria-label="Trocar operador"><div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#2a2f35,#1a1e23)', color: '#c5cdd8', border: '1px solid #14181c' }}>TROCAR</div></button>
             </div>
           </div>
         </Plate>
@@ -1235,7 +1235,7 @@ function App() {
         </div>
         <div className="flex gap-2 mt-3">
           <button onClick={() => { initA(); setSnd(!snd); }} style={{ flex: 1 }} aria-label={snd ? 'Desativar som' : 'Ativar som'} aria-pressed={snd}>
-            <Plate className="py-2 flex items-center justify-center gap-2">{snd ? <Volume2 size={13} color="#8d959e" /> : <VolumeX size={13} color="#8d959e" />}<Label>{snd ? 'Áudio On' : 'Áudio Off'}</Label></Plate>
+            <Plate className="py-2 flex items-center justify-center gap-2">{snd ? <Volume2 size={13} color="#c5cdd8" /> : <VolumeX size={13} color="#c5cdd8" />}<Label>{snd ? 'Áudio On' : 'Áudio Off'}</Label></Plate>
           </button>
         </div>
       </div>
@@ -1303,7 +1303,7 @@ function App() {
               <span className="rounded" style={{ padding: '1px 5px', fontSize: 8, background: '#0a1418', boxShadow: DS.recess, color: '#7dd3fc' }}>{rank}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <button onClick={() => { initA(); setSnd(!snd); }} aria-label={snd ? 'Desativar som' : 'Ativar som'} aria-pressed={snd}>{snd ? <Volume2 size={11} color="#8d959e" /> : <VolumeX size={11} color="#8d959e" />}</button>
+              <button onClick={() => { initA(); setSnd(!snd); }} aria-label={snd ? 'Desativar som' : 'Ativar som'} aria-pressed={snd}>{snd ? <Volume2 size={11} color="#c5cdd8" /> : <VolumeX size={11} color="#c5cdd8" />}</button>
               <div className="rounded font-bold" style={{ padding: '1px 7px', fontSize: 8, background: `linear-gradient(180deg,${st.c}dd,${st.c}77)`, color: '#0a0c0e', boxShadow: `0 0 10px ${st.c}88` }}>{st.t}</div>
             </div>
           </div>
@@ -1351,7 +1351,7 @@ function App() {
                   <div className="font-mono font-bold my-1" style={{ fontSize: 19, color: '#e0f2fe' }}>{p.prompt}</div>
                   <div style={{ fontSize: 7.5, color: i === 0 ? '#155e75' : '#92400e' }}>
                     <span style={{ color: i === 0 ? '#67e8f9' : '#fbbf24' }}>{i === 0 ? '−12 calor' : '−28 calor'}</span>
-                    <span style={{ color: '#6b7280' }}> · {i === 0 ? 'tempo cheio' : '60% tempo'}</span>
+                    <span style={{ color: '#a1aab8' }}> · {i === 0 ? 'tempo cheio' : '60% tempo'}</span>
                   </div>
                 </button>
               ))}
