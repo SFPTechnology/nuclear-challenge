@@ -1128,7 +1128,7 @@ function App() {
             </>
           )}
 
-          <button onClick={() => setMode('menu')} className="w-full mt-1">
+          <button onClick={() => setMode('menu')} className="w-full mt-1" aria-label="Voltar para menu principal">
             <Plate className="py-2 text-center"><Label>Voltar</Label></Plate>
           </button>
         </div>

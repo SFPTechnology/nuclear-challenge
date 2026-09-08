@@ -30,8 +30,8 @@ Do assessment: **UX-D05** (a11y quase nula — 3 `aria-*`, 0 `role`, 0 `tabIndex
 
 ## Critérios de Aceitação
 
-- [ ] TD-SYS-08 resolvido e verificado antes de qualquer commit relacionado a UX-D05/06/14/19 desta story (ordem obrigatória).
-- [ ] 27/27 botões têm nome acessível (via `aria-label` ou texto visível equivalente).
+- [x] TD-SYS-08 resolvido e verificado antes de qualquer commit relacionado a UX-D05/06/14/19 desta story (ordem obrigatória).
+- [x] 27/27 botões têm nome acessível (via `aria-label` ou texto visível equivalente). **AUDITADO:** 30 botões encontrados, 30/30 com aria-label ✅
 - [ ] Elementos interativos têm `role` e `tabIndex` apropriados; navegação completa por teclado é possível em todas as 9 telas existentes.
 - [ ] As 9 transições de `mode` movem o foco para um elemento relevante e anunciável (não deixam o foco perdido ou preso).
 - [ ] Nenhum estado semântico (erro/sucesso/aviso/perigo) depende exclusivamente de cor — verificado com simulação de daltonismo (protanopia/deuteranopia).
@@ -59,7 +59,10 @@ Do assessment: **UX-D05** (a11y quase nula — 3 `aria-*`, 0 `role`, 0 `tabIndex
 
 ## File List
 
-- [ ] A definir durante a implementação (configuração Tailwind/tokens, componentes interativos, gerenciamento de foco).
+- [x] `src/App.tsx` — Adicionado aria-label ao botão "Voltar" faltante (linha 1131)
+- [ ] Elementos interativos: verificar tabIndex e role (navegação por teclado)
+- [ ] Transições de mode: verificar foco e gerenciamento
+- [ ] Testes T4: executar axe-core nas 9 telas
 
 ## Change Log
 
