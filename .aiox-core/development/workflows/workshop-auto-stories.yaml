@@ -1,0 +1,360 @@
+workflow:
+  id: workshop-auto-stories
+  name: Workshop Automático - Story Development Cycle
+  version: "2.0"
+  description: >-
+    Workshop automático em modo YOLO com checkpoints nos gates críticos.
+    Orquestra ciclo completo: @sm criar → @po validar (checkpoint) →
+    @dev implementar (YOLO) → @qa revisar (checkpoint) → @devops push.
+    Ideal para demos, treinamentos e desenvolvimento contínuo.
+  type: engine
+  mode: real-subagents
+  project_types:
+    - greenfield
+    - brownfield
+    - feature-development
+    - bug-fix
+    - workshop-demo
+
+  metadata:
+    elicit: false
+    auto_mode: true
+    checkpoints_only: true
+    confirmation_required: false
+
+  execution_config:
+    engine_mode: real-subagents
+    max_stories: null
+    yolo_dev: true
+    yolo_sm: true
+    checkpoint_gates:
+      - po_validation
+      - qa_gate
+
+  phases:
+    - phase_1: Story Creation (Auto)
+    - phase_2: Validation (Checkpoint)
+    - phase_3: Implementation (YOLO)
+    - phase_4: QA Review (Checkpoint)
+    - phase_5: Push to Remote (Auto)
+
+  sequence:
+    - step: create_story
+      id: create
+      phase: 1
+      agent: sm
+      action: Criar próxima story (YOLO mode)
+      mode: yolo
+      subagent: true
+      requirements:
+        - "Criar story do backlog/épico ativo"
+        - "Definir acceptance criteria claros"
+        - "Estabelecer escopo e dependências"
+        - "Iniciar com status Draft"
+      outputs:
+        - story_file
+        - story_id
+        - story_title
+      next: validate
+      auto_advance: true
+
+    - step: validate_story
+      id: validate
+      phase: 2
+      agent: po
+      action: Validar story - 10 checks (CHECKPOINT)
+      mode: interactive
+      subagent: true
+      checkpoint: true
+      checkpoint_name: PO_Validation_Gate
+      requirements:
+        - "Executar checklist de 10 pontos"
+        - "Marcar como Ready se aprovado"
+        - "Documentar feedback se rejeitado"
+      checklist:
+        - "Título claro e objetivo"
+        - "Descrição completa do problema/necessidade"
+        - "Acceptance criteria testáveis"
+        - "Escopo bem definido (IN/OUT)"
+        - "Dependências mapeadas"
+        - "Estimativa de complexidade"
+        - "Valor de negócio identificado"
+        - "Riscos documentados"
+        - "Critérios de Done claros"
+        - "Alinhamento com PRD/Epic"
+      outputs:
+        - validation_report
+        - validation_score
+        - story_status
+      next: implement
+      on_failure: create
+      conditional:
+        score_threshold: 7
+        on_pass: implement
+        on_fail: create
+
+    - step: implement_story
+      id: implement
+      phase: 3
+      agent: dev
+      action: Implementar story (YOLO mode)
+      mode: yolo
+      subagent: true
+      requirements:
+        - "Analisar acceptance criteria"
+        - "Implementar código limpo"
+        - "Criar/atualizar testes unitários"
+        - "Atualizar File List na story"
+        - "Fazer commits atômicos"
+        - "Marcar como InReview ao finalizar"
+      dev_settings:
+        mode: yolo
+        coderabbit_max_iterations: 2
+        severity_filter: ["CRITICAL", "HIGH"]
+      outputs:
+        - implementation_files
+        - test_results
+        - commit_hashes
+        - code_metrics
+      next: review
+      auto_advance: true
+
+    - step: qa_review
+      id: review
+      phase: 4
+      agent: qa
+      action: Review final + Quality Gate (CHECKPOINT)
+      mode: interactive
+      subagent: true
+      checkpoint: true
+      checkpoint_name: QA_Gate
+      requirements:
+        - "Executar 7 quality checks"
+        - "Auto-fix issues menores"
+        - "Documentar issues maiores"
+        - "Marcar como Done se aprovado"
+      quality_checks:
+        - name: "Code Review"
+          category: code
+          severity: high
+        - name: "Unit Tests"
+          category: tests
+          severity: high
+        - name: "Acceptance Criteria"
+          category: requirements
+          severity: critical
+        - name: "No Regressions"
+          category: requirements
+          severity: high
+        - name: "Performance"
+          category: performance
+          severity: medium
+        - name: "Security"
+          category: security
+          severity: high
+        - name: "Documentation"
+          category: docs
+          severity: medium
+      outputs:
+        - qa_report
+        - quality_gate_status
+        - story_final_status
+        - issues_found
+      next: push
+      on_failure: implement
+      conditional:
+        verdict_threshold: PASS
+        on_pass: push
+        on_fail: implement
+
+    - step: push_to_remote
+      id: push
+      phase: 5
+      agent: devops
+      action: Push code + Story status
+      mode: auto
+      subagent: true
+      requirements:
+        - "Validar story status = Done"
+        - "Push commits para remote"
+        - "Atualizar story metadata"
+      outputs:
+        - push_result
+        - pr_url
+        - story_final_state
+      next: complete
+      auto_advance: true
+
+    - workflow_end:
+      id: complete
+      action: workshop_cycle_complete
+      notes: |
+        ✅ Workshop cycle concluído!
+
+        Resumo:
+        - Story criada: {{story_id}} - {{story_title}}
+        - Validação PO: {{validation_score}}/10
+        - Implementação: {{file_count}} arquivos, {{test_status}}
+        - Quality Gate: {{quality_verdict}}
+        - Status final: {{story_final_status}}
+
+        Para próxima story: *workflow workshop-auto-stories
+
+  flow_diagram: |
+    ```mermaid
+    graph TD
+        Start["🚀 Iniciar Workshop"]
+        Start --> Create["@sm: Criar Story (YOLO)<br/>Auto-advance"]
+
+        Create --> Validate["@po: Validar Story<br/>⏹️ CHECKPOINT"]
+        Validate --> ValidOK{Score >= 7?}
+        ValidOK -->|Não| Create
+        ValidOK -->|Sim| Implement
+
+        Implement["@dev: Implementar (YOLO)<br/>Auto-advance"]
+        Implement --> QA["@qa: Quality Gate<br/>⏹️ CHECKPOINT"]
+
+        QA --> QAOk{Verdict = PASS?}
+        QAOk -->|Não| Implement
+        QAOk -->|Sim| Push
+
+        Push["@devops: Push<br/>Auto-advance"]
+        Push --> Complete["✅ Story Done!"]
+
+        Complete --> Loop{Mais stories?}
+        Loop -->|Sim| Create
+        Loop -->|Não| End["🎯 Workshop Concluído"]
+
+        style Start fill:#FFD700
+        style End fill:#90EE90
+        style Validate fill:#FFE4B5,stroke:#FF6347,stroke-width:3px
+        style QA fill:#DDA0DD,stroke:#FF6347,stroke-width:3px
+        style Create fill:#87CEEB
+        style Implement fill:#98FB98
+        style Push fill:#FFB6C1
+    ```
+
+  checkpoint_behaviors:
+    po_validation:
+      name: "PO Validation Gate"
+      description: "Product Owner valida story - requer decisão humana"
+      prompt: |
+        📋 **Product Owner Validation Checkpoint**
+
+        Story: {{story_id}} - {{story_title}}
+
+        Checklist de validação (10 pontos):
+        {{checklist_items}}
+
+        **Seu voto:**
+        - Type 1: ✅ APROVA (Go para implementação)
+        - Type 2: ❌ REJEITA (Retorna para SM ajustar)
+
+      options:
+        - value: "approve"
+          label: "✅ APROVA (Go para implementação)"
+          next_step: "implement"
+        - value: "reject"
+          label: "❌ REJEITA (Retorna para SM)"
+          next_step: "create"
+
+    qa_gate:
+      name: "QA Quality Gate"
+      description: "QA revisa + aprova entrega"
+      prompt: |
+        🔍 **QA Quality Gate Checkpoint**
+
+        Story: {{story_id}}
+        Implementação concluída
+
+        Quality checks executados:
+        {{quality_checks}}
+
+        **Seu voto:**
+        - Type 1: ✅ APPROVE (Story pronta para production)
+        - Type 2: 🔄 CONCERNS (Aprovado mas com observações)
+        - Type 3: ❌ FAIL (Retorna para Dev corrigir)
+
+      options:
+        - value: "pass"
+          label: "✅ APPROVE"
+          next_step: "push"
+        - value: "concerns"
+          label: "🔄 CONCERNS (documentado)"
+          next_step: "push"
+        - value: "fail"
+          label: "❌ FAIL"
+          next_step: "implement"
+
+  automation_rules:
+    auto_advance_conditions:
+      - agent: sm
+        step: create
+        condition: "story_created"
+        action: "skip_prompt"
+
+      - agent: dev
+        step: implement
+        condition: "validation_approved"
+        action: "start_yolo_mode"
+
+      - agent: devops
+        step: push
+        condition: "qa_approved"
+        action: "auto_push"
+
+  story_context_generator:
+    demo_topics:
+      - "Implementar autenticação com OAuth2"
+      - "Criar dashboard de análise em tempo real"
+      - "Otimizar performance de queries de banco"
+      - "Adicionar suporte a múltiplos idiomas"
+      - "Implementar cache distribuído com Redis"
+      - "Criar sistema de notificações push"
+      - "Melhorar segurança de API REST"
+      - "Implementar sistema de auditoria"
+
+    auto_generate_ac: true
+    ac_template: |
+      **Given** que o usuário está na página de {{feature}}
+      **When** o usuário {{action}}
+      **Then** o sistema {{result}}
+
+  handoff_prompts:
+    phase_start: |
+      🚀 **{{phase}} iniciada**
+      Story: {{story_id}}
+      Agent: @{{agent}}
+
+    phase_complete: |
+      ✅ **{{phase}} concluída**
+      Resultado: {{result}}
+
+    checkpoint_reached: |
+      ⏹️ **CHECKPOINT: {{checkpoint_name}}**
+      Aguardando sua decisão...
+
+  metadata:
+    author: Orion (AIOX Master)
+    created_date: 2026-09-08
+    version: 2.0.0
+    tags:
+      - workshop
+      - automation
+      - story-development
+      - yolo-mode
+      - engine-workflow
+      - checkpoint-gates
+    compatibility:
+      - story-development-cycle (extends)
+      - qa-loop (integrates)
+    notes: |
+      Este workflow é uma versão automática e acelerada do Story Development Cycle
+      especificamente projetada para:
+      - Workshops interativos
+      - Demos de processo
+      - Treinamento de equipes
+      - Desenvolvimento contínuo com checkpoint gates
+
+      Checkpoints críticos mantêm validação humana onde importa (PO e QA)
+      mas automatiza o máximo possível entre eles.

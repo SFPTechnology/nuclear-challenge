@@ -1,0 +1,236 @@
+workflow:
+  id: workshop-full-yolo
+  name: Workshop Completamente Automático - YOLO Puro
+  version: "1.0"
+  description: >-
+    Modo COMPLETAMENTE AUTOMÁTICO do Story Development Cycle.
+    Orquestra ciclo completo: @sm → @po → @dev → @qa → @devops
+    SEM CHECKPOINTS, SEM PROMPTS.
+    Ideal para: demos, testes de velocity, validação de workflow.
+  type: engine
+  mode: real-subagents-yolo
+  project_types:
+    - greenfield
+    - brownfield
+    - feature-development
+    - workshop-demo
+    - velocity-benchmark
+
+  metadata:
+    elicit: false
+    auto_mode: true
+    yolo_mode: true
+    checkpoints_only: false
+    confirmation_required: false
+    zero_prompts: true
+
+  execution_config:
+    engine_mode: real-subagents
+    auto_decisions: true
+    auto_approvals: true
+    max_stories: null
+    yolo_all_agents: true
+    default_story_count: 10
+
+  phases:
+    - phase_1: Story Creation (YOLO)
+    - phase_2: Validation (YOLO Auto)
+    - phase_3: Implementation (YOLO)
+    - phase_4: QA Review (YOLO Auto)
+    - phase_5: Push to Remote (Auto)
+
+  sequence:
+    - step: create_story
+      id: create
+      phase: 1
+      agent: sm
+      action: Criar story (YOLO)
+      mode: yolo
+      subagent: true
+      auto_advance: true
+      requirements:
+        - "Gerar story de tópico demo aleatório"
+        - "Definir AC automáticamente"
+        - "Escopo padrão"
+        - "Status: Draft"
+      outputs:
+        - story_file
+        - story_id
+        - story_title
+      next: validate
+
+    - step: validate_story
+      id: validate
+      phase: 2
+      agent: po
+      action: Validar story (YOLO Auto)
+      mode: yolo
+      subagent: true
+      auto_decision: true
+      auto_approve: true
+      checkpoint: false
+      requirements:
+        - "Executar 10 checks"
+        - "Auto-approve se score >= 6"
+        - "Auto-approve even if < 6 (YOLO mode)"
+      outputs:
+        - validation_score
+        - story_status
+      next: implement
+      auto_advance: true
+
+    - step: implement_story
+      id: implement
+      phase: 3
+      agent: dev
+      action: Implementar story (YOLO)
+      mode: yolo
+      subagent: true
+      auto_advance: true
+      requirements:
+        - "Implementar baseado em AC"
+        - "CodeRabbit max 2 iterações"
+        - "Auto-advance ao completar"
+      dev_settings:
+        mode: yolo
+        coderabbit_max_iterations: 2
+        severity_filter: ["CRITICAL", "HIGH"]
+      outputs:
+        - implementation_files
+        - test_results
+        - commit_hashes
+      next: review
+      auto_advance: true
+
+    - step: qa_review
+      id: review
+      phase: 4
+      agent: qa
+      action: Review + QA Gate (YOLO Auto)
+      mode: yolo
+      subagent: true
+      auto_decision: true
+      auto_approve: true
+      checkpoint: false
+      requirements:
+        - "Executar 7 checks"
+        - "Auto-approve se passed"
+        - "Auto-approve even if concerns (YOLO mode)"
+      outputs:
+        - qa_report
+        - quality_gate_status
+        - story_final_status
+      next: push
+      auto_advance: true
+
+    - step: push_to_remote
+      id: push
+      phase: 5
+      agent: devops
+      action: Push code (Auto)
+      mode: auto
+      subagent: true
+      auto_advance: true
+      requirements:
+        - "Push commits"
+        - "Update story metadata"
+      outputs:
+        - push_result
+      next: complete
+      auto_advance: true
+
+    - workflow_end:
+      id: complete
+      action: workflow_complete
+      notes: |
+        ✅ Story completada!
+        Loop para próxima se story_count > completed
+
+  flow_diagram: |
+    ```mermaid
+    graph TD
+        Start["🚀 Iniciar YOLO Puro"] --> Loop["Loop: For each story in count"]
+
+        Loop --> Create["@sm: Criar (YOLO)<br/>Auto-advance"]
+        Create --> Validate["@po: Validar (Auto)<br/>Auto-approve"]
+        Validate --> Implement["@dev: Implementar (YOLO)<br/>Auto-advance"]
+        Implement --> QA["@qa: QA Gate (Auto)<br/>Auto-approve"]
+        QA --> Push["@devops: Push<br/>Auto-advance"]
+
+        Push --> NextLoop{Mais stories?}
+        NextLoop -->|Sim| Create
+        NextLoop -->|Não| End["✅ YOLO Complete!"]
+
+        style Start fill:#FFD700
+        style End fill:#90EE90
+        style Create fill:#87CEEB
+        style Validate fill:#FFE4B5
+        style Implement fill:#98FB98
+        style QA fill:#DDA0DD
+        style Push fill:#FFB6C1
+    ```
+
+  automation_rules:
+    all_agents_yolo: true
+    auto_advance_all_phases: true
+    auto_approve_all_gates: true
+    auto_approvals:
+      po_validation: "auto_approve_all"
+      qa_gate: "auto_approve_all"
+    error_handling: "log_and_continue"
+
+  story_context_generator:
+    demo_topics:
+      - "Implementar autenticação com OAuth2"
+      - "Criar dashboard de análise em tempo real"
+      - "Otimizar performance de queries de banco"
+      - "Adicionar suporte a múltiplos idiomas"
+      - "Implementar cache distribuído com Redis"
+      - "Criar sistema de notificações push"
+      - "Melhorar segurança de API REST"
+      - "Implementar sistema de auditoria"
+      - "Criar export de dados em CSV/PDF"
+      - "Implementar webhook de eventos"
+      - "Adicionar rate limiting na API"
+      - "Criar health check e monitoring"
+      - "Implementar versionamento de API"
+      - "Criar sistema de permissões granular"
+      - "Adicionar dark mode na UI"
+
+    auto_generate_ac: true
+    auto_generate_scope: true
+
+  handoff_prompts:
+    phase_start: "|Phase {{phase}} iniciada - Story {{story_id}}"
+    phase_complete: "|Phase {{phase}} completa - {{result}}"
+    loop_iteration: "|Story {{story_num}}/{{total}} concluída"
+
+  metadata:
+    author: Orion (AIOX Master)
+    created_date: 2026-09-08
+    version: 1.0.0
+    tags:
+      - workshop
+      - yolo-mode
+      - full-automation
+      - engine-workflow
+      - velocity-benchmark
+    compatibility:
+      - workshop-auto-stories (yolo variant)
+      - story-development-cycle (extends)
+    notes: |
+      WORKSHOP-FULL-YOLO é a versão COMPLETAMENTE AUTOMÁTICA.
+
+      DIFERENÇAS vs workshop-auto-stories:
+      - ✅ Sem checkpoints (ZERO human input)
+      - ✅ YOLO em todos os agentes
+      - ✅ Auto-approve de todas as gates
+      - ✅ Contínuo até story_count completar
+      - ✅ Ideal para: demos, benchmarking, stress testing
+
+      USE CASES:
+      1. Demonstração de velocidade (10+ stories em <2 horas)
+      2. Validação de workflow (sem interrupções)
+      3. Benchmarking de velocity da equipe
+      4. Teste de stress do engine
+      5. Geração de dataset de demo
