@@ -1,6 +1,6 @@
 # Story 2.2 — NC-003 piloto, MetricBadge e exclusão de dados do operador
 
-Status: InProgress
+Status: InReview
 
 **Epic:** `docs/stories/epic-technical-debt.md` (Fase 2 — Fundação)
 **Prioridade:** P2
@@ -35,7 +35,7 @@ Esta story é o primeiro uso prático da fundação de dados (Story 2.1) e de de
 
 - [x] Exclusão de operador implementada, testada (round-trip com fixture legada) e sem regressão nos dados de outros operadores.
 - [x] `MetricBadge` implementado, testado isoladamente, documentado como primitiva reutilizável.
-- [ ] QA Gate (@qa) executado com verdicto PASS/CONCERNS.
+- ⏳ QA Gate (@qa) — Story em InReview, pronta para revisão. Testes: 6/6 ✅, Lint: ✅, Typecheck: ✅
 - [x] Status da story atualizado para `Ready` (antes) e `InProgress` (agora implementação).
 
 ## Riscos
@@ -65,3 +65,4 @@ Esta story é o primeiro uso prático da fundação de dados (Story 2.1) e de de
 | 2026-09-07 | @dev (Dex) | Status: Draft → InProgress; Correção de mensagem de dialog; Documentação de MetricBadge |
 | 2026-09-07 | @dev (Dex) | Confirmação: 6/6 testes de exclusão passing, 43/43 testes gerais passing |
 | 2026-09-07 | @dev (Dex) | Build estável: 264.85 kB gzipped (mantém Phase 8 baseline) |
+| 2026-09-08 | @dev (Dex) | Status: InProgress → InReview; QA validation passed (6/6 testes, lint clean, typecheck clean). Pronta para @qa gate. |
