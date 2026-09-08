@@ -52,25 +52,33 @@ src/
 ### 2.2 - Decompose App.tsx Monolith [🔄 IN PROGRESS]
 **Duration:** 6-8h
 
-**Extract hooks:**
-- `usePhysicsEngine()` ✅ (via usePhysics already extracted)
-- `useTurmaRegistry()` ✅ (already extracted)  
-- `useUIState()` ✅ **NEW** — 8+ estados de UI (focus, mode, snd, boom, diff, etc.)
-- `useAudio()` ✅ **NEW** — Audio synthesis + sound effects
-- `useGameState()` ✅ **NEW** — Game logic + physics calculations
+**Wave 1 & 2 — Hooks & Components (Completed)**
+- ✅ Extract 3 hooks (useUIState, useAudio, useGameState)
+- ✅ Extract Boom component (130 lines)
+- ✅ Extract viewport utilities (useDeviceClass, useViewportScale, viewport helpers)
+- ✅ Extract LoginPanel component (w/ OperatorExclusionDialog)
+- ✅ Extract EndGamePanel component
+- ✅ Extract RankingPanel component (210 lines with charts)
 
 **Result:**
-- 3 new hooks created and integrated
-- App.tsx refactored to use new hooks (reduced 33 lines)
+- App.tsx reduced from 1.458 → 1.012 lines (446 lines removed, 31% reduction)
+- Created 3 new utility files + 5 new panel components
 - All 67 tests passing ✅
-- App.tsx still > 200 lines (requires component extraction)
+- **Current status:** 1.012 lines (target: <200 lines)
+
+**Wave 3 Progress — Remaining extractions:**
+- [ ] Extract AnalisePanel component (209 lines)
+- [ ] Extract NC003Panel component (55 lines)
+- [ ] Extract GameOverPanel component (win/lose/quit/pause modes)
+- [ ] Reduce App.tsx to core logic + simple routing
 
 **Checklist:**
 - [x] Criar 3 hooks customizados (useUIState, useAudio, useGameState)
 - [x] App.tsx refatorado para usar hooks
 - [x] Testes passam 100% (67/67 ✅)
-- [ ] App.tsx <200 linhas (currently 1.424 → requires component extraction)
-- [ ] Commit: `refactor: extract specialized hooks & state management [TD-SYS-06]`
+- [x] Extrair 5 componentes grandes (Boom, RankingPanel, etc.)
+- [ ] App.tsx <200 linhas (currently 1.012 → requires AnalisePanel, NC003Panel, GameOverPanel extraction)
+- [ ] Commit: `refactor: complete component extraction Phase 2 [TD-SYS-05]`
 
 ---
 
