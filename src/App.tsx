@@ -6,6 +6,8 @@ import { EmptyState } from '@components/EmptyState';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { MetricBadge } from '@components/MetricBadge';
 import { OperatorExclusionDialog } from '@components/OperatorExclusionDialog';
+import { usePhysics } from '@hooks/usePhysics';
+import { useScore } from '@hooks/useScore';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
 const axisStyle = { fontSize: 8, fill: '#8d959e' };
 const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
@@ -287,15 +289,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [storeErr, setStoreErr] = useState(false);
   const [diff, setDiff] = useState(3);
-  const [heat, setHeat] = useState(30);
-  const [integrity, setIntegrity] = useState(100);
-  const [coolant, setCoolant] = useState(100);
-  const [shownTemp, setShownTemp] = useState(280);
-  const [delta, setDelta] = useState(0);
-  const [pts, setPts] = useState(0);
-  const [goal, setGoal] = useState(1000);
-  const [strk, setStrk] = useState(0);
-  const [bestStrk, setBestStrk] = useState(0);
+  const {
+    heat, setHeat, integrity, setIntegrity, coolant, setCoolant, shownTemp, setShownTemp, delta, setDelta
+  } = usePhysics(30);
+  const {
+    pts, setPts, goal, setGoal, strk, setStrk, bestStrk, setBestStrk
+  } = useScore();
   const [rankIdx, setRankIdx] = useState(0);
   const [pair, setPair] = useState([null, null]);
   const [picked, setPicked] = useState(null);
