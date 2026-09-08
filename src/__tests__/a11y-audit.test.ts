@@ -176,7 +176,6 @@ describe('A11y Audit — UX-D05', () => {
     it('∅ 27/27 buttons have accessible names', () => {
       // Actually 30/30 buttons found (exceeds requirement)
       // All have aria-label or visible text
-      const requirement = '27/27 or more buttons with accessible names';
       const actual = '30/30 buttons with aria-label';
       expect(actual).toContain('30/30');
     });

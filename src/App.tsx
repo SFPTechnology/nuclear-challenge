@@ -998,7 +998,7 @@ function App() {
             <Label className="mb-1.5">Prioridade de estudo</Label>
             {priority.map((item, index) => <div key={item.key} className="flex items-center gap-1.5 mb-1">
               <div className="font-mono font-bold" style={{ width: 18, textAlign: 'center', color: index < 2 ? '#f87171' : '#fbbf24' }}>{index + 1}</div>
-              <div style={{ flex: 1 }}><div style={{ fontSize: 8.5, color: '#cbd5e1' }}>{item.label}</div><div style={{ height: 4, marginTop: 2, borderRadius: 3, background: '#0a0e11', overflow: 'hidden' }}><div style={{ height: '100%', width: `${100 - item.accuracy}%`, background: item.accuracy < 60 ? '#dc2626' : '#f59e0b' }} /></div></div>
+              <div style={{ flex: 1 }}><div style={{ fontSize: 8.5, color: '#cbd5e1' }}>{item.label}</div><div style={{ height: 4, marginTop: 2, borderRadius: 3, background: '#0a0e11', overflow: 'hidden' }}><div style={{ height: '100%', width: `${100 - item.accuracy}%`, background: item.accuracy < 60 ? 'repeating-linear-gradient(45deg, #dc2626, #dc2626 2px, #991b1b 2px, #991b1b 4px)' : 'repeating-linear-gradient(45deg, #f59e0b, #f59e0b 2px, #b45309 2px, #b45309 4px)' }} /></div></div>
               <span className="font-mono" style={{ width: 76, textAlign: 'right', fontSize: 8, color: item.accuracy < 60 ? '#f87171' : '#fbbf24' }}>{item.accuracy}% · {item.misses} erros</span>
             </div>)}
             <div style={{ fontSize: 8, color: '#8d959e', marginTop: 5 }}>A ordem combina erros acumulados, taxa de acerto e volume praticado.</div>
@@ -1363,7 +1363,7 @@ function App() {
               <rect x="6" y="6" width="238" height="54" rx="9" fill="#0a1014" stroke="#2a3138" strokeWidth="3" />
               <rect x="6" y="6" width="238" height="54" rx="9" fill="none" stroke={ringCol} strokeWidth="3" strokeDasharray="570" strokeDashoffset={570 - (570 * ringPct) / 100} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s linear' }} />
               {locked
-                ? <text x="125" y="39" textAnchor="middle" fill="#f87171" fontSize="17" fontFamily="monospace" fontWeight="bold">{fb.m}</text>
+                ? <text x="125" y="39" textAnchor="middle" fill="#f87171" fontSize="17" fontFamily="monospace" fontWeight="bold">❌ {fb.m}</text>
                 : <text x="125" y="40" textAnchor="middle" fill="#e0f2fe" fontSize="23" fontFamily="monospace" fontWeight="bold">{prob ? prob.prompt : ''}</text>}
             </svg>
             {prob && !locked && <div className="text-center" style={{ fontSize: 7.5, letterSpacing: '.1em', color: prob.profile === 'routine' ? '#67e8f9' : '#fbbf24', marginTop: -2 }}>{prob.profile === 'routine' ? 'ROTINA · −12' : 'PRIORITÁRIA · −28'}</div>}
@@ -1371,7 +1371,7 @@ function App() {
               <div className="flex-1 rounded text-center font-mono font-bold flex items-center justify-center" style={{ minHeight: 36, fontSize: 20, background: 'linear-gradient(180deg,#0a1418,#050b0e)', boxShadow: DS.recess, color: ans ? '#7dd3fc' : '#1e3a45', border: '1px solid #1c2126', letterSpacing: '.1em' }} aria-live="polite" aria-label={`Resposta atual: ${ans || 'vazio'}`}>{ans || '—'}</div>
               <button onClick={check} disabled={locked || !ans} className="rounded font-bold" aria-label={`Confirmar resposta ${ans || 'vazia'}`} style={{ padding: '0 18px', fontSize: 12, background: locked || !ans ? 'linear-gradient(180deg,#2a2f35,#1a1e23)' : 'linear-gradient(180deg,#0e7490,#0c4a5e)', boxShadow: locked || !ans ? 'inset 0 2px 5px #000' : '0 1px 0 rgba(255,255,255,.18) inset,0 3px 5px #000', color: locked || !ans ? '#4b5563' : '#e0f2fe', border: '1px solid #083344' }}>OK</button>
             </div>
-            {fb && fb.t === 'ok' && <div className="text-center font-bold mt-1" role="alert" aria-live="polite" style={{ fontSize: 11, color: '#4ade80' }}>{fb.m}</div>}
+            {fb && fb.t === 'ok' && <div className="text-center font-bold mt-1" role="alert" aria-live="polite" style={{ fontSize: 11, color: '#4ade80' }}>✅ {fb.m}</div>}
           </Plate>
         )}
 
