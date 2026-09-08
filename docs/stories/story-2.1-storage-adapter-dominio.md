@@ -1,6 +1,6 @@
 # Story 2.1 — StorageAdapter e camada de domínio
 
-Status: Draft
+Status: InProgress
 
 **Epic:** `docs/stories/epic-technical-debt.md` (Fase 2 — Fundação)
 **Prioridade:** P1
@@ -55,10 +55,19 @@ Esta é a story de fundação de dados do epic — desbloqueia diretamente a Sto
 
 ## File List
 
-- [ ] A definir durante a implementação (`StorageAdapter`, módulos de domínio).
+- [ ] `src/adapters/StorageAdapter.ts` — Adapter com estado de saúde e merge aditivo
+- [ ] `src/domain/` — Módulos de domínio (física, pontuação, ranking)
+  - [ ] `src/domain/physics.ts` — Cálculos de física do núcleo
+  - [ ] `src/domain/scoring.ts` — Cálculo de pontuação
+  - [ ] `src/domain/ranking.ts` — Rank progression
+  - [ ] `src/domain/generation.ts` — Geração de operações matemáticas
+- [ ] `src/__tests__/storage-adapter-health.test.ts` — Testes de estado de saúde
+- [ ] `src/__tests__/domain-invariants.test.ts` — Invariantes I1-I8
+- [ ] Documentação: `docs/STORAGE-ADAPTER.md` e `docs/DOMAIN-LAYER.md`
 
 ## Change Log
 
 | Data | Autor | Mudança |
 |---|---|---|
+| 2026-09-08 | @dev (Dex) | Status: Draft → InProgress. Iniciando com StorageAdapter (TD-SYS-09). Camada de domínio (TD-SYS-07) em fase 2 desta story. |
 | 2026-09-07 | @pm (Morgan) | Criação da story — Fase 10 do Brownfield Discovery |
