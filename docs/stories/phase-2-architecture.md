@@ -52,33 +52,39 @@ src/
 ### 2.2 - Decompose App.tsx Monolith [🔄 IN PROGRESS]
 **Duration:** 6-8h
 
-**Wave 1 & 2 — Hooks & Components (Completed)**
+**Wave 1, 2 & 3 — Hooks & Components (In Progress)**
 - ✅ Extract 3 hooks (useUIState, useAudio, useGameState)
 - ✅ Extract Boom component (130 lines)
 - ✅ Extract viewport utilities (useDeviceClass, useViewportScale, viewport helpers)
 - ✅ Extract LoginPanel component (w/ OperatorExclusionDialog)
-- ✅ Extract EndGamePanel component
+- ✅ Extract MenuPanel component
+- ✅ Extract EndGamePanel component (win/lose/quit/pause modes)
 - ✅ Extract RankingPanel component (210 lines with charts)
+- ✅ Extract AnalisePanel component (209 lines)
+- ✅ Extract NC003Panel component (55 lines)
 
-**Result:**
-- App.tsx reduced from 1.458 → 1.012 lines (446 lines removed, 31% reduction)
-- Created 3 new utility files + 5 new panel components
+**Result (Current):**
+- **App.tsx reduced from 1.458 → 776 lines (682 lines removed, 47% reduction)** ✅
+- Created 3 new utility files + 7 new panel components
 - All 67 tests passing ✅
-- **Current status:** 1.012 lines (target: <200 lines)
+- **Current status:** 776 lines (target: <200 lines)
 
-**Wave 3 Progress — Remaining extractions:**
-- [ ] Extract AnalisePanel component (209 lines)
-- [ ] Extract NC003Panel component (55 lines)
-- [ ] Extract GameOverPanel component (win/lose/quit/pause modes)
-- [ ] Reduce App.tsx to core logic + simple routing
+**Remaining Work — Wave 3 Final:**
+- [ ] Extract GamePlayPanel component (~120 lines for play mode UI)
+- [ ] Extract game logic hooks (doVent, doBoron, doScram, press, check, etc.)
+- [ ] Reduce App.tsx to <200 lines (core state + simple routing)
 
 **Checklist:**
 - [x] Criar 3 hooks customizados (useUIState, useAudio, useGameState)
 - [x] App.tsx refatorado para usar hooks
 - [x] Testes passam 100% (67/67 ✅)
-- [x] Extrair 5 componentes grandes (Boom, RankingPanel, etc.)
-- [ ] App.tsx <200 linhas (currently 1.012 → requires AnalisePanel, NC003Panel, GameOverPanel extraction)
+- [x] Extrair 7 componentes grandes (Boom, RankingPanel, AnalisePanel, NC003Panel, etc.)
+- [ ] App.tsx <200 linhas (currently 776 → requires GamePlayPanel + game logic extraction)
 - [ ] Commit: `refactor: complete component extraction Phase 2 [TD-SYS-05]`
+
+**Technical Debt Addressed:**
+- TD-SYS-05: ✅ Component extraction (8/9 panels extracted)
+- TD-SYS-06: ✅ Hooks refactoring (completed)
 
 ---
 
