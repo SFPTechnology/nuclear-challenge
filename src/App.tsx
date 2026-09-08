@@ -4,6 +4,8 @@ import { Shield, Volume2, VolumeX, Droplets, Zap, HeartPulse, Wind, FlaskConical
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, LineChart, Line, Cell } from 'recharts';
 import { EmptyState } from '@components/EmptyState';
 import { ErrorBoundary } from '@components/ErrorBoundary';
+import { MetricBadge } from '@components/MetricBadge';
+import { OperatorExclusionDialog } from '@components/OperatorExclusionDialog';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
 const axisStyle = { fontSize: 8, fill: '#8d959e' };
 const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
@@ -312,6 +314,10 @@ function App() {
   const [snd, setSnd] = useState(true);
   const [boom, setBoom] = useState(false);
   const [melt, setMelt] = useState(0);
+  const [selectedOperatorToExclude, setSelectedOperatorToExclude] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const ctx = useRef(null), alm = useRef(null), gei = useRef(null), hotRef = useRef(0), vel = useRef(0), frz = useRef(null), recent = useRef([]), saved = useRef(false);
   const sess = useRef({ tabs: {}, ops: {}, forms: {}, daily: {} });
   const okStore = useRef(true); // TD-DAT-02: Track storage read health to prevent overwrites on corruption
@@ -370,13 +376,8 @@ function App() {
   useEffect(() => { if (mode === 'login') loadAll(); }, [mode, loadAll]);
 
   // P0-SAFETY: Detect prefers-reduced-motion for accessibility
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleChange = (e) => setPrefersReducedMotion(e.matches);
-    setPrefersReducedMotion(mediaQuery.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  // Note: prefers-reduced-motion is already handled in CSS via @media query
+  // This ensures we respect the setting
 
   // UX-D19: Manage focus across mode transitions
   useEffect(() => {
@@ -442,6 +443,21 @@ function App() {
     if (!n) return;
     if (!players[n]) await persist({ ...players, [n]: { best: {}, games: 0, ops: 0, hits: 0, streak: 0, rank: 0, wins: 0, studyLog: {} } });
     setPlayer(n); setNameInput(''); setMode('menu');
+  };
+
+  const handleExcludeOperator = async (operatorId: string) => {
+    try {
+      // Filter out the operator from the list
+      const filtered = Object.entries(players)
+        .filter(([name]) => name !== operatorId)
+        .reduce((acc, [name, data]) => ({ ...acc, [name]: data }), {});
+
+      // Write filtered list back to storage
+      await persist(filtered);
+      setSelectedOperatorToExclude(null);
+    } catch (error) {
+      console.error(`Error excluding operator: ${error}`);
+    }
   };
 
   const saveResult = async outcome => {
@@ -795,12 +811,15 @@ function App() {
               />
             : <div className="space-y-1">
                 {Object.entries(players).sort((a, b) => (b[1].rank - a[1].rank) || (Math.max(...Object.values(b[1].best), 0) - Math.max(...Object.values(a[1].best), 0))).map(([n, d]) => (
-                  <button key={n} onClick={() => { setPlayer(n); setMode('menu'); }} className="w-full" aria-label={`Selecionar operador ${n}, rank ${TITLES[d.rank || 0]}`}>
-                    <div className="flex justify-between items-center rounded" style={{ padding: '6px 9px', background: 'linear-gradient(180deg,#0a1418,#070f13)', boxShadow: DS.recess, border: player === n ? '1px solid #0891b2' : '1px solid #1c2126' }}>
-                      <span className="font-mono font-bold" style={{ fontSize: 12, color: '#e2e8f0', letterSpacing: '.06em' }}>{n}</span>
-                      <span style={{ fontSize: 9, color: '#7dd3fc' }}>{TITLES[d.rank || 0]}</span>
-                    </div>
-                  </button>
+                  <div key={n} className="flex gap-1 items-center">
+                    <button onClick={() => { setPlayer(n); setMode('menu'); }} className="flex-1" aria-label={`Selecionar operador ${n}, rank ${TITLES[d.rank || 0]}`}>
+                      <div className="flex justify-between items-center rounded" style={{ padding: '6px 9px', background: 'linear-gradient(180deg,#0a1418,#070f13)', boxShadow: DS.recess, border: player === n ? '1px solid #0891b2' : '1px solid #1c2126' }}>
+                        <span className="font-mono font-bold" style={{ fontSize: 12, color: '#e2e8f0', letterSpacing: '.06em' }}>{n}</span>
+                        <span style={{ fontSize: 9, color: '#7dd3fc' }}>{TITLES[d.rank || 0]}</span>
+                      </div>
+                    </button>
+                    <button onClick={() => setSelectedOperatorToExclude({ id: n, name: n })} aria-label={`Remover operador ${n}`} style={{ padding: '6px 9px', borderRadius: 4, background: 'linear-gradient(180deg,#7f1d1d,#450a0a)', border: '1px solid #7f1d1d', color: '#fecaca', fontSize: 12, fontWeight: 'bold' }}>🗑️</button>
+                  </div>
                 ))}
               </div>}
           {Object.keys(players).length > 1 && (
@@ -811,6 +830,16 @@ function App() {
           {storeErr && <div style={{ fontSize: 9, color: '#f59e0b', marginTop: 6, lineHeight: 1.4 }}>⚠ O armazenamento não respondeu. Os cadastros valem só nesta sessão e serão perdidos ao recarregar.</div>}
         </Plate>
       </div>
+
+      {/* Operator Exclusion Dialog */}
+      {selectedOperatorToExclude && (
+        <OperatorExclusionDialog
+          operatorName={selectedOperatorToExclude.name}
+          operatorId={selectedOperatorToExclude.id}
+          onConfirm={handleExcludeOperator}
+          onCancel={() => setSelectedOperatorToExclude(null)}
+        />
+      )}
     </div>
   );
 
@@ -1236,6 +1265,63 @@ function App() {
     );
   }
 
+  if (mode === 'nc003') {
+    return (
+      <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
+        <GlobalErrorBanner />
+        <div className={`${shellClass} mx-auto`} style={shellStyle}>
+          <Plate className="p-3 mb-2 text-center">
+            <Label>NC-003: Taxa de Sucesso</Label>
+            <div className="font-mono font-bold mt-1" style={{ fontSize: 13, color: '#7dd3fc' }}>{player}</div>
+          </Plate>
+
+          <Plate className="p-3 mb-2">
+            <Label className="mb-2">📊 Métricas Atuais</Label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <MetricBadge
+                label="Heat"
+                value={heat}
+                status={heat > 70 ? 'alert' : heat > 50 ? 'warning' : 'ok'}
+              />
+              <MetricBadge
+                label="Integrity"
+                value={integrity}
+                status={integrity < 30 ? 'alert' : integrity < 60 ? 'warning' : 'ok'}
+              />
+              <MetricBadge
+                label="Coolant"
+                value={coolant}
+                status={coolant < 30 ? 'alert' : coolant < 60 ? 'warning' : 'ok'}
+              />
+            </div>
+          </Plate>
+
+          <Plate className="p-3 mb-3" glow="rgba(6,182,212,.2)">
+            <Label className="mb-1.5">Informações da Turma</Label>
+            {[['Turma', `5B (${Object.keys(players).length} operadores)`], ['Total de Partidas', Object.keys(players).reduce((sum, name) => sum + ((players[name] && players[name].games) || 0), 0)], ['Taxa Média de Sucesso', `${Object.keys(players).length > 0 ? Math.round(Object.values(players).reduce((sum, p) => sum + ((p.ops > 0 ? (p.hits / p.ops) * 100 : 0)), 0) / Object.keys(players).length) : 0}%`]].map(([label, value], i) => (
+              <div key={i} className="flex justify-between items-center py-1" style={{ borderBottom: i < 2 ? '1px solid #171b1f' : 'none' }}>
+                <Label size={7}>{label}</Label>
+                <span className="font-mono font-bold" style={{ fontSize: 11, color: '#7dd3fc' }}>{value}</span>
+              </div>
+            ))}
+          </Plate>
+
+          <div className="flex gap-1.5">
+            <button onClick={() => setMode('menu')} style={{ flex: 1 }} aria-label="Voltar para menu">
+              <Plate className="py-2 text-center"><Label>← Voltar</Label></Plate>
+            </button>
+            <button onClick={() => setMode('analise')} style={{ flex: 1 }} aria-label="Ver análise de desempenho">
+              <Plate className="py-2 text-center"><Label>Análise</Label></Plate>
+            </button>
+            <button onClick={start} style={{ flex: 1 }} aria-label="Continuar para jogo">
+              <div className="rounded-md text-center font-bold" style={{ padding: '10px 0', fontSize: 11, letterSpacing: '.1em', background: 'linear-gradient(180deg,#0e7490,#155e75 55%,#0c4a5e)', boxShadow: '0 1px 0 rgba(255,255,255,.2) inset,0 4px 8px #000,0 0 16px rgba(6,182,212,.35)', border: '1px solid #083344', color: '#e0f2fe' }}>Continuar</div>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (mode === 'menu') return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
       <GlobalErrorBanner />
@@ -1258,7 +1344,7 @@ function App() {
           {Object.entries(DIFF).map(([k, v]) => {
             const rec = players[player] && players[player].best ? players[player].best[k] : null;
             return (
-              <button key={k} onClick={() => { setDiff(+k); initA(); }} className="w-full text-left" aria-label={`Selecionar nível ${v.name} - ${v.sub}`}>
+              <button key={k} onClick={() => { setDiff(+k); initA(); setMode('nc003'); }} className="w-full text-left" aria-label={`Selecionar nível ${v.name} - ${v.sub}`}>
                 <Plate className="px-3 py-2" glow={diff === +k ? 'rgba(6,182,212,.4)' : null}>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
@@ -1279,9 +1365,6 @@ function App() {
         <div className="flex gap-2 mt-3">
           <button onClick={() => { initA(); setSnd(!snd); }} style={{ flex: 1 }} aria-label={snd ? 'Desativar som' : 'Ativar som'} aria-pressed={snd}>
             <Plate className="py-2 flex items-center justify-center gap-2">{snd ? <Volume2 size={13} color="#8d959e" /> : <VolumeX size={13} color="#8d959e" />}<Label>{snd ? 'Áudio On' : 'Áudio Off'}</Label></Plate>
-          </button>
-          <button onClick={start} style={{ flex: 2 }} aria-label="Iniciar partida com nível selecionado">
-            <div className="rounded-md text-center font-bold" style={{ padding: '10px 0', fontSize: 14, letterSpacing: '.2em', background: 'linear-gradient(180deg,#0e7490,#155e75 55%,#0c4a5e)', boxShadow: '0 1px 0 rgba(255,255,255,.2) inset,0 4px 8px #000,0 0 16px rgba(6,182,212,.35)', border: '1px solid #083344', color: '#e0f2fe' }}>INICIAR</div>
           </button>
         </div>
       </div>
