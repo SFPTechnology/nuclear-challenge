@@ -1,0 +1,82 @@
+handoff:
+  from_agent: "@dev (Dex)"
+  to_agent: "@dev (Dex) or next session"
+  session_date: "2026-09-08"
+
+story_context:
+  story_id: "Phase 2: Architecture Refactor"
+  story_path: "docs/stories/phase-2-architecture.md"
+  story_status: "InProgress"
+  current_task: "Extract UI components and reduce App.tsx to <200 lines"
+  branch: "phase-2-architecture"
+
+objectives:
+  - "Reorganize project structure (components, domain, hooks, styles)"
+  - "Decompose monolithic App.tsx (1.457 → <200 lines)"
+  - "Extract 3 specialized hooks for state management"
+  - "Extract 15+ UI components by mode/feature"
+
+decisions:
+  - "Created 3 hooks: useGameState, useUIState, useAudio (moved 40+ lines)"
+  - "Refactored App.tsx to use new hooks (cleaner state management)"
+  - "@hooks alias added to tsconfig.json for consistent imports"
+  - "Component extraction strategy documented in COMPONENT-MAP.md"
+  - "Pragmatic approach: hooks first, then components (not monolithic refactor)"
+
+files_modified:
+  - "src/App.tsx (refactored, -33 lines)"
+  - "src/hooks/useGameState.ts (NEW - 400+ lines)"
+  - "src/hooks/useUIState.ts (NEW - 50 lines)"
+  - "src/hooks/useAudio.ts (NEW - 90 lines)"
+  - "tsconfig.json (added @hooks alias)"
+  - "docs/stories/phase-2-architecture.md (updated progress)"
+  - "COMPONENT-MAP.md (NEW - extraction strategy)"
+  - "MEMORY.md, nuclear-challenge-pipeline.md, phase-2-status.md (NEW)"
+
+metrics:
+  - "Tests passing: 67/67 ✅"
+  - "App.tsx current size: 1.424 lines (target: <200)"
+  - "Hooks created: 3/3 ✅"
+  - "Components extracted: 0/15 (next session)"
+  - "Commit hash: 22304a8"
+
+blockers: []
+
+artifacts:
+  - "COMPONENT-MAP.md — Detailed extraction order & dependencies (16 components)"
+  - "nuclear-challenge-pipeline.md — 4-phase pipeline overview"
+  - "phase-2-status.md — Execution plan & progress tracking"
+
+next_action: |
+  NEXT SESSION: Extract UI components to reduce App.tsx
+
+  Priority order (leaf → container):
+  1. Extract PerformanceBar, QuestionPanel, ControlPanel components
+  2. Extract LoginPanel, MenuPanel, PausePanel mode screens
+  3. Extract GameBoard orchestrator component
+  4. Extract CalendarHeatmap, PriorityList, StatsCharts components
+  5. Extract AnalysisPanel orchestrator component
+  6. Replace mode renders with component calls in App.tsx
+  7. Verify App.tsx <200 lines
+  8. Run tests, commit, move to Phase 3 (A11y)
+
+carry_forward:
+  - "All 3 new hooks are production-ready"
+  - "App.tsx is cleaner but still monolithic (requires component extraction)"
+  - "Test suite is stable (67 tests, all green)"
+  - "Phase 1 foundation is solid (dependencies, TypeScript strict)"
+  - "Component extraction strategy is documented and ready to execute"
+
+risks:
+  - "Component extraction is labor-intensive (8-10 hours estimated)"
+  - "Props drilling may increase in some branches (need to watch for it)"
+  - "Tests may need updates as components extract (low risk with current test coverage)"
+
+estimated_effort:
+  - "Next session: 8-10 hours to complete Phase 2 (component extraction)"
+  - "Phase 3 (A11y): 12-16 hours"
+  - "Phase 4 (QA): 8-10 hours"
+  - "Total remaining: 28-36 hours"
+
+author: "Claude Haiku 4.5"
+created: "2026-09-08T13:51:00Z"
