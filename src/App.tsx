@@ -64,7 +64,7 @@ function App() {
   const { mode, setMode, boom, setBoom, diff, setDiff, selectedOperatorToExclude, setSelectedOperatorToExclude, calendarCursor, setCalendarCursor, nameInput, setNameInput, triggerButtonRef } = useUIState();
 
   // Extract audio management into custom hook
-  const { snd, initA, tone, okSnd, errSnd, scrmSnd, boomSnd, startAlm, stopAlm, startGei, stopGei } = useAudio();
+  const { snd, setSnd, initA, tone, okSnd, errSnd, scrmSnd, boomSnd, startAlm, stopAlm, startGei, stopGei } = useAudio();
 
   // Core state management
   const {
