@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 export function useUIState() {
   const [mode, setMode] = useState<'login' | 'menu' | 'play' | 'pause' | 'analise' | 'quit'>('login');
   const [boom, setBoom] = useState(false);
-  const [snd, setSnd] = useState(true);
   const [diff, setDiff] = useState(3);
   const [selectedOperatorToExclude, setSelectedOperatorToExclude] = useState<{
     id: string;
@@ -35,7 +34,6 @@ export function useUIState() {
   return {
     mode, setMode,
     boom, setBoom,
-    snd, setSnd,
     diff, setDiff,
     selectedOperatorToExclude, setSelectedOperatorToExclude,
     calendarCursor, setCalendarCursor,

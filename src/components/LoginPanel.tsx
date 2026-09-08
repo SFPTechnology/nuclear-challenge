@@ -3,7 +3,6 @@ import { EmptyState } from './EmptyState';
 import { Label } from './Label';
 import { Plate } from './Plate';
 import { OperatorExclusionDialog } from './OperatorExclusionDialog';
-import { GlobalErrorBanner } from './GlobalErrorBanner';
 
 const TITLES = ['👷 Estagiário', '📋 Téc. Competente', '🔧 Op. Exemplar', '⭐ Eng. Nuclear', '🎖️ Dir. Segurança', '🏅 Herói Nacional'];
 
@@ -37,7 +36,6 @@ export function LoginPanel({
 }: LoginPanelProps) {
   return (
     <div className="nc-viewport min-h-screen p-3 flex flex-col justify-center" style={bg}>{css}
-      <GlobalErrorBanner />
       <div className={`${shellClass} mx-auto w-full`} style={shellStyle}>
         <Plate className="p-4 mb-3 text-center">
           <div style={{ fontSize: 38 }}>☢️</div>

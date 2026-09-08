@@ -1,7 +1,6 @@
 import React from 'react';
 import { Plate } from './Plate';
 import { Label } from './Label';
-import { GlobalErrorBanner } from './GlobalErrorBanner';
 
 const TITLES = ['👷 Estagiário', '📋 Téc. Competente', '🔧 Op. Exemplar', '⭐ Eng. Nuclear', '🎖️ Dir. Segurança', '🏅 Herói Nacional'];
 const DIFF = {
@@ -44,7 +43,6 @@ export function EndGamePanel({
 }: EndGamePanelProps) {
   return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
-      <GlobalErrorBanner />
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="p-4 text-center mb-2">
           <div style={{ fontSize: 38 }}>
