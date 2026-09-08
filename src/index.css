@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global animations for UI effects */
+@layer utilities {
+  @keyframes vigPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes warnPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @keyframes lampPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes grainShift {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.8; }
+  }
+
+  @keyframes glitch {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+}
