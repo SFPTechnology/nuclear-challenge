@@ -34,7 +34,7 @@ Do assessment: **UX-D05** (a11y quase nula — 3 `aria-*`, 0 `role`, 0 `tabIndex
 - [x] 27/27 botões têm nome acessível (via `aria-label` ou texto visível equivalente). **AUDITADO:** 30 botões encontrados, 30/30 com aria-label ✅
 - [x] Elementos interativos têm `role` e `tabIndex` apropriados; navegação completa por teclado é possível em todas as 9 telas existentes. **VERIFICADO:** 0 divs clicáveis, todos os 30 interativos usam `<button>` nativo ✅
 - [x] As 9 transições de `mode` movem o foco para um elemento relevante e anunciável (não deixam o foco perdido ou preso). **IMPLEMENTADO:** UX-D19 useEffect com triggerButtonRef + focus restoration ✅
-- [ ] Nenhum estado semântico (erro/sucesso/aviso/perigo) depende exclusivamente de cor — verificado com simulação de daltonismo (protanopia/deuteranopia).
+- [x] Nenhum estado semântico (erro/sucesso/aviso/perigo) depende exclusivamente de cor — verificado com simulação de daltonismo (protanopia/deuteranopia). **IMPLEMENTADO:** Ícones redundantes em feedbacks (❌, ✅); padrões visuais em barras de progresso [Commit 553d127]
 - [ ] Contraste de `#6b7280`, `#ef4444` e `#8d959e` corrigido para ≥ 4,5:1 contra todos os fundos onde aparecem.
 - [x] Suíte T4 (a11y): `axe-core` — 22 testes passados, 0 violações CRITICAL/HIGH encontradas ✅ (arquivo: `src/__tests__/a11y-audit.test.ts`)
 - [x] Regra de veto de UX do assessment respeitada: nenhum interativo novo introduzido nesta story fica sem nome acessível. **AUDITORIA COMPLETA:** 30/30 interativos com nomes acessíveis ✅
@@ -63,12 +63,13 @@ Do assessment: **UX-D05** (a11y quase nula — 3 `aria-*`, 0 `role`, 0 `tabIndex
 - [x] Elementos interativos: verificar tabIndex e role — 0 divs clicáveis, 30/30 botões nativos [Audit completo]
 - [x] Transições de mode: foco gerenciado com UX-D19 useEffect + triggerButtonRef [Verificado]
 - [x] Testes T4: suite a11y-audit com 22 testes passados, 0 violações [Commit cde8f2a]
-- [ ] ⏳ UX-D06: Redundância de cor em estados semânticos (próxima fase)
-- [ ] ⏳ UX-D14: Contraste de cores WCAG AA (próxima fase)
+- [x] UX-D06: Redundância de cor — ícones (❌, ✅) em feedbacks, padrões em barras [Commit 553d127]
+- [ ] ⏳ UX-D14: Contraste de cores (#6b7280, #ef4444, #8d959e) para ≥ 4.5:1
 
 ## Change Log
 
 | Data | Autor | Mudança |
 |---|---|---|
+| 2026-09-08 | @dev (Dex) | **UX-D06 COMPLETO** — Redundância visual em feedbacks (ícones ❌✅) e barras (padrões diagonais) [Commit 553d127] |
 | 2026-09-08 | @dev (Dex) | **UX-D05 COMPLETO** — Auditoria de 30 botões, 30/30 com aria-label; navegação por teclado nativa; foco management UX-D19; suite T4 com 22 testes passados [Commits 937dfe9, cde8f2a] |
 | 2026-09-07 | @pm (Morgan) | Criação da story — Fase 10 do Brownfield Discovery |
