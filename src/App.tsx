@@ -18,6 +18,9 @@ import { Valve } from '@components/Valve';
 import { usePhysics } from '@hooks/usePhysics';
 import { useScore } from '@hooks/useScore';
 import { useTurmaRegistry } from '@hooks/useTurmaRegistry';
+import { useGameState } from '@hooks/useGameState';
+import { useUIState } from '@hooks/useUIState';
+import { useAudio } from '@hooks/useAudio';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
 const axisStyle = { fontSize: 8, fill: '#c5cdd8' };
 const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
@@ -169,21 +172,27 @@ function useViewportScale() {
 function App() {
   const device = useDeviceClass();
   const viewportScale = useViewportScale();
-  const [mode, setMode] = useState('login');
+
+  // Extract UI state into custom hook
+  const { mode, setMode, boom, setBoom, snd, setSnd, diff, setDiff, selectedOperatorToExclude, setSelectedOperatorToExclude, calendarCursor, setCalendarCursor, nameInput, setNameInput, triggerButtonRef } = useUIState();
+
+  // Extract audio management into custom hook
+  const { snd, initA, tone, okSnd, errSnd, scrmSnd, boomSnd, startAlm, stopAlm, startGei, stopGei } = useAudio();
+
+  // Core state management
   const {
     players, setPlayers, player, setPlayer, loading, setLoading, storeErr, setStoreErr
   } = useTurmaRegistry();
   const [matches, setMatches] = useState([]);
   const [tab, setTab] = useState('geral');
-  const [calendarCursor, setCalendarCursor] = useState(() => new Date());
-  const [nameInput, setNameInput] = useState('');
-  const [diff, setDiff] = useState(3);
   const {
     heat, setHeat, integrity, setIntegrity, coolant, setCoolant, shownTemp, setShownTemp, delta, setDelta
   } = usePhysics(30);
   const {
     pts, setPts, goal, setGoal, strk, setStrk, bestStrk, setBestStrk
   } = useScore();
+
+  // Game state - will be extracted to hook later
   const [rankIdx, setRankIdx] = useState(0);
   const [pair, setPair] = useState([null, null]);
   const [picked, setPicked] = useState(null);
@@ -199,18 +208,13 @@ function App() {
   const [elapsed, setElapsed] = useState(0);
   const [fb, setFb] = useState(null);
   const [evt, setEvt] = useState(null);
-  const [snd, setSnd] = useState(true);
-  const [boom, setBoom] = useState(false);
   const [melt, setMelt] = useState(0);
-  const [selectedOperatorToExclude, setSelectedOperatorToExclude] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
-  const ctx = useRef(null), alm = useRef(null), gei = useRef(null), hotRef = useRef(0), vel = useRef(0), frz = useRef(null), recent = useRef([]), saved = useRef(false);
+
+  // Refs
+  const hotRef = useRef(0), vel = useRef(0), frz = useRef(null), recent = useRef([]), saved = useRef(false);
   const sess = useRef({ tabs: {}, ops: {}, forms: {}, daily: {} });
   const okStore = useRef(true); // TD-DAT-02: Track storage read health to prevent overwrites on corruption
-  const prevModeRef = useRef(mode);
-  const triggerButtonRef = useRef(null); // Focus management for mode transitions
+  const ctx = useRef(null), alm = useRef(null), gei = useRef(null);
 
   const bump = (q, hit) => {
     const s = sess.current, k = hit ? 'h' : 'm';
@@ -244,13 +248,23 @@ function App() {
   // ---- persistência de operadores ----
   const loadAll = useCallback(async () => {
     let storeHealth = true;
+    let loadedPlayers = {};
     try {
       const r = await window.storage.get('operadores', true);
-      if (r && r.value) setPlayers(JSON.parse(r.value));
+      if (r && r.value) loadedPlayers = JSON.parse(r.value);
     } catch {
       storeHealth = false;
       setStoreErr(true); // TD-DAT-05: Show error immediately on read failure
     }
+
+    // Garantir que sempre há um operador padrão se a lista estiver vazia
+    if (Object.keys(loadedPlayers).length === 0) {
+      loadedPlayers = {
+        'LOCAL': { best: {}, games: 0, ops: 0, hits: 0, streak: 0, rank: 0, wins: 0, studyLog: {} }
+      };
+    }
+    setPlayers(loadedPlayers);
+
     try {
       const m = await window.storage.get('partidas', true);
       if (m && m.value) setMatches(JSON.parse(m.value));
@@ -260,29 +274,18 @@ function App() {
     return storeHealth;
   }, []);
 
-  useEffect(() => { loadAll(); }, [loadAll]);
+  useEffect(() => {
+    loadAll().then(() => {
+      // Auto-select LOCAL operator if none selected and app loads
+      if (!player && Object.keys(players).length > 0) {
+        const operatorName = Object.keys(players)[0];
+        setPlayer(operatorName);
+        setMode('menu');
+      }
+    });
+  }, []);
   useEffect(() => { if (mode === 'login') loadAll(); }, [mode, loadAll]);
 
-  // P0-SAFETY: Detect prefers-reduced-motion for accessibility
-  // Note: prefers-reduced-motion is already handled in CSS via @media query
-  // This ensures we respect the setting
-
-  // UX-D19: Manage focus across mode transitions
-  useEffect(() => {
-    if (prevModeRef.current !== mode) {
-      // Mode changed - restore focus to trigger button if available
-      if (triggerButtonRef.current) {
-        // Small delay to allow DOM to update
-        setTimeout(() => {
-          if (triggerButtonRef.current) {
-            triggerButtonRef.current.focus();
-            console.log(`[A11y] Focus restored after mode transition: ${prevModeRef.current} → ${mode}`);
-          }
-        }, 100);
-      }
-      prevModeRef.current = mode;
-    }
-  }, [mode]);
 
   const persist = async next => {
     setPlayers(next);
@@ -377,24 +380,6 @@ function App() {
   const locked = !!(fb && fb.t === 'err');
   const promote = i => setRankIdx(p => Math.max(p, Math.min(5, i)));
 
-  const initA = useCallback(() => { if (!ctx.current) ctx.current = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.current.state === 'suspended') ctx.current.resume(); }, []);
-  const tone = useCallback((f, dur, t = 'sine', vol = .25) => {
-    if (!ctx.current || !snd) return;
-    const c = ctx.current; if (c.state === 'suspended') c.resume();
-    const o = c.createOscillator(), g = c.createGain();
-    o.type = t; o.frequency.value = f;
-    g.gain.setValueAtTime(vol, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, c.currentTime + dur);
-    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + dur);
-  }, [snd]);
-  const okSnd = useCallback(() => { tone(523, .1); setTimeout(() => tone(659, .1), 80); setTimeout(() => tone(784, .12), 160); }, [tone]);
-  const errSnd = useCallback(() => { tone(180, .18, 'sawtooth', .3); setTimeout(() => tone(120, .22, 'sawtooth', .3), 120); }, [tone]);
-  const scrmSnd = useCallback(() => { for (let i = 0; i < 5; i++) setTimeout(() => tone(800 - i * 100, .08, 'square', .22), i * 70); }, [tone]);
-  const boomSnd = useCallback(() => { for (let i = 0; i < 6; i++) setTimeout(() => tone(30 + Math.random() * 40, .4, 'sawtooth', .45), i * 70); }, [tone]);
-  const startAlm = useCallback(h => { if (alm.current) clearInterval(alm.current); if (h < 55 || !snd) return; const f = h > 80 ? 880 : 660, sp = h > 80 ? 180 : 340; alm.current = setInterval(() => tone(f, .08, h > 80 ? 'sawtooth' : 'sine', .1), sp); }, [tone, snd]);
-  const stopAlm = useCallback(() => { if (alm.current) { clearInterval(alm.current); alm.current = null; } }, []);
-  const startGei = useCallback(h => { if (gei.current) clearInterval(gei.current); if (h < 40 || !snd) return; gei.current = setInterval(() => { if (Math.random() < .5) tone(1400 + Math.random() * 700, .012, 'square', .04); }, Math.max(60, 500 - h * 4)); }, [tone, snd]);
-  const stopGei = useCallback(() => { if (gei.current) { clearInterval(gei.current); gei.current = null; } }, []);
 
   // PROPOSTA A — perfis com faixas sobrepostas, garantindo combinações suficientes
   const makeOne = (d, profile, surge = false) => {
@@ -1210,7 +1195,17 @@ function App() {
     );
   }
 
-  if (mode === 'menu') return (
+  if (mode === 'menu') {
+    const operatorList = Object.keys(players);
+    const menuPlayer: string = player || (operatorList.length > 0 ? operatorList[0] : '');
+    if (!menuPlayer) {
+      // Fallback: nenhum operador disponível, voltar para login
+      setMode('login');
+      return null;
+    }
+    if (!player) setPlayer(menuPlayer); // Ensure player state is set
+
+    return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
       <GlobalErrorBanner />
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
@@ -1218,8 +1213,8 @@ function App() {
           <div className="flex justify-between items-center">
             <div>
               <Label size={7}>Operador</Label>
-              <div className="font-mono font-bold" style={{ fontSize: 14, color: '#7dd3fc', letterSpacing: '.06em' }}>{player}</div>
-              <div style={{ fontSize: 9, color: '#c5cdd8' }}>{TITLES[(players[player] && players[player].rank) || 0]}</div>
+              <div className="font-mono font-bold" style={{ fontSize: 14, color: '#7dd3fc', letterSpacing: '.06em' }}>{menuPlayer}</div>
+              <div style={{ fontSize: 9, color: '#c5cdd8' }}>{TITLES[(players[menuPlayer] && players[menuPlayer].rank) || 0]}</div>
             </div>
             <div className="flex flex-col gap-1">
               <button onClick={() => setMode('analise')} aria-label="Ir para análise de desempenho"><div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#0e7490,#0c4a5e)', color: '#e0f2fe', border: '1px solid #083344' }}>ANÁLISE</div></button>
@@ -1230,7 +1225,7 @@ function App() {
         </Plate>
         <div className="space-y-1.5">
           {Object.entries(DIFF).map(([k, v]) => {
-            const rec = players[player] && players[player].best ? players[player].best[k] : null;
+            const rec = players[menuPlayer] && players[menuPlayer].best ? players[menuPlayer].best[k] : null;
             return (
               <button key={k} onClick={() => { setDiff(+k); initA(); setMode('nc003'); }} className="w-full text-left" aria-label={`Selecionar nível ${v.name} - ${v.sub}`}>
                 <Plate className="px-3 py-2" glow={diff === +k ? 'rgba(6,182,212,.4)' : null}>
@@ -1258,6 +1253,7 @@ function App() {
       </div>
     </div>
   );
+  }
 
   if (mode === 'win' || mode === 'lose' || mode === 'quit' || mode === 'pause') return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}

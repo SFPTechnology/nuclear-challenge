@@ -17,6 +17,7 @@
       "@components/*": ["./src/components/*"],
       "@design/*": ["./src/design/*"],
       "@domain/*": ["./src/domain/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@utils/*": ["./src/utils/*"]
     }
   },

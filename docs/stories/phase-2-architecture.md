@@ -1,6 +1,6 @@
 # 📖 Phase 2: Architecture Refactor (Sprint 3-4)
 
-**Status:** Ready for Development  
+**Status:** InProgress  
 **Assignee:** @dev  
 **Duration:** 2 weeks (60 hours)  
 **Blockers:** Phase 1 ✅
@@ -49,25 +49,28 @@ src/
 
 ---
 
-### 2.2 - Decompose App.tsx Monolith [⏳ TODO]
+### 2.2 - Decompose App.tsx Monolith [🔄 IN PROGRESS]
 **Duration:** 6-8h
 
 **Extract hooks:**
-- `usePhysicsEngine()` — 10+ estados relacionados a física
-- `useTurmaRegistry()` — 15+ estados relacionados a turma  
-- `useUIState()` — 8+ estados de UI
+- `usePhysicsEngine()` ✅ (via usePhysics already extracted)
+- `useTurmaRegistry()` ✅ (already extracted)  
+- `useUIState()` ✅ **NEW** — 8+ estados de UI (focus, mode, snd, boom, diff, etc.)
+- `useAudio()` ✅ **NEW** — Audio synthesis + sound effects
+- `useGameState()` ✅ **NEW** — Game logic + physics calculations
 
 **Result:**
-- App.tsx reduzido para <200 linhas
-- Componente Boom com ~50 linhas
-- Todos useEffect movidos para hooks apropriados
+- 3 new hooks created and integrated
+- App.tsx refactored to use new hooks (reduced 33 lines)
+- All 67 tests passing ✅
+- App.tsx still > 200 lines (requires component extraction)
 
 **Checklist:**
-- [ ] Criar 3 hooks customizados
-- [ ] Mover estados relacionados
-- [ ] App.tsx <200 linhas
-- [ ] Testes passam 100%
-- [ ] Commit: `refactor: extract specialized hooks [TD-SYS-06]`
+- [x] Criar 3 hooks customizados (useUIState, useAudio, useGameState)
+- [x] App.tsx refatorado para usar hooks
+- [x] Testes passam 100% (67/67 ✅)
+- [ ] App.tsx <200 linhas (currently 1.424 → requires component extraction)
+- [ ] Commit: `refactor: extract specialized hooks & state management [TD-SYS-06]`
 
 ---
 

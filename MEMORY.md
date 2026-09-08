@@ -1,0 +1,2 @@
+- [Nuclear Challenge App Pipeline](nuclear-challenge-pipeline.md) — 4-phase technical debt resolution (Phases 1-4)
+- [Phase 2 Status](phase-2-status.md) — App.tsx decomposition and architecture refactor
