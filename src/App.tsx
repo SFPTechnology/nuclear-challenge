@@ -1,30 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Shield, Volume2, VolumeX, Droplets, Zap, HeartPulse, Wind, FlaskConical } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, LineChart, Line, Cell } from 'recharts';
-import { tokens } from '@design/tokens';
 import '@styles/responsive.css';
-import { EmptyState } from '@components/EmptyState';
 import { ErrorBoundary } from '@components/ErrorBoundary';
-import { MetricBadge } from '@components/MetricBadge';
-import { OperatorExclusionDialog } from '@components/OperatorExclusionDialog';
-import { Ambient } from '@components/Ambient';
-import { CoreGauge } from '@components/CoreGauge';
-import { Label } from '@components/Label';
-import { Lamp } from '@components/Lamp';
-import { Lcd } from '@components/Lcd';
-import { Plate } from '@components/Plate';
-import { PauseButton } from '@components/PauseButton';
-import { PreMelt } from '@components/PreMelt';
-import { Support } from '@components/Support';
-import { Valve } from '@components/Valve';
 import { usePhysics } from '@hooks/usePhysics';
 import { useScore } from '@hooks/useScore';
 import { useTurmaRegistry } from '@hooks/useTurmaRegistry';
-import { useGameState } from '@hooks/useGameState';
 import { useUIState } from '@hooks/useUIState';
 import { useAudio } from '@hooks/useAudio';
 import { useDeviceClass } from '@hooks/useDeviceClass';
-import { useViewportScale } from '@hooks/useViewportScale';
 import { LoginPanel } from '@components/LoginPanel';
 import { MenuPanel } from '@components/MenuPanel';
 import { EndGamePanel } from '@components/EndGamePanel';
@@ -34,12 +16,8 @@ import { AnalisePanel } from '@components/AnalisePanel';
 import { NC003Panel } from '@components/NC003Panel';
 import { GamePlayPanel } from '@components/GamePlayPanel';
 import { KeyboardLegendModal } from '@components/KeyboardLegendModal';
-import { localDay, getDeviceClass } from '@utils/viewport';
+import { localDay } from '@utils/viewport';
 import { emptyStudyDay, mergeStudyLog } from '@utils/studyLog';
-const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
-const axisStyle = { fontSize: tokens.typography.fontSize.micro, fill: '#c5cdd8' };
-const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: tokens.typography.fontSize['0.5xs'], color: '#cbd5e1' };
-
 const DIFF = {
   1: { name: 'TRAINEE', sub: 'Primeiro dia', ops: ['*'], range: [2,5], time: 35, init: 10, err: 0, ok: -25, passive: 2, interval: 9000, scram: 5 },
   2: { name: 'JÚNIOR', sub: 'Aprendendo', ops: ['*','/'], range: [2,7], time: 30, init: 20, err: 15, ok: -20, passive: 3, interval: 8000, scram: 4 },
@@ -51,18 +29,8 @@ const DIFF = {
 const TITLES = ['👷 Estagiário', '📋 Téc. Competente', '🔧 Op. Exemplar', '⭐ Eng. Nuclear', '🎖️ Dir. Segurança', '🏅 Herói Nacional'];
 const VENT_CD = 12, BORON_CD = 30, FREEZE_MS = 14000;
 
-const DS = {
-  metal: 'linear-gradient(160deg,#3a4149 0%,#2b3138 40%,#22272d 70%,#2e343b 100%)',
-  bezel: 'linear-gradient(145deg,#4a525b 0%,#2a2f35 45%,#1c2126 100%)',
-  recess: 'inset 0 3px 8px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06)',
-  raised: '0 1px 0 rgba(255,255,255,.09), 0 3px 6px rgba(0,0,0,.6)',
-  glass: 'linear-gradient(160deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,.03) 34%,transparent 55%)',
-  brush: 'repeating-linear-gradient(94deg,rgba(255,255,255,.022) 0px,rgba(255,255,255,.022) 1px,transparent 1px,transparent 3px)'
-};
-
 function App() {
   const device = useDeviceClass();
-  const viewportScale = useViewportScale();
 
   // Extract UI state into custom hook
   const { mode, setMode, boom, setBoom, diff, setDiff, selectedOperatorToExclude, setSelectedOperatorToExclude, calendarCursor, setCalendarCursor, nameInput, setNameInput, triggerButtonRef } = useUIState();
@@ -106,7 +74,6 @@ function App() {
   const hotRef = useRef(0), vel = useRef(0), frz = useRef(null), recent = useRef([]), saved = useRef(false);
   const sess = useRef({ tabs: {}, ops: {}, forms: {}, daily: {} });
   const okStore = useRef(true); // TD-DAT-02: Track storage read health to prevent overwrites on corruption
-  const ctx = useRef(null), alm = useRef(null), gei = useRef(null);
 
   const bump = (q, hit) => {
     const s = sess.current, k = hit ? 'h' : 'm';
@@ -529,13 +496,8 @@ function App() {
 
   if (boom) return <Boom onDone={() => { setBoom(false); setMelt(0); setMode('lose'); }} />;
 
-  // TD-DAT-05: Global error banner visible on all screens
-  const GlobalErrorBanner = () => storeErr ? (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'linear-gradient(to bottom, rgba(239,68,68,.15), transparent)', borderBottom: '1px solid rgba(239,68,68,.5)', padding: '8px 12px', textAlign: 'center' }}>
-      <div style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: '#fecaca', fontWeight: 'bold' }}>⚠ FALHA DE ARMAZENAMENTO: Dados podem não ser salvos</div>
-      <div style={{ fontSize: tokens.typography.fontSize.micro, color: '#fed7aa', marginTop: 2 }}>Recarregue a página para tentar reconectar ao armazenamento</div>
-    </div>
-  ) : null;
+  // TD-DAT-05: the global storage-error banner lives in @components/GlobalErrorBanner
+  // and is rendered by each panel; App no longer defines a local copy.
 
   const st = heat <= 30 ? { t: 'ESTÁVEL', c: '#22c55e' } : heat <= 55 ? { t: 'ATENÇÃO', c: '#f59e0b' } : heat <= 80 ? { t: 'CRÍTICO', c: '#f97316' } : { t: 'MELTDOWN', c: '#dc2626' };
   const shakeCls = mode === 'play' && heat >= 90 ? 'rumbleHard' : mode === 'play' && heat > 72 ? 'rumble' : '';

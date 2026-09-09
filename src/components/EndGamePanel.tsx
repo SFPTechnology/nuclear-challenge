@@ -1,9 +1,9 @@
 import React from 'react';
 import { tokens } from '@design/tokens';
+import { EmptyState } from './EmptyState';
 import { Plate } from './Plate';
 import { Label } from './Label';
 
-const TITLES = ['👷 Estagiário', '📋 Téc. Competente', '🔧 Op. Exemplar', '⭐ Eng. Nuclear', '🎖️ Dir. Segurança', '🏅 Herói Nacional'];
 const DIFF = {
   1: { name: 'TRAINEE' },
   2: { name: 'JÚNIOR' },
@@ -90,6 +90,19 @@ export function EndGamePanel({
           </Plate>
         )}
 
+        {tot === 0 ? (
+          <div className="mb-2">
+            <EmptyState
+              icon="📋"
+              title="Nenhuma estatística registrada"
+              description="O turno terminou antes de qualquer operação ser respondida, portanto não há relatório de desempenho."
+              actionLabel="Jogar novamente"
+              onAction={start}
+              size="md"
+              testId="empty-state-endgame"
+            />
+          </div>
+        ) : (
         <Plate className="p-3 mb-2">
           <div className="text-center mb-2 pb-2" style={{ borderBottom: '1px solid #171b1f' }}>
             <Label>Relatório de Desempenho</Label>
@@ -116,6 +129,7 @@ export function EndGamePanel({
             </div>
           ))}
         </Plate>
+        )}
 
         <div className="flex gap-1.5 mb-1.5">
           <button onClick={() => setMode('analise')} style={{ flex: 1 }} aria-label="Ver análise de desempenho">

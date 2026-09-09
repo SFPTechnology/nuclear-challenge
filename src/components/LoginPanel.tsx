@@ -105,10 +105,10 @@ export function LoginPanel({
             <div className="space-y-1">
               {Object.entries(players)
                 .sort(
-                  (a, b) =>
+                  (a: [string, any], b: [string, any]) =>
                     (b[1].rank - a[1].rank) ||
-                    (Math.max(...Object.values(b[1].best || {}), 0) -
-                      Math.max(...Object.values(a[1].best || {}), 0))
+                    (Math.max(...(Object.values(b[1].best || {}) as number[]), 0) -
+                      Math.max(...(Object.values(a[1].best || {}) as number[]), 0))
                 )
                 .map(([n, d]: [string, any]) => (
                   <div key={n} className="flex gap-1 items-center">

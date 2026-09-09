@@ -1,4 +1,4 @@
-import React, { Ref } from 'react';
+import React from 'react';
 import { tokens } from '@design/tokens';
 import { EmptyState } from './EmptyState';
 import { GlobalErrorBanner } from './GlobalErrorBanner';
@@ -30,33 +30,41 @@ export function AnalisePanel({
   player, players, calendarCursor, setCalendarCursor,
   bg, css, shellClass, shellStyle, setMode
 }: AnalisePanelProps) {
-  const S = (players[player] && players[player].stats) || { tabs: {}, ops: {}, forms: {} };
-  const pctOf = v => v && (v.h + v.m) > 0 ? Math.round((v.h / (v.h + v.m)) * 100) : null;
-  const colOf = p => p === null ? '#2a2f35' : p >= 90 ? '#16a34a' : p >= 75 ? '#65a30d' : p >= 60 ? '#ca8a04' : p >= 40 ? '#ea580c' : '#dc2626';
-  const tabRows = Object.entries(S.tabs).map(([k, v]) => ({ k: +k, n: v.h + v.m, p: pctOf(v), h: v.h, m: v.m })).filter(r => r.n >= 3);
+  type HitMiss = { h: number; m: number };
+  const S = ((players[player as string] && players[player as string].stats) || { tabs: {}, ops: {}, forms: {} }) as {
+    tabs: Record<string, HitMiss>;
+    ops: Record<string, HitMiss>;
+    forms: Record<string, HitMiss>;
+  };
+  const pctOf = (v?: HitMiss | null) => v && (v.h + v.m) > 0 ? Math.round((v.h / (v.h + v.m)) * 100) : null;
+  const colOf = (p: number | null) => p === null ? '#2a2f35' : p >= 90 ? '#16a34a' : p >= 75 ? '#65a30d' : p >= 60 ? '#ca8a04' : p >= 40 ? '#ea580c' : '#dc2626';
+  const tabRows = Object.entries(S.tabs).map(([k, v]) => ({ k: +k, n: v.h + v.m, p: pctOf(v) as number, h: v.h, m: v.m })).filter(r => r.n >= 3);
   const fracos = [...tabRows].sort((a, b) => a.p - b.p).slice(0, 3);
   const fortes = [...tabRows].sort((a, b) => b.p - a.p).slice(0, 3);
   const totalOps = Object.values(S.ops).reduce((a, v) => a + v.h + v.m, 0);
-  const studyLog = (players[player] && players[player].studyLog) || {};
+  const studyLog: Record<string, any> = (players[player as string] && players[player as string].studyLog) || {};
   const cursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth(), 1);
   const monthStart = cursor.getDay();
   const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
   const calendarCells = [...Array(monthStart + daysInMonth)].map((_, i) => i < monthStart ? null : localDay(new Date(cursor.getFullYear(), cursor.getMonth(), i - monthStart + 1)));
-  const monthDays = calendarCells.filter(Boolean).map(d => ({ ...d, record: studyLog[d.key] })).filter(d => d.record);
+  const monthDays = calendarCells.filter((d): d is NonNullable<typeof d> => Boolean(d)).map(d => ({ ...d, record: studyLog[d.key] })).filter(d => d.record);
   const monthTotal = monthDays.reduce((sum, d) => sum + d.record.total, 0);
   const monthHits = monthDays.reduce((sum, d) => sum + d.record.hits, 0);
-  const priority = Object.entries(studyLog).reduce((rows, [, day]) => {
-    Object.entries(day.tables || {}).forEach(([table, value]) => {
+  type PriorityRow = { key: string; label: string; hits: number; misses: number };
+  const priority = Object.entries(studyLog).reduce<PriorityRow[]>((rows, [, day]: [string, any]) => {
+    Object.entries(day.tables || {}).forEach(([table, raw]) => {
+      const value = raw as { hits: number; misses: number };
       const total = value.hits + value.misses;
       if (total < 2) return;
       const current = rows.find(r => r.key === `tab-${table}`) || { key: `tab-${table}`, label: `Tabuada do ${table}`, hits: 0, misses: 0 };
       current.hits += value.hits; current.misses += value.misses;
       if (!rows.includes(current)) rows.push(current);
     });
-    Object.entries(day.types || {}).forEach(([type, value]) => {
+    Object.entries(day.types || {}).forEach(([type, raw]) => {
+      const value = raw as { hits: number; misses: number };
       const total = value.hits + value.misses;
       if (total < 2) return;
-      const labels = { multiplication: 'Multiplicacao', division: 'Divisao', direct: 'Conta direta', inverse: 'Conta inversa' };
+      const labels: Record<string, string> = { multiplication: 'Multiplicacao', division: 'Divisao', direct: 'Conta direta', inverse: 'Conta inversa' };
       const current = rows.find(r => r.key === `type-${type}`) || { key: `type-${type}`, label: labels[type], hits: 0, misses: 0 };
       current.hits += value.hits; current.misses += value.misses;
       if (!rows.includes(current)) rows.push(current);
@@ -109,10 +117,15 @@ export function AnalisePanel({
         </Plate>}
 
         {totalOps < 10 ? (
-          <Plate className="p-4 text-center">
-            <Label>Dados insuficientes</Label>
-            <div style={{ fontSize: tokens.typography.fontSize.xs0, color: '#c5cdd8', marginTop: 6 }}>Jogue algumas partidas para que a análise identifique seus pontos fortes e fracos.</div>
-          </Plate>
+          <EmptyState
+            icon="🔬"
+            title="Nenhuma análise disponível"
+            description="Jogue algumas partidas para que a análise identifique seus pontos fortes e fracos."
+            actionLabel="Voltar ao menu"
+            onAction={() => setMode('menu')}
+            size="md"
+            testId="empty-state-analise"
+          />
         ) : (
           <>
             <Plate className="p-2 mb-1.5">

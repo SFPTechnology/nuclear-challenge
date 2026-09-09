@@ -1,5 +1,6 @@
 import React from 'react';
 import { tokens } from '@design/tokens';
+import { EmptyState } from './EmptyState';
 import { GlobalErrorBanner } from './GlobalErrorBanner';
 import { Label } from './Label';
 import { MetricBadge } from './MetricBadge';
@@ -23,6 +24,15 @@ export function NC003Panel({
   player, players, heat, integrity, coolant,
   bg, css, shellClass, shellStyle, setMode, start
 }: NC003PanelProps) {
+  // UX-D10: NC-003 is a weighted-rate report. With zero recorded operations
+  // there is nothing to weight, so show an explicit empty state instead of a
+  // table of zeros that reads as a broken screen.
+  const totalGames = Object.values(players).reduce(
+    (sum: number, p: any) => sum + ((p && p.games) || 0),
+    0
+  );
+  const hasTurmaData = Object.keys(players).length > 0 && totalGames > 0;
+
   return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
       <GlobalErrorBanner />
@@ -53,6 +63,19 @@ export function NC003Panel({
           </div>
         </Plate>
 
+        {!hasTurmaData ? (
+          <div className="mb-3">
+            <EmptyState
+              icon="📉"
+              title="Sem dados de taxa ponderada"
+              description="Nenhuma partida foi registrada pela turma ainda. Conclua uma partida para gerar o relatório NC-003."
+              actionLabel="Iniciar partida"
+              onAction={start}
+              size="md"
+              testId="empty-state-nc003"
+            />
+          </div>
+        ) : (
         <Plate className="p-3 mb-3" glow="rgba(6,182,212,.2)">
           <Label className="mb-1.5">Informações da Turma</Label>
           {[['Turma', `5B (${Object.keys(players).length} operadores)`], ['Total de Partidas', Object.keys(players).reduce((sum, name) => sum + ((players[name] && players[name].games) || 0), 0)], ['Taxa Média de Sucesso', `${Object.keys(players).length > 0 ? Math.round(Object.values(players).reduce((sum, p) => sum + ((p.ops > 0 ? (p.hits / p.ops) * 100 : 0)), 0) / Object.keys(players).length) : 0}%`]].map(([label, value], i) => (
@@ -62,6 +85,7 @@ export function NC003Panel({
             </div>
           ))}
         </Plate>
+        )}
 
         <div className="flex gap-1.5">
           <button onClick={() => setMode('menu')} style={{ flex: 1 }} aria-label="Voltar para menu">

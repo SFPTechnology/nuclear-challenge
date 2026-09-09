@@ -34,12 +34,18 @@ export function RankingPanel({
   players, matches, player, tab, setTab, DIFF, TITLES,
   bg, css, shellClass, shellStyle, triggerButtonRef, setMode
 }: RankingPanelProps) {
-  const rows = Object.entries(players).map(([n, d]) => ({
-    n, rank: d.rank || 0, total: Object.values(d.best || {}).reduce((a, b) => a + b, 0),
-    acc: d.ops ? Math.round((d.hits / d.ops) * 100) : 0, streak: d.streak || 0, games: d.games || 0, wins: d.wins || 0, best: d.best || {}
+  const rows = Object.entries(players).map(([n, d]: [string, any]) => ({
+    n,
+    rank: d.rank || 0,
+    total: (Object.values(d.best || {}) as number[]).reduce((a, b) => a + b, 0),
+    acc: d.ops ? Math.round((d.hits / d.ops) * 100) : 0,
+    streak: d.streak || 0,
+    games: d.games || 0,
+    wins: d.wins || 0,
+    best: (d.best || {}) as Record<string, number>
   })).sort((a, b) => b.total - a.total);
 
-  const medal = i => i === 0 ? '#fbbf24' : i === 1 ? '#cbd5e1' : i === 2 ? '#d97706' : '#64748b';
+  const medal = (i: number) => i === 0 ? '#fbbf24' : i === 1 ? '#cbd5e1' : i === 2 ? '#d97706' : '#64748b';
 
   return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
@@ -47,9 +53,11 @@ export function RankingPanel({
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="p-2 mb-2">
           <div className="text-center mb-1.5"><Label>Ranking dos Operadores</Label></div>
-          <div className="flex gap-1">
+          {/* aria-selected is only valid on role="tab" — without the tablist/tab
+              roles axe flags this as a critical WCAG 4.1.2 violation. */}
+          <div className="flex gap-1" role="tablist" aria-label="Abas do ranking">
             {[['geral', 'GERAL'], ['partidas', 'PARTIDAS'], ['graficos', 'GRÁFICOS']].map(([k, l]) => (
-              <button key={k} onClick={() => setTab(k)} aria-label={`Ver aba de ${l.toLowerCase()}`} aria-selected={tab === k} style={{ flex: 1, borderRadius: 4, padding: '6px 0', fontSize: tokens.typography.fontSize.micro, fontWeight: 'bold', letterSpacing: '.08em',
+              <button key={k} role="tab" id={`ranking-tab-${k}`} aria-controls="ranking-tabpanel" tabIndex={tab === k ? 0 : -1} onClick={() => setTab(k)} aria-label={`Ver aba de ${l.toLowerCase()}`} aria-selected={tab === k} style={{ flex: 1, borderRadius: 4, padding: '6px 0', fontSize: tokens.typography.fontSize.micro, fontWeight: 'bold', letterSpacing: '.08em',
                 background: tab === k ? 'linear-gradient(180deg,#0e7490,#0c4a5e)' : 'linear-gradient(180deg,#2a2f35,#1a1e23)',
                 color: tab === k ? '#e0f2fe' : '#a1aab8', border: '1px solid #14181c',
                 boxShadow: tab === k ? '0 0 10px rgba(6,182,212,.3)' : 'inset 0 2px 4px #000' }}>{l}</button>
@@ -57,6 +65,7 @@ export function RankingPanel({
           </div>
         </Plate>
 
+        <div role="tabpanel" id="ranking-tabpanel" aria-labelledby={`ranking-tab-${tab}`} tabIndex={0}>
         {tab === 'geral' && (rows.length === 0
           ? <EmptyState
               icon="📊"
@@ -65,7 +74,7 @@ export function RankingPanel({
               size="md"
             />
           : rows.map((r, i) => (
-            <Plate key={r.n} className="p-2 mb-1.5" glow={r.n === player ? 'rgba(6,182,212,.35)' : null}>
+            <Plate key={r.n} className="p-2 mb-1.5" glow={r.n === player ? 'rgba(6,182,212,.35)' : undefined}>
               <div className="flex justify-between items-center mb-1">
                 <div className="flex items-center gap-2">
                   <span className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.xs_lg, color: medal(i) }}>{i + 1}º</span>
@@ -133,18 +142,18 @@ export function RankingPanel({
           : (() => {
             const top = rows.slice(0, 8);
             const radarData = [1,2,3,4,5].map(k => {
-              const o = { fase: DIFF[k].name.slice(0, 6) };
+              const o: Record<string, any> = { fase: DIFF[k].name.slice(0, 6) };
               top.slice(0, 4).forEach(r => { o[r.n] = r.best[k] || 0; });
               return o;
             });
             const chrono = [...matches].sort((a, b) => a.ts - b.ts).slice(-12)
               .map((m, i) => ({ i: i + 1, pts: m.pts, acc: m.acc, n: m.n }));
-            const byPlayer = {};
+            const byPlayer: Record<string, any[]> = {};
             [...matches].sort((a, b) => a.ts - b.ts).forEach(m => { (byPlayer[m.n] = byPlayer[m.n] || []).push(m); });
             const evoNames = top.slice(0, 4).map(r => r.n).filter(n => (byPlayer[n] || []).length > 0);
             const maxLen = Math.min(10, Math.max(0, ...evoNames.map(n => byPlayer[n].length)));
             const evo = [...Array(maxLen)].map((_, i) => {
-              const row = { i: i + 1 };
+              const row: Record<string, any> = { i: i + 1 };
               evoNames.forEach(n => {
                 const list = byPlayer[n].slice(-maxLen);
                 if (list[i]) row[n] = list[i].pts;
@@ -206,7 +215,7 @@ export function RankingPanel({
                         <XAxis dataKey="i" tick={axisStyle} axisLine={{ stroke: '#2a3138' }} tickLine={false} />
                         <YAxis yAxisId="p" tick={{ fontSize: tokens.typography.fontSize.micro, fill: '#06b6d4' }} axisLine={false} tickLine={false} />
                         <YAxis yAxisId="a" orientation="right" domain={[0, 100]} tick={{ fontSize: tokens.typography.fontSize.micro, fill: '#f59e0b' }} axisLine={false} tickLine={false} width={26} />
-                        <Tooltip contentStyle={tipStyle} labelFormatter={v => `Partida ${v} · ${(chrono[v - 1] || {}).n || ''}`} formatter={(val, name) => [name === 'Acerto %' ? `${val}%` : val, name]} />
+                        <Tooltip contentStyle={tipStyle} labelFormatter={(label) => { const v = Number(label); return `Partida ${v} · ${(chrono[v - 1] || ({} as typeof chrono[number])).n || ''}`; }} formatter={(val, name) => [name === 'Acerto %' ? `${val}%` : val, name]} />
                         <Line yAxisId="p" type="monotone" dataKey="pts" name="Pontos" stroke="#06b6d4" strokeWidth={2} dot={{ r: 2.5, fill: '#06b6d4' }} />
                         <Line yAxisId="a" type="monotone" dataKey="acc" name="Acerto %" stroke="#f59e0b" strokeWidth={1.6} strokeDasharray="4 3" dot={{ r: 2, fill: '#f59e0b' }} />
                       </LineChart>
@@ -236,6 +245,7 @@ export function RankingPanel({
               </>
             );
           })())}
+        </div>
 
         <button ref={triggerButtonRef} onClick={() => setMode(player ? 'menu' : 'login')} className="w-full mt-1.5" aria-label="Voltar para menu anterior">
           <Plate className="py-2 text-center"><Label>Voltar</Label></Plate>

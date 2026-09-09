@@ -13,11 +13,11 @@ interface SupportProps {
   unit?: string;
   pct: number;
   I: LucideIcon;
-  inv: boolean;
-  warn: boolean;
+  inv?: boolean;
+  warn?: boolean;
 }
 
-export function Support({ label, value, unit, pct, I: IconComponent, inv, warn }: SupportProps) {
+export function Support({ label, value, unit, pct, I: IconComponent, inv = false, warn = false }: SupportProps) {
   const c = inv ? (pct < 25 ? '#dc2626' : pct < 55 ? '#f59e0b' : '#22c55e') : '#06b6d4';
 
   return (

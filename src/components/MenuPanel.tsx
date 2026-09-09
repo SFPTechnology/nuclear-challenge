@@ -1,6 +1,7 @@
 import React from 'react';
 import { tokens } from '@design/tokens';
 import { Volume2, VolumeX } from 'lucide-react';
+import { EmptyState } from './EmptyState';
 import { Plate } from './Plate';
 import { Label } from './Label';
 import { Lcd } from './Lcd';
@@ -45,6 +46,11 @@ export function MenuPanel({
 
   if (!player) setPlayer(menuPlayer);
 
+  // UX-D10: a brand-new operator has no history. Say so explicitly instead of
+  // rendering a level list whose record slots are all silently blank.
+  const menuRecord = players[menuPlayer];
+  const hasSavedMatches = Boolean(menuRecord && (menuRecord.games || 0) > 0);
+
   return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
       <GlobalErrorBanner />
@@ -86,12 +92,24 @@ export function MenuPanel({
           </div>
         </Plate>
 
+        {!hasSavedMatches && (
+          <div className="mb-2">
+            <EmptyState
+              icon="🗂️"
+              title="Nenhuma partida salva"
+              description="Você ainda não concluiu nenhum turno. Escolha um nível abaixo para registrar seu primeiro resultado."
+              size="sm"
+              testId="empty-state-menu"
+            />
+          </div>
+        )}
+
         <div className="space-y-1.5">
           {Object.entries(DIFF).map(([k, v]) => {
             const rec = players[menuPlayer] && players[menuPlayer].best ? players[menuPlayer].best[k] : null;
             return (
               <button key={k} onClick={() => { setDiff(+k); initA(); setMode('nc003'); }} className="w-full text-left" aria-label={`Selecionar nível ${v.name} - ${v.sub}`}>
-                <Plate className="px-3 py-2" glow={diff === +k ? 'rgba(6,182,212,.4)' : null}>
+                <Plate className="px-3 py-2" glow={diff === +k ? 'rgba(6,182,212,.4)' : undefined}>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <div

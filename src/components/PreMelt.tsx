@@ -5,8 +5,22 @@ interface PreMeltProps {
 }
 
 export function PreMelt({ secs }: PreMeltProps) {
+  // UX-D10: PreMelt is a countdown overlay, not a data list. Its only "empty"
+  // condition is an absent/invalid countdown value, which previously rendered a
+  // blank red box. Fall back to a readable label instead.
+  const hasCountdown = typeof secs === 'number' && Number.isFinite(secs);
+  const countdownLabel = hasCountdown ? String(secs) : '--';
+
   return (
     <div
+      role="alert"
+      aria-live="assertive"
+      aria-label={
+        hasCountdown
+          ? `Meltdown iminente em ${secs} segundos. Acerte ou acione o SCRAM.`
+          : 'Meltdown iminente. Contagem indisponível. Acerte ou acione o SCRAM.'
+      }
+      data-testid="pre-melt"
       className="fixed left-1/2"
       style={{
         top: '36%',
@@ -36,13 +50,15 @@ export function PreMelt({ secs }: PreMeltProps) {
         </div>
         <div
           className="font-mono font-bold"
+          aria-hidden="true"
+          data-testid="pre-melt-countdown"
           style={{
             fontSize: tokens.typography.fontSize.xl2,
             color: '#f87171',
             textShadow: '0 0 12px #dc2626',
           }}
         >
-          {secs}
+          {countdownLabel}
         </div>
         <div
           style={{

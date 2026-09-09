@@ -60,8 +60,9 @@ describe('Wave 3: Responsivity (UX-D11)', () => {
   });
 
   describe('Responsive CSS file', () => {
-    it('should export responsive styles', () => {
-      expect(require('@styles/responsive.css')).toBeDefined();
+    it('should export responsive styles', async () => {
+      // ESM import — `require` is not available under vitest's ESM runtime.
+      expect(await import('@styles/responsive.css')).toBeDefined();
     });
   });
 

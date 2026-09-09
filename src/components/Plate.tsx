@@ -4,6 +4,10 @@ interface PlateProps {
   children: React.ReactNode;
   className?: string;
   glow?: string;
+  /** ARIA role forwarded to the wrapper (e.g. "region"). */
+  role?: string;
+  /** Accessible name, required by ARIA whenever role="region" is used. */
+  'aria-label'?: string;
 }
 
 const DS = {
@@ -12,9 +16,11 @@ const DS = {
   brush: 'repeating-linear-gradient(94deg,rgba(255,255,255,.022) 0px,rgba(255,255,255,.022) 1px,transparent 1px,transparent 3px)',
 };
 
-export function Plate({ children, className = '', glow }: PlateProps) {
+export function Plate({ children, className = '', glow, role, 'aria-label': ariaLabel }: PlateProps) {
   return (
     <div
+      role={role}
+      aria-label={ariaLabel}
       className={`relative rounded-md ${className}`}
       style={{
         background: DS.metal,

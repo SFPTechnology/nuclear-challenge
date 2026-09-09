@@ -1,6 +1,6 @@
 import React from 'react';
 import { tokens } from '@design/tokens';
-import { KEYBOARD_SHORTCUTS, KeyboardShortcut } from '@utils/keyboardShortcuts';
+import { KEYBOARD_SHORTCUTS } from '@utils/keyboardShortcuts';
 
 interface KeyboardLegendModalProps {
   visible: boolean;

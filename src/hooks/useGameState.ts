@@ -39,7 +39,8 @@ interface Feedback {
 }
 
 export function useGameState(diff: number, setMode: (mode: string) => void, tone: (f: number, dur: number, t?: string, vol?: number) => void, scrmSnd: () => void, promote: (rank: number) => void, initA: () => void) {
-  const { players, player, setPlayers } = useTurmaRegistry();
+  // Call retained for hook-order/side-effect parity; no bindings are consumed here.
+  useTurmaRegistry();
   const { heat, setHeat, integrity, setIntegrity, coolant, setCoolant, shownTemp, setShownTemp, delta, setDelta } = usePhysics(30);
   const { pts, setPts, goal, setGoal, strk, setStrk, bestStrk, setBestStrk } = useScore();
 
@@ -216,9 +217,10 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     tone(880, .05, 'square', .16);
   }, [picked, fb, diff, tone]);
 
-  const check = useCallback((okSnd: () => void, errSnd: () => void, rankIdx: number) => {
-    if (!ans || !pair[picked!]) return;
+  const check = useCallback((okSnd: () => void, errSnd: () => void, _rankIdx: number) => {
     const prob = pair[picked!];
+    // Single guard narrows `prob` to Question for the whole callback.
+    if (!ans || !prob) return;
     const ok = parseInt(ans) === prob.answer;
     const prio = prob.profile === 'priority';
 

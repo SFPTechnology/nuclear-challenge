@@ -3,6 +3,7 @@ import { Volume2, VolumeX, Droplets, Zap, HeartPulse, Wind, FlaskConical, Shield
 import { tokens } from '@design/tokens';
 import { Ambient } from './Ambient';
 import { CoreGauge } from './CoreGauge';
+import { EmptyState } from './EmptyState';
 import { GlobalErrorBanner } from './GlobalErrorBanner';
 import { Label } from './Label';
 import { Lamp } from './Lamp';
@@ -71,6 +72,11 @@ export function GamePlayPanel({
   picked, locked, grace, pair, pick, prob, fb, ringPct, ringCol, ans, check, press,
   pts, goal, strk, elapsed, pauseGame, quit, shakeCls, bg, css, shellClass, shellStyle
 }: GamePlayPanelProps) {
+  // UX-D10: the question pair is generated per round. If generation ever yields
+  // nothing (and no problem is already in flight), the player would face an
+  // empty console with no explanation — surface an empty state instead.
+  const hasQuestions = Boolean(prob) || (Array.isArray(pair) && pair.some(Boolean));
+
   return (
     <div className={`nc-viewport min-h-screen p-2 ${shakeCls}`} style={bg}>{css}
       <GlobalErrorBanner />
@@ -120,7 +126,19 @@ export function GamePlayPanel({
           </div>
         </Plate>
 
-        {picked === null && !locked ? (
+        {!hasQuestions ? (
+          <div className="mb-1.5">
+            <EmptyState
+              icon="⚛️"
+              title="Sessão sem questões"
+              description="Nenhuma operação foi gerada para este turno. Saia e inicie a partida novamente."
+              actionLabel="Sair da partida"
+              onAction={quit}
+              size="sm"
+              testId="empty-state-gameplay"
+            />
+          </div>
+        ) : picked === null && !locked ? (
           <Plate className="p-2 mb-1.5" role="region" aria-label="Seleção de operação">
             <div className="text-center mb-1.5" role="alert"><Label>Selecione a operação {grace > 0 ? `· ${grace}s` : ''}</Label></div>
             <div className="flex gap-1.5">
@@ -176,7 +194,7 @@ export function GamePlayPanel({
         <div className="flex gap-1">
           <PauseButton onClick={pauseGame} />
           <button onClick={quit} aria-label="Sair da partida"><Plate className="px-2.5 py-1.5 h-full flex items-center"><Label size={8}>Sair</Label></Plate></button>
-          {[['META', `${pts}/${goal}`, '#7dd3fc'], ['SEQ', strk, '#fbbf24'], ['TEMPO', `${Math.floor(elapsed / 60)}:${(elapsed % 60).toString().padStart(2, '0')}`, '#cbd5e1']].map(([l, v, c], i) => (
+          {([['META', `${pts}/${goal}`, '#7dd3fc'], ['SEQ', String(strk), '#fbbf24'], ['TEMPO', `${Math.floor(elapsed / 60)}:${(elapsed % 60).toString().padStart(2, '0')}`, '#cbd5e1']] as Array<[string, string, string]>).map(([l, v, c], i) => (
             <div key={i} style={{ flex: 1 }}><Plate className="py-1 text-center"><Label size={6.5}>{l}</Label><div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: c }}>{v}</div></Plate></div>
           ))}
         </div>

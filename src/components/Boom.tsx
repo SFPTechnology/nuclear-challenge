@@ -66,7 +66,14 @@ export function Boom({ onDone }: BoomProps) {
       : 'radial-gradient(circle at 50% 50%,#f50 0%,#800 30%,#000 70%)';
 
   return (
-    <div className="fixed inset-0 bg-black overflow-hidden" style={{ zIndex: 60 }}>
+    <div
+      role="alert"
+      aria-live="assertive"
+      aria-label="Meltdown. Falha catastrófica do reator. A partida foi encerrada."
+      data-testid="boom"
+      className="fixed inset-0 bg-black overflow-hidden"
+      style={{ zIndex: 60 }}
+    >
       {!prefersReducedMotion && step < 1 && <div className="absolute inset-0 bg-white" />}
       <div className="absolute inset-0" style={{ background: baseBg }}>
         {!prefersReducedMotion &&

@@ -1,7 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 
+/** Every screen App.tsx can route to. */
+export type AppMode =
+  | 'login'
+  | 'menu'
+  | 'ranking'
+  | 'analise'
+  | 'nc003'
+  | 'play'
+  | 'pause'
+  | 'win'
+  | 'lose'
+  | 'quit';
+
 export function useUIState() {
-  const [mode, setMode] = useState<'login' | 'menu' | 'play' | 'pause' | 'analise' | 'quit'>('login');
+  // The union previously omitted 'ranking' | 'nc003' | 'win' | 'lose' even though
+  // App.tsx routes to all of them, which made every setMode call a type error.
+  const [mode, setMode] = useState<AppMode>('login');
   const [boom, setBoom] = useState(false);
   const [diff, setDiff] = useState(3);
   const [selectedOperatorToExclude, setSelectedOperatorToExclude] = useState<{
