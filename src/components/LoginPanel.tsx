@@ -1,4 +1,5 @@
 import React from 'react';
+import { tokens } from '@design/tokens';
 import { EmptyState } from './EmptyState';
 import { Label } from './Label';
 import { Plate } from './Plate';
@@ -38,8 +39,8 @@ export function LoginPanel({
     <div className="nc-viewport min-h-screen p-3 flex flex-col justify-center" style={bg}>{css}
       <div className={`${shellClass} mx-auto w-full`} style={shellStyle}>
         <Plate className="p-4 mb-3 text-center">
-          <div style={{ fontSize: 38 }}>☢️</div>
-          <div className="font-bold" style={{ fontSize: 18, letterSpacing: '.2em', color: '#cbd5e1' }}>USINA NUCLEAR</div>
+          <div style={{ fontSize: tokens.typography.fontSize['4xl_'] }}>☢️</div>
+          <div className="font-bold" style={{ fontSize: tokens.typography.fontSize.lg, letterSpacing: '.2em', color: '#cbd5e1' }}>USINA NUCLEAR</div>
           <Label className="mt-1">Identificação do Operador</Label>
         </Plate>
 
@@ -55,7 +56,7 @@ export function LoginPanel({
               className="flex-1 rounded font-mono focus:outline-none"
               style={{
                 padding: '7px 10px',
-                fontSize: 13,
+                fontSize: tokens.typography.fontSize.xs_lg,
                 background: 'linear-gradient(180deg,#0a1418,#050b0e)',
                 boxShadow: DS.recess,
                 color: '#7dd3fc',
@@ -70,7 +71,7 @@ export function LoginPanel({
               aria-label={`Criar operador: ${nameInput.trim() || 'nome requerido'}`}
               style={{
                 padding: '0 16px',
-                fontSize: 11,
+                fontSize: tokens.typography.fontSize.xs0,
                 letterSpacing: '.1em',
                 background: nameInput.trim()
                   ? 'linear-gradient(180deg,#0e7490,#0c4a5e)'
@@ -88,11 +89,11 @@ export function LoginPanel({
         <Plate className="p-3">
           <div className="flex justify-between items-center mb-1.5">
             <Label>Operadores Registrados</Label>
-            <span style={{ fontSize: 8, color: '#a1aab8' }}>{Object.keys(players).length}</span>
+            <span style={{ fontSize: tokens.typography.fontSize.micro, color: '#a1aab8' }}>{Object.keys(players).length}</span>
           </div>
 
           {loading ? (
-            <div style={{ fontSize: 11, color: '#a1aab8' }}>Consultando registros…</div>
+            <div style={{ fontSize: tokens.typography.fontSize.xs0, color: '#a1aab8' }}>Consultando registros…</div>
           ) : Object.keys(players).length === 0 ? (
             <EmptyState
               icon="👤"
@@ -131,7 +132,7 @@ export function LoginPanel({
                         <span className="font-mono font-bold" style={{ fontSize: 12, color: '#e2e8f0', letterSpacing: '.06em' }}>
                           {n}
                         </span>
-                        <span style={{ fontSize: 9, color: '#7dd3fc' }}>{TITLES[d.rank || 0]}</span>
+                        <span style={{ fontSize: tokens.typography.fontSize.tiny, color: '#7dd3fc' }}>{TITLES[d.rank || 0]}</span>
                       </div>
                     </button>
                     <button
@@ -177,7 +178,7 @@ export function LoginPanel({
           )}
 
           {storeErr && (
-            <div style={{ fontSize: 9, color: '#f59e0b', marginTop: 6, lineHeight: 1.4 }}>
+            <div style={{ fontSize: tokens.typography.fontSize.tiny, color: '#f59e0b', marginTop: 6, lineHeight: 1.4 }}>
               ⚠ O armazenamento não respondeu. Os cadastros valem só nesta sessão e serão perdidos ao recarregar.
             </div>
           )}

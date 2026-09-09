@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { tokens } from '@design/tokens';
 
 interface BoomProps {
   onDone: () => void;
@@ -109,13 +110,13 @@ export function Boom({ onDone }: BoomProps) {
         >
           <h1
             className="font-bold text-red-500"
-            style={{ fontSize: 30, textShadow: '0 0 15px #f00' }}
+            style={{ fontSize: tokens.typography.fontSize['3xl'], textShadow: '0 0 15px #f00' }}
           >
             ☢️ MELTDOWN ☢️
           </h1>
           <p
             className="text-orange-400 mt-1"
-            style={{ fontSize: 12, letterSpacing: '.15em' }}
+            style={{ fontSize: tokens.typography.fontSize.xs, letterSpacing: '.15em' }}
           >
             FALHA CATASTRÓFICA
           </p>

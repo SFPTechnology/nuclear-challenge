@@ -1,3 +1,5 @@
+import { tokens } from '@design/tokens';
+
 interface LcdProps {
   value: string | number;
   unit?: string;
@@ -29,7 +31,7 @@ export function Lcd({ value, unit, color = '#7dd3fc', size = 13 }: LcdProps) {
         <span
           className="font-mono"
           style={{
-            fontSize: 8,
+            fontSize: tokens.typography.fontSize.micro,
             marginLeft: 2,
             color: '#4b5563',
           }}

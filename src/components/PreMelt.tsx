@@ -1,3 +1,5 @@
+import { tokens } from '@design/tokens';
+
 interface PreMeltProps {
   secs: number;
 }
@@ -25,7 +27,7 @@ export function PreMelt({ secs }: PreMeltProps) {
         <div
           className="font-bold"
           style={{
-            fontSize: 13,
+            fontSize: tokens.typography.fontSize.xs_lg,
             letterSpacing: '.18em',
             color: '#fecaca',
           }}
@@ -35,7 +37,7 @@ export function PreMelt({ secs }: PreMeltProps) {
         <div
           className="font-mono font-bold"
           style={{
-            fontSize: 26,
+            fontSize: tokens.typography.fontSize.xl2,
             color: '#f87171',
             textShadow: '0 0 12px #dc2626',
           }}
@@ -44,7 +46,7 @@ export function PreMelt({ secs }: PreMeltProps) {
         </div>
         <div
           style={{
-            fontSize: 9,
+            fontSize: tokens.typography.fontSize.tiny,
             letterSpacing: '.12em',
             color: '#fca5a5',
           }}
