@@ -1,4 +1,5 @@
 import { LucideIcon } from 'lucide-react';
+import { tokens } from '@design/tokens';
 
 interface ValveColor {
   a: string;
@@ -59,14 +60,14 @@ export function Valve({ label, sub, I: IconComponent, cd, maxCd, disabled, color
         <span
           className="font-bold"
           style={{
-            fontSize: 8.5,
+            fontSize: tokens.typography.fontSize['0xs'],
             letterSpacing: '.06em',
             color: ready ? color.txt : '#4b5563',
           }}
         >
           {label}
         </span>
-        <span style={{ fontSize: 7, color: ready ? color.txt + 'bb' : '#3f464e' }}>
+        <span style={{ fontSize: tokens.typography.fontSize.xs2, color: ready ? color.txt + 'bb' : '#3f464e' }}>
           {cd > 0 ? `${cd}s` : sub}
         </span>
       </div>

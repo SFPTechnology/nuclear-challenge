@@ -1,4 +1,5 @@
 import React, { Ref } from 'react';
+import { tokens } from '@design/tokens';
 import { EmptyState } from './EmptyState';
 import { GlobalErrorBanner } from './GlobalErrorBanner';
 import { Label } from './Label';
@@ -6,8 +7,8 @@ import { Plate } from './Plate';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, LineChart, Line, Cell } from 'recharts';
 
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
-const axisStyle = { fontSize: 8, fill: '#c5cdd8' };
-const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
+const axisStyle = { fontSize: tokens.typography.fontSize.micro, fill: '#c5cdd8' };
+const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: tokens.typography.fontSize['0.5xs'], color: '#cbd5e1' };
 
 const DS = {
   recess: 'inset 0 3px 8px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06)',
@@ -48,7 +49,7 @@ export function RankingPanel({
           <div className="text-center mb-1.5"><Label>Ranking dos Operadores</Label></div>
           <div className="flex gap-1">
             {[['geral', 'GERAL'], ['partidas', 'PARTIDAS'], ['graficos', 'GRÁFICOS']].map(([k, l]) => (
-              <button key={k} onClick={() => setTab(k)} aria-label={`Ver aba de ${l.toLowerCase()}`} aria-selected={tab === k} style={{ flex: 1, borderRadius: 4, padding: '6px 0', fontSize: 8, fontWeight: 'bold', letterSpacing: '.08em',
+              <button key={k} onClick={() => setTab(k)} aria-label={`Ver aba de ${l.toLowerCase()}`} aria-selected={tab === k} style={{ flex: 1, borderRadius: 4, padding: '6px 0', fontSize: tokens.typography.fontSize.micro, fontWeight: 'bold', letterSpacing: '.08em',
                 background: tab === k ? 'linear-gradient(180deg,#0e7490,#0c4a5e)' : 'linear-gradient(180deg,#2a2f35,#1a1e23)',
                 color: tab === k ? '#e0f2fe' : '#a1aab8', border: '1px solid #14181c',
                 boxShadow: tab === k ? '0 0 10px rgba(6,182,212,.3)' : 'inset 0 2px 4px #000' }}>{l}</button>
@@ -67,24 +68,24 @@ export function RankingPanel({
             <Plate key={r.n} className="p-2 mb-1.5" glow={r.n === player ? 'rgba(6,182,212,.35)' : null}>
               <div className="flex justify-between items-center mb-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold" style={{ fontSize: 13, color: medal(i) }}>{i + 1}º</span>
-                  <span className="font-mono font-bold" style={{ fontSize: 12, color: r.n === player ? '#7dd3fc' : '#e2e8f0' }}>{r.n}</span>
+                  <span className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.xs_lg, color: medal(i) }}>{i + 1}º</span>
+                  <span className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.xs, color: r.n === player ? '#7dd3fc' : '#e2e8f0' }}>{r.n}</span>
                 </div>
-                <span style={{ fontSize: 9, color: '#7dd3fc' }}>{TITLES[r.rank]}</span>
+                <span style={{ fontSize: tokens.typography.fontSize.tiny, color: '#7dd3fc' }}>{TITLES[r.rank]}</span>
               </div>
               <div className="flex gap-1">
                 {[['TOTAL', r.total], ['ACERTO', `${r.acc}%`], ['SEQ', r.streak], ['VITÓRIAS', `${r.wins}/${r.games}`]].map(([l, v], j) => (
                   <div key={j} style={{ flex: 1, textAlign: 'center', background: '#0a1418', boxShadow: DS.recess, borderRadius: 4, padding: '3px 0' }}>
                     <div style={{ fontSize: 6.5, color: '#a1aab8', letterSpacing: '.1em' }}>{l}</div>
-                    <div className="font-mono font-bold" style={{ fontSize: 10, color: '#cbd5e1' }}>{v}</div>
+                    <div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: '#cbd5e1' }}>{v}</div>
                   </div>
                 ))}
               </div>
               <div className="flex gap-1 mt-1">
                 {[1,2,3,4,5].map(k => (
                   <div key={k} style={{ flex: 1, textAlign: 'center', borderRadius: 3, padding: '2px 0', background: r.best[k] ? 'rgba(6,182,212,.12)' : 'transparent', border: '1px solid #1c2126' }}>
-                    <div style={{ fontSize: 6, color: '#a1aab8' }}>{DIFF[k].name.slice(0, 5)}</div>
-                    <div className="font-mono" style={{ fontSize: 9, color: r.best[k] ? '#7dd3fc' : '#3f464e' }}>{r.best[k] || '—'}</div>
+                    <div style={{ fontSize: tokens.typography.fontSize['3xs'], color: '#a1aab8' }}>{DIFF[k].name.slice(0, 5)}</div>
+                    <div className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: r.best[k] ? '#7dd3fc' : '#3f464e' }}>{r.best[k] || '—'}</div>
                   </div>
                 ))}
               </div>
@@ -109,12 +110,12 @@ export function RankingPanel({
               </div>
               {matches.slice(0, 20).map((m, i) => (
                 <div key={m.ts + '' + i} className="flex items-center px-1" style={{ padding: '3px 4px', borderRadius: 3, background: m.n === player ? 'rgba(6,182,212,.10)' : 'transparent' }}>
-                  <div style={{ width: 22 }}><span className="font-mono font-bold" style={{ fontSize: 10, color: medal(i) }}>{i + 1}º</span></div>
-                  <div style={{ flex: 1, overflow: 'hidden' }}><span className="font-mono" style={{ fontSize: 10, color: m.n === player ? '#7dd3fc' : '#e2e8f0' }}>{m.n}</span></div>
-                  <div style={{ width: 42 }}><span style={{ fontSize: 7.5, color: m.d === 5 ? '#f87171' : '#c5cdd8' }}>{DIFF[m.d].name.slice(0, 6)}</span></div>
-                  <div style={{ width: 34, textAlign: 'right' }}><span className="font-mono font-bold" style={{ fontSize: 10, color: '#fbbf24' }}>{m.pts}</span></div>
-                  <div style={{ width: 30, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: 9, color: m.acc >= 80 ? '#4ade80' : '#c5cdd8' }}>{m.acc}%</span></div>
-                  <div style={{ width: 26, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: 9, color: '#c5cdd8' }}>{m.streak}</span></div>
+                  <div style={{ width: 22 }}><span className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: medal(i) }}>{i + 1}º</span></div>
+                  <div style={{ flex: 1, overflow: 'hidden' }}><span className="font-mono" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: m.n === player ? '#7dd3fc' : '#e2e8f0' }}>{m.n}</span></div>
+                  <div style={{ width: 42 }}><span style={{ fontSize: tokens.typography.fontSize.xs1, color: m.d === 5 ? '#f87171' : '#c5cdd8' }}>{DIFF[m.d].name.slice(0, 6)}</span></div>
+                  <div style={{ width: 34, textAlign: 'right' }}><span className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: '#fbbf24' }}>{m.pts}</span></div>
+                  <div style={{ width: 30, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: m.acc >= 80 ? '#4ade80' : '#c5cdd8' }}>{m.acc}%</span></div>
+                  <div style={{ width: 26, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: '#c5cdd8' }}>{m.streak}</span></div>
                 </div>
               ))}
               <div className="text-center mt-1.5 pt-1.5" style={{ borderTop: '1px solid #171b1f' }}>
@@ -186,11 +187,11 @@ export function RankingPanel({
                     <ResponsiveContainer width="100%" height={190}>
                       <RadarChart data={radarData} outerRadius={62}>
                         <PolarGrid stroke="#2a3138" />
-                        <PolarAngleAxis dataKey="fase" tick={{ fontSize: 7.5, fill: '#c5cdd8' }} />
+                        <PolarAngleAxis dataKey="fase" tick={{ fontSize: tokens.typography.fontSize.xs1, fill: '#c5cdd8' }} />
                         {top.slice(0, 4).map((r, i) => (
                           <Radar key={r.n} name={r.n} dataKey={r.n} stroke={CHART_COLORS[i % CHART_COLORS.length]} fill={CHART_COLORS[i % CHART_COLORS.length]} fillOpacity={.18} strokeWidth={r.n === player ? 2.4 : 1.4} />
                         ))}
-                        <Legend wrapperStyle={{ fontSize: 8, color: '#c5cdd8' }} iconSize={7} />
+                        <Legend wrapperStyle={{ fontSize: tokens.typography.fontSize.micro, color: '#c5cdd8' }} iconSize={7} />
                         <Tooltip contentStyle={tipStyle} />
                       </RadarChart>
                     </ResponsiveContainer>
@@ -203,8 +204,8 @@ export function RankingPanel({
                     <ResponsiveContainer width="100%" height={140}>
                       <LineChart data={chrono} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
                         <XAxis dataKey="i" tick={axisStyle} axisLine={{ stroke: '#2a3138' }} tickLine={false} />
-                        <YAxis yAxisId="p" tick={{ fontSize: 8, fill: '#06b6d4' }} axisLine={false} tickLine={false} />
-                        <YAxis yAxisId="a" orientation="right" domain={[0, 100]} tick={{ fontSize: 8, fill: '#f59e0b' }} axisLine={false} tickLine={false} width={26} />
+                        <YAxis yAxisId="p" tick={{ fontSize: tokens.typography.fontSize.micro, fill: '#06b6d4' }} axisLine={false} tickLine={false} />
+                        <YAxis yAxisId="a" orientation="right" domain={[0, 100]} tick={{ fontSize: tokens.typography.fontSize.micro, fill: '#f59e0b' }} axisLine={false} tickLine={false} width={26} />
                         <Tooltip contentStyle={tipStyle} labelFormatter={v => `Partida ${v} · ${(chrono[v - 1] || {}).n || ''}`} formatter={(val, name) => [name === 'Acerto %' ? `${val}%` : val, name]} />
                         <Line yAxisId="p" type="monotone" dataKey="pts" name="Pontos" stroke="#06b6d4" strokeWidth={2} dot={{ r: 2.5, fill: '#06b6d4' }} />
                         <Line yAxisId="a" type="monotone" dataKey="acc" name="Acerto %" stroke="#f59e0b" strokeWidth={1.6} strokeDasharray="4 3" dot={{ r: 2, fill: '#f59e0b' }} />
@@ -219,10 +220,10 @@ export function RankingPanel({
                     <Label className="mb-1">Progresso individual · pontos por partida</Label>
                     <ResponsiveContainer width="100%" height={150}>
                       <LineChart data={evo} margin={{ top: 8, right: 6, bottom: 0, left: -20 }}>
-                        <XAxis dataKey="i" tick={axisStyle} axisLine={{ stroke: '#2a3138' }} tickLine={false} label={{ value: 'partida do operador', position: 'insideBottom', offset: -2, style: { fontSize: 7, fill: '#4b5563' } }} />
+                        <XAxis dataKey="i" tick={axisStyle} axisLine={{ stroke: '#2a3138' }} tickLine={false} label={{ value: 'partida do operador', position: 'insideBottom', offset: -2, style: { fontSize: tokens.typography.fontSize.xs2, fill: '#4b5563' } }} />
                         <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
                         <Tooltip contentStyle={tipStyle} labelFormatter={v => `Partida ${v}`} />
-                        <Legend wrapperStyle={{ fontSize: 8, color: '#c5cdd8' }} iconSize={7} />
+                        <Legend wrapperStyle={{ fontSize: tokens.typography.fontSize.micro, color: '#c5cdd8' }} iconSize={7} />
                         {evoNames.map((n, i) => (
                           <Line key={n} type="monotone" dataKey={n} name={n} stroke={CHART_COLORS[i % CHART_COLORS.length]}
                             strokeWidth={n === player ? 2.6 : 1.5} dot={{ r: n === player ? 3 : 2, fill: CHART_COLORS[i % CHART_COLORS.length] }} connectNulls />

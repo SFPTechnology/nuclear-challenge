@@ -1,4 +1,5 @@
 import React from 'react';
+import { tokens } from '@design/tokens';
 import { Plate } from './Plate';
 import { Label } from './Label';
 
@@ -45,13 +46,13 @@ export function EndGamePanel({
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="p-4 text-center mb-2">
-          <div style={{ fontSize: 38 }}>
+          <div style={{ fontSize: tokens.typography.fontSize['4xl_'] }}>
             {mode === 'win' ? '✅' : mode === 'lose' ? '💥' : mode === 'pause' ? '⏸️' : '🛑'}
           </div>
           <div
             className="font-bold"
             style={{
-              fontSize: 16,
+              fontSize: tokens.typography.fontSize.base,
               letterSpacing: '.15em',
               color:
                 mode === 'win'
@@ -73,7 +74,7 @@ export function EndGamePanel({
           </div>
           <div
             className="inline-block mt-2 rounded"
-            style={{ padding: '4px 12px', background: '#0a1418', boxShadow: DS.recess, color: '#7dd3fc', fontSize: 11 }}
+            style={{ padding: '4px 12px', background: '#0a1418', boxShadow: DS.recess, color: '#7dd3fc', fontSize: tokens.typography.fontSize.xs0 }}
           >
             {rank}
           </div>
@@ -82,7 +83,7 @@ export function EndGamePanel({
         {mode === 'win' && diff < 5 && (
           <Plate className="p-3 mb-2 text-center" glow="rgba(6,182,212,.3)">
             <Label className="mb-1">Promoção Disponível</Label>
-            <div style={{ fontSize: 12, color: '#cbd5e1' }}>
+            <div style={{ fontSize: tokens.typography.fontSize.xs, color: '#cbd5e1' }}>
               Avance para <b style={{ color: '#7dd3fc' }}>{(DIFF as any)[Math.min(5, diff + 1)].name}</b>
             </div>
             <Label className="mt-1">Nova meta · {1000 * (diff + 1)} pts</Label>
@@ -109,7 +110,7 @@ export function EndGamePanel({
           ].map(([k, v], i) => (
             <div key={i} className="flex justify-between items-center py-0.5">
               <Label>{k}</Label>
-              <span className="font-mono" style={{ fontSize: 12, color: '#cbd5e1' }}>
+              <span className="font-mono" style={{ fontSize: tokens.typography.fontSize.xs, color: '#cbd5e1' }}>
                 {v}
               </span>
             </div>
@@ -141,7 +142,7 @@ export function EndGamePanel({
                 className="rounded-md text-center font-bold"
                 style={{
                   padding: '10px 0',
-                  fontSize: 11,
+                  fontSize: tokens.typography.fontSize.xs0,
                   background: 'linear-gradient(180deg,#16a34a,#15803d)',
                   boxShadow: '0 0 14px rgba(34,197,94,.4),0 3px 6px #000',
                   color: '#dcfce7'
@@ -157,7 +158,7 @@ export function EndGamePanel({
                 className="rounded-md text-center font-bold"
                 style={{
                   padding: '10px 0',
-                  fontSize: 11,
+                  fontSize: tokens.typography.fontSize.xs0,
                   background: 'linear-gradient(180deg,#16a34a,#15803d)',
                   boxShadow: '0 0 14px rgba(34,197,94,.4),0 3px 6px #000',
                   color: '#dcfce7'
@@ -172,7 +173,7 @@ export function EndGamePanel({
               className="rounded-md text-center font-bold"
               style={{
                 padding: '10px 0',
-                fontSize: 11,
+                fontSize: tokens.typography.fontSize.xs0,
                 background: 'linear-gradient(180deg,#0e7490,#155e75)',
                 boxShadow: '0 3px 6px #000',
                 color: '#e0f2fe'

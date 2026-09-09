@@ -1,0 +1,139 @@
+/**
+ * Responsive Design System (Wave 3 - UX-D11)
+ * Breakpoints: 320px, 600px, 768px, 1024px, 1920px
+ * Enables reflow (no zoom-based scaling)
+ */
+
+/* Base styles (Mobile First) - 320px+ */
+:root {
+  --viewport-padding: 8px;
+  --panel-gap: 8px;
+  --font-scale: 1;
+  --component-width: 100%;
+}
+
+.nc-viewport {
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--viewport-padding);
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.nc-shell {
+  width: var(--component-width);
+  max-width: var(--component-width);
+  min-height: 100dvh;
+  margin-inline: auto;
+  box-sizing: border-box;
+  padding-inline: 0;
+}
+
+/* Small tablets - 600px+ */
+@media (min-width: 600px) {
+  :root {
+    --viewport-padding: 12px;
+    --panel-gap: 10px;
+  }
+
+  .nc-shell {
+    max-width: 90%;
+  }
+}
+
+/* Standard tablets - 768px+ */
+@media (min-width: 768px) {
+  :root {
+    --viewport-padding: 16px;
+    --panel-gap: 12px;
+  }
+
+  .nc-shell {
+    max-width: 85%;
+  }
+
+  .nc-tablet {
+    padding-inline: 12px;
+  }
+}
+
+/* Desktop - 1024px+ */
+@media (min-width: 1024px) {
+  :root {
+    --viewport-padding: 20px;
+    --panel-gap: 14px;
+  }
+
+  .nc-shell {
+    max-width: 1100px;
+  }
+
+  .nc-desktop {
+    padding-inline: 24px;
+  }
+}
+
+/* Large desktop - 1440px+ */
+@media (min-width: 1440px) {
+  :root {
+    --viewport-padding: 24px;
+    --panel-gap: 16px;
+  }
+
+  .nc-shell {
+    max-width: 1280px;
+  }
+}
+
+/* Extra large - 1920px+ */
+@media (min-width: 1920px) {
+  :root {
+    --viewport-padding: 32px;
+    --panel-gap: 18px;
+  }
+
+  .nc-shell {
+    max-width: 1400px;
+  }
+}
+
+/* Landscape adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+  .nc-viewport {
+    min-height: auto;
+    height: auto;
+    padding-bottom: 8px;
+  }
+
+  .nc-shell {
+    min-height: auto;
+  }
+}
+
+/* Prevent horizontal scrolling on all breakpoints */
+* {
+  max-width: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Touch targets at AAA level (44px minimum) */
+button,
+[role="button"],
+a,
+input {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (max-width: 599px) {
+  /* Extra padding on mobile for touch targets */
+  button,
+  [role="button"] {
+    min-height: 48px;
+    padding: 10px 16px;
+  }
+}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Shield, Volume2, VolumeX, Droplets, Zap, HeartPulse, Wind, FlaskConical } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, LineChart, Line, Cell } from 'recharts';
+import { tokens } from '@design/tokens';
+import '@styles/responsive.css';
 import { EmptyState } from '@components/EmptyState';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { MetricBadge } from '@components/MetricBadge';
@@ -31,11 +33,12 @@ import { RankingPanel } from '@components/RankingPanel';
 import { AnalisePanel } from '@components/AnalisePanel';
 import { NC003Panel } from '@components/NC003Panel';
 import { GamePlayPanel } from '@components/GamePlayPanel';
+import { KeyboardLegendModal } from '@components/KeyboardLegendModal';
 import { localDay, getDeviceClass } from '@utils/viewport';
 import { emptyStudyDay, mergeStudyLog } from '@utils/studyLog';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
-const axisStyle = { fontSize: 8, fill: '#c5cdd8' };
-const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
+const axisStyle = { fontSize: tokens.typography.fontSize.micro, fill: '#c5cdd8' };
+const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: tokens.typography.fontSize['0.5xs'], color: '#cbd5e1' };
 
 const DIFF = {
   1: { name: 'TRAINEE', sub: 'Primeiro dia', ops: ['*'], range: [2,5], time: 35, init: 10, err: 0, ok: -25, passive: 2, interval: 9000, scram: 5 },
@@ -97,6 +100,7 @@ function App() {
   const [fb, setFb] = useState(null);
   const [evt, setEvt] = useState(null);
   const [melt, setMelt] = useState(0);
+  const [showLegend, setShowLegend] = useState(false);
 
   // Refs
   const hotRef = useRef(0), vel = useRef(0), frz = useRef(null), recent = useRef([]), saved = useRef(false);
@@ -412,10 +416,18 @@ function App() {
   useEffect(() => {
     if (mode !== 'play') return;
     const onKey = e => {
+      // Keyboard legend (global, UX-D25)
+      if (e.key === '?') { e.preventDefault(); setShowLegend(true); return; }
+      if (e.key === 'Escape') {
+        if (showLegend) { setShowLegend(false); return; }
+        if (mode === 'play') press('C');
+      }
+
+      // Gameplay keys
+      if (mode !== 'play') return;
       if (picked === null) { if (e.key === '1') pick(0); else if (e.key === '2') pick(1); return; }
       if (e.key >= '0' && e.key <= '9') press(e.key);
       else if (e.key === 'Backspace') press('⌫');
-      else if (e.key === 'Escape') press('C');
       else if (e.key === 'Enter') check();
     };
     window.addEventListener('keydown', onKey);
@@ -512,13 +524,6 @@ function App() {
           transition-duration: 0.01ms !important;
         }
       }
-      .nc-viewport{min-height:100dvh;height:100dvh;overflow-y:auto;overflow-x:hidden;padding-bottom:max(12px,env(safe-area-inset-bottom))}
-      .nc-shell{--nc-scale:1;width:calc(100% / var(--nc-scale));max-width:calc(100% / var(--nc-scale));min-height:calc(100dvh / var(--nc-scale));margin-inline:auto;zoom:var(--nc-scale);box-sizing:border-box}
-      .nc-mobile{padding-inline:0;}
-      @media (min-width:640px){.nc-shell{max-width:calc(720px / var(--nc-scale))}.nc-tablet{padding-inline:8px}}
-      @media (min-width:1024px){.nc-shell{max-width:calc(1120px / var(--nc-scale))}.nc-desktop{padding-inline:16px}}
-      @media (min-width:1440px){.nc-shell{max-width:calc(1280px / var(--nc-scale))}}
-      @media (max-width:639px){.nc-shell{padding-inline:0}.nc-shell > *{max-width:100%}}
     `}</style>
   );
 
@@ -527,8 +532,8 @@ function App() {
   // TD-DAT-05: Global error banner visible on all screens
   const GlobalErrorBanner = () => storeErr ? (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'linear-gradient(to bottom, rgba(239,68,68,.15), transparent)', borderBottom: '1px solid rgba(239,68,68,.5)', padding: '8px 12px', textAlign: 'center' }}>
-      <div style={{ fontSize: 10, color: '#fecaca', fontWeight: 'bold' }}>⚠ FALHA DE ARMAZENAMENTO: Dados podem não ser salvos</div>
-      <div style={{ fontSize: 8, color: '#fed7aa', marginTop: 2 }}>Recarregue a página para tentar reconectar ao armazenamento</div>
+      <div style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: '#fecaca', fontWeight: 'bold' }}>⚠ FALHA DE ARMAZENAMENTO: Dados podem não ser salvos</div>
+      <div style={{ fontSize: tokens.typography.fontSize.micro, color: '#fed7aa', marginTop: 2 }}>Recarregue a página para tentar reconectar ao armazenamento</div>
     </div>
   ) : null;
 
@@ -536,168 +541,189 @@ function App() {
   const shakeCls = mode === 'play' && heat >= 90 ? 'rumbleHard' : mode === 'play' && heat > 72 ? 'rumble' : '';
   const bg = { background: 'radial-gradient(ellipse at 50% 0%,#171b1f,#0a0c0e 75%)' };
   const shellClass = `nc-shell nc-${device}`;
-  const shellStyle = { '--nc-scale': viewportScale };
+  const shellStyle = {};
 
   if (mode === 'login') return (
-    <LoginPanel
-      nameInput={nameInput}
-      setNameInput={setNameInput}
-      players={players}
-      loading={loading}
-      player={player}
-      setPlayer={setPlayer}
-      setMode={setMode}
-      createPlayer={createPlayer}
-      storeErr={storeErr}
-      selectedOperatorToExclude={selectedOperatorToExclude}
-      setSelectedOperatorToExclude={setSelectedOperatorToExclude}
-      handleExcludeOperator={handleExcludeOperator}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-    />
-  );
-
-  if (mode === 'ranking') return (
-    <RankingPanel
-      players={players}
-      matches={matches}
-      player={player}
-      tab={tab}
-      setTab={setTab}
-      DIFF={DIFF}
-      TITLES={TITLES}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-      triggerButtonRef={triggerButtonRef}
-      setMode={setMode}
-    />
-  );
-
-  if (mode === 'analise') return (
-    <AnalisePanel
-      player={player}
-      players={players}
-      calendarCursor={calendarCursor}
-      setCalendarCursor={setCalendarCursor}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-      setMode={setMode}
-    />
-  );
-
-  if (mode === 'nc003') return (
-    <NC003Panel
-      player={player}
-      players={players}
-      heat={heat}
-      integrity={integrity}
-      coolant={coolant}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-      setMode={setMode}
-      start={start}
-    />
-  );
-
-  if (mode === 'menu') return (
-    <MenuPanel
-      player={player}
-      players={players}
-      diff={diff}
-      setDiff={setDiff}
-      snd={snd}
-      setSnd={setSnd}
-      setMode={setMode}
-      setPlayer={setPlayer}
-      initA={initA}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-    />
-  );
-
-  if (mode === 'win' || mode === 'lose' || mode === 'quit' || mode === 'pause')
-    return (
-      <EndGamePanel
-        mode={mode as 'win' | 'lose' | 'quit' | 'pause'}
-        diff={diff}
-        player={player || ''}
-        rank={rank}
-        elapsed={elapsed}
-        pts={pts}
-        tot={tot}
-        corr={corr}
-        bestStrk={bestStrk}
-        integrity={integrity}
+    <>
+      <LoginPanel
+        nameInput={nameInput}
+        setNameInput={setNameInput}
         players={players}
+        loading={loading}
+        player={player}
+        setPlayer={setPlayer}
         setMode={setMode}
-        start={start}
-        resumeGame={resumeGame}
-        continueGame={continueGame}
+        createPlayer={createPlayer}
+        storeErr={storeErr}
+        selectedOperatorToExclude={selectedOperatorToExclude}
+        setSelectedOperatorToExclude={setSelectedOperatorToExclude}
+        handleExcludeOperator={handleExcludeOperator}
         bg={bg}
         css={css}
         shellClass={shellClass}
         shellStyle={shellStyle}
       />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} context="login" />
+    </>
+  );
+
+  if (mode === 'ranking') return (
+    <>
+      <RankingPanel
+        players={players}
+        matches={matches}
+        player={player}
+        tab={tab}
+        setTab={setTab}
+        DIFF={DIFF}
+        TITLES={TITLES}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+        triggerButtonRef={triggerButtonRef}
+        setMode={setMode}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+    </>
+  );
+
+  if (mode === 'analise') return (
+    <>
+      <AnalisePanel
+        player={player}
+        players={players}
+        calendarCursor={calendarCursor}
+        setCalendarCursor={setCalendarCursor}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+        setMode={setMode}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+    </>
+  );
+
+  if (mode === 'nc003') return (
+    <>
+      <NC003Panel
+        player={player}
+        players={players}
+        heat={heat}
+        integrity={integrity}
+        coolant={coolant}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+        setMode={setMode}
+        start={start}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+    </>
+  );
+
+  if (mode === 'menu') return (
+    <>
+      <MenuPanel
+        player={player}
+        players={players}
+        diff={diff}
+        setDiff={setDiff}
+        snd={snd}
+        setSnd={setSnd}
+        setMode={setMode}
+        setPlayer={setPlayer}
+        initA={initA}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+    </>
+  );
+
+  if (mode === 'win' || mode === 'lose' || mode === 'quit' || mode === 'pause')
+    return (
+      <>
+        <EndGamePanel
+          mode={mode as 'win' | 'lose' | 'quit' | 'pause'}
+          diff={diff}
+          player={player || ''}
+          rank={rank}
+          elapsed={elapsed}
+          pts={pts}
+          tot={tot}
+          corr={corr}
+          bestStrk={bestStrk}
+          integrity={integrity}
+          players={players}
+          setMode={setMode}
+          start={start}
+          resumeGame={resumeGame}
+          continueGame={continueGame}
+          bg={bg}
+          css={css}
+          shellClass={shellClass}
+          shellStyle={shellStyle}
+        />
+        <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+      </>
     );
 
   return (
-    <GamePlayPanel
-      heat={heat}
-      integrity={integrity}
-      coolant={coolant}
-      melt={melt}
-      evt={evt}
-      shownTemp={shownTemp}
-      delta={delta}
-      frozen={frozen}
-      rank={rank}
-      snd={snd}
-      initA={initA}
-      setSnd={setSnd}
-      st={st}
-      power={power}
-      ventCd={ventCd}
-      VENT_CD={VENT_CD}
-      boronCd={boronCd}
-      BORON_CD={BORON_CD}
-      scrm={scrm}
-      doVent={doVent}
-      doBoron={doBoron}
-      doScram={doScram}
-      picked={picked}
-      locked={locked}
-      grace={grace}
-      pair={pair}
-      pick={pick}
-      prob={prob}
-      fb={fb}
-      ringPct={(tmr / DIFF[diff].time) * 100}
-      ringCol={(tmr / DIFF[diff].time) * 100 < 25 ? '#dc2626' : (tmr / DIFF[diff].time) * 100 < 55 ? '#f59e0b' : '#06b6d4'}
-      ans={ans}
-      check={check}
-      press={press}
-      pts={pts}
-      goal={goal}
-      strk={strk}
-      elapsed={elapsed}
-      pauseGame={pauseGame}
-      quit={quit}
-      shakeCls={shakeCls}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-    />
+    <>
+      <GamePlayPanel
+        heat={heat}
+        integrity={integrity}
+        coolant={coolant}
+        melt={melt}
+        evt={evt}
+        shownTemp={shownTemp}
+        delta={delta}
+        frozen={frozen}
+        rank={rank}
+        snd={snd}
+        initA={initA}
+        setSnd={setSnd}
+        st={st}
+        power={power}
+        ventCd={ventCd}
+        VENT_CD={VENT_CD}
+        boronCd={boronCd}
+        BORON_CD={BORON_CD}
+        scrm={scrm}
+        doVent={doVent}
+        doBoron={doBoron}
+        doScram={doScram}
+        picked={picked}
+        locked={locked}
+        grace={grace}
+        pair={pair}
+        pick={pick}
+        prob={prob}
+        fb={fb}
+        ringPct={(tmr / DIFF[diff].time) * 100}
+        ringCol={(tmr / DIFF[diff].time) * 100 < 25 ? '#dc2626' : (tmr / DIFF[diff].time) * 100 < 55 ? '#f59e0b' : '#06b6d4'}
+        ans={ans}
+        check={check}
+        press={press}
+        pts={pts}
+        goal={goal}
+        strk={strk}
+        elapsed={elapsed}
+        pauseGame={pauseGame}
+        quit={quit}
+        shakeCls={shakeCls}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} context="gameplay" />
+    </>
   );
 }
 

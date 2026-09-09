@@ -1,4 +1,5 @@
 import React from 'react';
+import { tokens } from '@design/tokens';
 import { Volume2, VolumeX } from 'lucide-react';
 import { Plate } from './Plate';
 import { Label } from './Label';
@@ -52,21 +53,21 @@ export function MenuPanel({
           <div className="flex justify-between items-center">
             <div>
               <Label size={7}>Operador</Label>
-              <div className="font-mono font-bold" style={{ fontSize: 14, color: '#7dd3fc', letterSpacing: '.06em' }}>
+              <div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.sm, color: '#7dd3fc', letterSpacing: '.06em' }}>
                 {menuPlayer}
               </div>
-              <div style={{ fontSize: 9, color: '#c5cdd8' }}>
+              <div style={{ fontSize: tokens.typography.fontSize.tiny, color: '#c5cdd8' }}>
                 {TITLES[(players[menuPlayer] && players[menuPlayer].rank) || 0]}
               </div>
             </div>
             <div className="flex flex-col gap-1">
               <button onClick={() => setMode('analise')} aria-label="Ir para análise de desempenho">
-                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#0e7490,#0c4a5e)', color: '#e0f2fe', border: '1px solid #083344' }}>
+                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: tokens.typography.fontSize.micro, letterSpacing: '.1em', background: 'linear-gradient(180deg,#0e7490,#0c4a5e)', color: '#e0f2fe', border: '1px solid #083344' }}>
                   ANÁLISE
                 </div>
               </button>
               <button onClick={() => setMode('ranking')} aria-label="Ir para ranking de operadores">
-                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#3f464e,#23282e)', color: '#cbd5e1', border: '1px solid #14181c' }}>
+                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: tokens.typography.fontSize.micro, letterSpacing: '.1em', background: 'linear-gradient(180deg,#3f464e,#23282e)', color: '#cbd5e1', border: '1px solid #14181c' }}>
                   RANKING
                 </div>
               </button>
@@ -77,7 +78,7 @@ export function MenuPanel({
                 }}
                 aria-label="Trocar operador"
               >
-                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: 8, letterSpacing: '.1em', background: 'linear-gradient(180deg,#2a2f35,#1a1e23)', color: '#c5cdd8', border: '1px solid #14181c' }}>
+                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: tokens.typography.fontSize.micro, letterSpacing: '.1em', background: 'linear-gradient(180deg,#2a2f35,#1a1e23)', color: '#c5cdd8', border: '1px solid #14181c' }}>
                   TROCAR
                 </div>
               </button>
@@ -105,12 +106,12 @@ export function MenuPanel({
                           boxShadow: diff === +k ? '0 0 8px #06b6d4' : 'inset 0 -1px 2px #000'
                         }}
                       />
-                      <span className="font-bold" style={{ fontSize: 12, color: +k === 5 ? '#f87171' : '#e2e8f0' }}>
+                      <span className="font-bold" style={{ fontSize: tokens.typography.fontSize.xs, color: +k === 5 ? '#f87171' : '#e2e8f0' }}>
                         {v.name}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      {rec ? <span style={{ fontSize: 8, color: '#fbbf24' }}>★ {rec}</span> : null}
+                      {rec ? <span style={{ fontSize: tokens.typography.fontSize.micro, color: '#fbbf24' }}>★ {rec}</span> : null}
                       <Lcd value={v.time} unit="s" size={12} />
                     </div>
                   </div>
