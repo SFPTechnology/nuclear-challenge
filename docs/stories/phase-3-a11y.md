@@ -1,6 +1,6 @@
 # Phase 3: Acessibilidade — Font Sizing, Responsividade e Keyboard Navigation
 
-**Status:** InReview
+**Status:** Done
 **Epic:** `docs/stories/epic-technical-debt.md` (Fase 3 — Otimização)
 **Prioridade:** P1 (UX-D23, UX-D25) / P2 (UX-D11)
 **Débitos endereçados:** UX-D23, UX-D25, UX-D11
@@ -64,9 +64,9 @@ Phase 2 (Story 2.3) resolveu a maioria dos débitos críticos de acessibilidade:
 - [x] Wave 1 (Font Sizing) revisada e aprovada por @ux-design-expert
 - [x] Wave 2 (Keyboard Legend) revisada e aprovada por @ux-design-expert
 - [x] Wave 3 (Responsividade) revisada e aprovada por @ux-design-expert
-- [ ] QA Gate (@qa) executado com verdicto PASS/CONCERNS
-- [ ] Story status atualizado para Done por @qa
-- [ ] Branch `phase-3-a11y` pronto para PR a `phase-2-architecture`
+- [x] QA Gate (@qa) executado com verdicto PASS/CONCERNS
+- [x] Story status atualizado para Done por @qa
+- [ ] Branch `phase-3-a11y` pronto para PR a `phase-2-architecture` (aguardando @devops)
 
 ---
 
@@ -100,6 +100,7 @@ Phase 2 (Story 2.3) resolveu a maioria dos débitos críticos de acessibilidade:
 
 | Data | Autor | Mudança |
 |---|---|---|
+| 2026-09-09 | @qa (Quinn) | QA Gate PASS: Todas as 7 verificações aprovadas (Code Review, Tests, ACs, A11y, Performance, Security, Docs). Status: InReview → Done. Pronto para @devops PR. |
 | 2026-09-09 | @dev | Wave 3 COMPLETE: Criado `src/styles/responsive.css` com 5 breakpoints (320px, 600px, 768px, 1024px, 1920px). Removido zoom-based scaling do App.tsx. Adicionados testes de responsividade em `a11y-responsive.test.ts`. Build ✅ |
 | 2026-09-08 | @sm (River) | Criação da story — Phase 3 A11y |
 
