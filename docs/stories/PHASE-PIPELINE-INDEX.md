@@ -12,8 +12,8 @@
 |-------|-------|----------|--------|-----------|
 | **0** | P0-SAFETY & P0-DATA | 4h | ✅ DONE | `git commit dbec26e` |
 | **1** | Foundation | 2 weeks | ⏳ READY | `phase-1-foundation.md` |
-| **2** | Architecture | 2 weeks | 📋 PENDING | `phase-2-architecture.md` |
-| **3** | A11y | 3 weeks | 📋 PENDING | `phase-3-a11y.md` (TODO) |
+| **2** | Architecture | 2 weeks | ✅ DONE | `phase-2-architecture.md` |
+| **3** | A11y | 2-3 weeks | 📋 READY | `phase-3-a11y.md` |
 | **4** | Quality Gates | 1 week | 📋 PENDING | `phase-4-gates.md` (TODO) |
 | **5** | Remaining | 3-4 weeks | 📚 BACKLOG | `phase-5-remaining.md` (TODO) |
 
@@ -82,34 +82,32 @@ cat docs/stories/phase-1-foundation.md
 
 ---
 
-## 📋 Phase 3: A11y (AFTER PHASE 2)
+## 📋 Phase 3: A11y (AFTER PHASE 2) — READY
 
-**Duration:** 3 weeks (80 hours)  
+**Story:** `docs/stories/phase-3-a11y.md`  
+**Duration:** 2-3 weeks (29 hours)  
 **Dependency:** Phase 2 ✅
 
-**Tasks:**
-1. **3.1** A11y Foundation (12-16h)
-   - Semantic HTML
-   - Font sizes (px → rem)
-   - aria-labels
+**Waves:**
+1. **Wave 1: Font Sizing** (10h) — UX-D23
+   - Convert 100% of fontSize from px → rem
+   - Ensure text scaling works at 100%, 150%, 200% zoom
    
-2. **3.2** Color & Contrast (6-8h)
-   - WCAG AA compliance
-   - Visual indicators
-   - Icon + color redundancy
+2. **Wave 2: Keyboard Legend** (3h) — UX-D25
+   - Create keyboard shortcut legend modal
+   - Accessible via "?" or menu
+   - Full screen reader support
    
-3. **3.3** Focus & Navigation (4-6h)
-   - Focus management
-   - Keyboard shortcuts
-   - Shortcut legend
+3. **Wave 3: Responsivity** (16h) — UX-D11
+   - Implement reflow design (remove zoom-based layout)
+   - Support 320px to 1920px breakpoints
+   - Zero horizontal scrolling on any viewport
 
 **Debts Addressed:**
-- UX-D05: A11y foundation
-- UX-D06: Color redundancy
-- UX-D14: Contrast
-- UX-D19: Focus management
-- UX-D23: Font sizing
+- UX-D23: Font sizing (px → rem)
 - UX-D25: Keyboard legend
+- UX-D11: Responsivity (reflow, breakpoints)
+- *Also validated:* UX-D05, UX-D06, UX-D14, UX-D19 (from Phase 2 Story 2.3)
 
 ---
 
