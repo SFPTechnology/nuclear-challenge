@@ -32,6 +32,7 @@ import { RankingPanel } from '@components/RankingPanel';
 import { AnalisePanel } from '@components/AnalisePanel';
 import { NC003Panel } from '@components/NC003Panel';
 import { GamePlayPanel } from '@components/GamePlayPanel';
+import { KeyboardLegendModal } from '@components/KeyboardLegendModal';
 import { localDay, getDeviceClass } from '@utils/viewport';
 import { emptyStudyDay, mergeStudyLog } from '@utils/studyLog';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
