@@ -1,3 +1,5 @@
+import { tokens } from '@design/tokens';
+
 interface LampProps {
   on: boolean;
   hue: 'red' | 'amber' | 'green';
@@ -26,7 +28,7 @@ export function Lamp({ on, hue, label }: LampProps) {
           transition: 'all 0.15s ease-out',
         }}
       />
-      <span style={{ fontSize: 8, color: '#8d959e', textAlign: 'center' }}>{label}</span>
+      <span style={{ fontSize: tokens.typography.fontSize.micro, color: '#8d959e', textAlign: 'center' }}>{label}</span>
     </div>
   );
 }

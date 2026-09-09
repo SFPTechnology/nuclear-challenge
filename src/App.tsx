@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Shield, Volume2, VolumeX, Droplets, Zap, HeartPulse, Wind, FlaskConical } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, LineChart, Line, Cell } from 'recharts';
+import { tokens } from '@design/tokens';
 import { EmptyState } from '@components/EmptyState';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { MetricBadge } from '@components/MetricBadge';
@@ -34,8 +35,8 @@ import { GamePlayPanel } from '@components/GamePlayPanel';
 import { localDay, getDeviceClass } from '@utils/viewport';
 import { emptyStudyDay, mergeStudyLog } from '@utils/studyLog';
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
-const axisStyle = { fontSize: 8, fill: '#c5cdd8' };
-const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
+const axisStyle = { fontSize: tokens.typography.fontSize.micro, fill: '#c5cdd8' };
+const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: tokens.typography.fontSize['0.5xs'], color: '#cbd5e1' };
 
 const DIFF = {
   1: { name: 'TRAINEE', sub: 'Primeiro dia', ops: ['*'], range: [2,5], time: 35, init: 10, err: 0, ok: -25, passive: 2, interval: 9000, scram: 5 },
@@ -527,8 +528,8 @@ function App() {
   // TD-DAT-05: Global error banner visible on all screens
   const GlobalErrorBanner = () => storeErr ? (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'linear-gradient(to bottom, rgba(239,68,68,.15), transparent)', borderBottom: '1px solid rgba(239,68,68,.5)', padding: '8px 12px', textAlign: 'center' }}>
-      <div style={{ fontSize: 10, color: '#fecaca', fontWeight: 'bold' }}>⚠ FALHA DE ARMAZENAMENTO: Dados podem não ser salvos</div>
-      <div style={{ fontSize: 8, color: '#fed7aa', marginTop: 2 }}>Recarregue a página para tentar reconectar ao armazenamento</div>
+      <div style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: '#fecaca', fontWeight: 'bold' }}>⚠ FALHA DE ARMAZENAMENTO: Dados podem não ser salvos</div>
+      <div style={{ fontSize: tokens.typography.fontSize.micro, color: '#fed7aa', marginTop: 2 }}>Recarregue a página para tentar reconectar ao armazenamento</div>
     </div>
   ) : null;
 

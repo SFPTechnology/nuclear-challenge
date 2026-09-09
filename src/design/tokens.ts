@@ -101,21 +101,34 @@ export const tokens = {
   // TYPOGRAPHY
   // ============================================================================
   typography: {
-    // Font Sizes (all in rem, base 16px)
+    // Font Sizes (all in rem, base 16px = 1rem)
     fontSize: {
+      // Micro/Tiny (for very small UI elements)
+      '3xs': '0.375rem',       // 6px
+      '2xs': '0.40625rem',     // 6.5px
+      xs2: '0.4375rem',        // 7px
+      xs1: '0.46875rem',       // 7.5px
+      micro: '0.5rem',         // 8px
+      '0xs': '0.53125rem',     // 8.5px
+      // Small sizes
+      tiny: '0.5625rem',       // 9px
+      tinyL: '0.59375rem',     // 9.5px
+      '0.5xs': '0.625rem',     // 10px
+      xs0: '0.6875rem',        // 11px
       xs: '0.75rem',           // 12px
+      xs_lg: '0.8125rem',      // 13px
       sm: '0.875rem',          // 14px
+      // Base sizes
       base: '1rem',            // 16px
       lg: '1.125rem',          // 18px
+      lg_: '1.1875rem',        // 19px
       xl: '1.25rem',           // 20px
       '2xl': '1.5rem',         // 24px
+      xl2: '1.625rem',         // 26px
       '3xl': '1.875rem',       // 30px
       '4xl': '2.25rem',        // 36px
+      '4xl_': '2.375rem',      // 38px
       '5xl': '3rem',           // 48px
-      // Smaller sizes for specialized UI
-      tiny: '0.625rem',        // 10px
-      micro: '0.5rem',         // 8px
-      mini: '6.5px',           // 6.5px (for labels)
     },
 
     // Font Weight

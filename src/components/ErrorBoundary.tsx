@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import React from 'react';
+import { tokens } from '@design/tokens';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -46,8 +47,8 @@ export class ErrorBoundary extends React.Component<
             color: '#dc2626',
             fontFamily: 'monospace',
           }}>
-            <h2 style={{ marginTop: 0, fontSize: 18, fontWeight: 'bold' }}>⚠️ Something went wrong</h2>
-            <p style={{ fontSize: 11, lineHeight: 1.4, color: '#991b1b' }}>{this.state.error?.message}</p>
+            <h2 style={{ marginTop: 0, fontSize: tokens.typography.fontSize.lg, fontWeight: 'bold' }}>⚠️ Something went wrong</h2>
+            <p style={{ fontSize: tokens.typography.fontSize.xs0, lineHeight: 1.4, color: '#991b1b' }}>{this.state.error?.message}</p>
             <button
               onClick={() => window.location.reload()}
               style={{
@@ -59,7 +60,7 @@ export class ErrorBoundary extends React.Component<
                 borderRadius: '0.375rem',
                 cursor: 'pointer',
                 fontWeight: 'bold',
-                fontSize: 11,
+                fontSize: tokens.typography.fontSize.xs0,
               }}
             >
               Reload Page
