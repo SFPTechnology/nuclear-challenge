@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Shield, Volume2, VolumeX, Droplets, Zap, HeartPulse, Wind, FlaskConical } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, LineChart, Line, Cell } from 'recharts';
 import { tokens } from '@design/tokens';
+import '@styles/responsive.css';
 import { EmptyState } from '@components/EmptyState';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { MetricBadge } from '@components/MetricBadge';
@@ -523,13 +524,6 @@ function App() {
           transition-duration: 0.01ms !important;
         }
       }
-      .nc-viewport{min-height:100dvh;height:100dvh;overflow-y:auto;overflow-x:hidden;padding-bottom:max(12px,env(safe-area-inset-bottom))}
-      .nc-shell{--nc-scale:1;width:calc(100% / var(--nc-scale));max-width:calc(100% / var(--nc-scale));min-height:calc(100dvh / var(--nc-scale));margin-inline:auto;zoom:var(--nc-scale);box-sizing:border-box}
-      .nc-mobile{padding-inline:0;}
-      @media (min-width:640px){.nc-shell{max-width:calc(720px / var(--nc-scale))}.nc-tablet{padding-inline:8px}}
-      @media (min-width:1024px){.nc-shell{max-width:calc(1120px / var(--nc-scale))}.nc-desktop{padding-inline:16px}}
-      @media (min-width:1440px){.nc-shell{max-width:calc(1280px / var(--nc-scale))}}
-      @media (max-width:639px){.nc-shell{padding-inline:0}.nc-shell > *{max-width:100%}}
     `}</style>
   );
 
@@ -547,7 +541,7 @@ function App() {
   const shakeCls = mode === 'play' && heat >= 90 ? 'rumbleHard' : mode === 'play' && heat > 72 ? 'rumble' : '';
   const bg = { background: 'radial-gradient(ellipse at 50% 0%,#171b1f,#0a0c0e 75%)' };
   const shellClass = `nc-shell nc-${device}`;
-  const shellStyle = { '--nc-scale': viewportScale };
+  const shellStyle = {};
 
   if (mode === 'login') return (
     <>

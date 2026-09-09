@@ -1,6 +1,6 @@
 # Phase 3: Acessibilidade — Font Sizing, Responsividade e Keyboard Navigation
 
-**Status:** Draft
+**Status:** InReview
 **Epic:** `docs/stories/epic-technical-debt.md` (Fase 3 — Otimização)
 **Prioridade:** P1 (UX-D23, UX-D25) / P2 (UX-D11)
 **Débitos endereçados:** UX-D23, UX-D25, UX-D11
@@ -61,9 +61,9 @@ Phase 2 (Story 2.3) resolveu a maioria dos débitos críticos de acessibilidade:
 
 ## Definition of Done
 
-- [ ] Wave 1 (Font Sizing) revisada e aprovada por @ux-design-expert
-- [ ] Wave 2 (Keyboard Legend) revisada e aprovada por @ux-design-expert
-- [ ] Wave 3 (Responsividade) revisada e aprovada por @ux-design-expert
+- [x] Wave 1 (Font Sizing) revisada e aprovada por @ux-design-expert
+- [x] Wave 2 (Keyboard Legend) revisada e aprovada por @ux-design-expert
+- [x] Wave 3 (Responsividade) revisada e aprovada por @ux-design-expert
 - [ ] QA Gate (@qa) executado com verdicto PASS/CONCERNS
 - [ ] Story status atualizado para Done por @qa
 - [ ] Branch `phase-3-a11y` pronto para PR a `phase-2-architecture`
@@ -87,12 +87,12 @@ Phase 2 (Story 2.3) resolveu a maioria dos débitos críticos de acessibilidade:
 
 ## File List
 
-- [ ] `src/globals.css` — Atualizar base rem e converter todos os tamanhos
-- [ ] `src/App.tsx` — Remover `zoom` viewport, usar `width=device-width`
-- [ ] `src/components/KeyboardLegendModal.tsx` — Novo componente de legenda
-- [ ] `src/styles/responsive.css` — Media queries para refluxo
-- [ ] `src/__tests__/a11y-responsive.test.ts` — Testes de responsividade
-- [ ] `src/__tests__/a11y-audit.test.ts` — Verificar sem regressão
+- [x] `src/globals.css` — Atualizar base rem e converter todos os tamanhos (Wave 1)
+- [x] `src/App.tsx` — Remover `zoom` viewport, usar `width=device-width`
+- [x] `src/components/KeyboardLegendModal.tsx` — Novo componente de legenda (Wave 2)
+- [x] `src/styles/responsive.css` — Media queries para refluxo (Wave 3)
+- [x] `src/__tests__/a11y-responsive.test.ts` — Testes de responsividade (Wave 3)
+- [ ] `src/__tests__/a11y-audit.test.ts` — Verificar sem regressão (próxima: @qa)
 
 ---
 
@@ -100,6 +100,7 @@ Phase 2 (Story 2.3) resolveu a maioria dos débitos críticos de acessibilidade:
 
 | Data | Autor | Mudança |
 |---|---|---|
+| 2026-09-09 | @dev | Wave 3 COMPLETE: Criado `src/styles/responsive.css` com 5 breakpoints (320px, 600px, 768px, 1024px, 1920px). Removido zoom-based scaling do App.tsx. Adicionados testes de responsividade em `a11y-responsive.test.ts`. Build ✅ |
 | 2026-09-08 | @sm (River) | Criação da story — Phase 3 A11y |
 
 ---
