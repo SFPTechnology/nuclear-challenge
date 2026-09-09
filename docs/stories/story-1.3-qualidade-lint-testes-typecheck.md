@@ -1,9 +1,11 @@
 # Story 1.3 — Qualidade real: globals, lint, runner de teste, testes comportamentais e typecheck
 
-Status: Draft
+Status: Draft — 🔺 **TOP OF QUEUE**
+
+> 🔺 **TOP OF QUEUE (elevada por @po em 2026-09-09, ação A5).** Esta é a **próxima story a ser trabalhada**, à frente de qualquer outra do roadmap. Motivo: é **pré-requisito duro da Story 2.1**, que já está `InProgress` — a toolchain de teste desta story é o único meio de validar as invariantes I1-I8 que a Story 2.1 precisa nos seus ACs. Enquanto esta story ficar em `Draft`, a Story 2.1 não pode ir a `Done` e a Story 2.2 permanece bloqueada em cascata. Requer validação de @po (`Draft → Ready`) com urgência.
 
 **Epic:** `docs/stories/epic-technical-debt.md` (Fase 1 — Quick Wins)
-**Prioridade:** P0 (crítica — reconstrói a rede de segurança do projeto)
+**Prioridade:** P0 (crítica — reconstrói a rede de segurança do projeto) — **P0 / TOP OF QUEUE**: bloqueia Stories 2.1, 2.2 e 3.1
 **Débitos endereçados:** TD-SYS-19, TD-SYS-02, TD-QA-01, TD-SYS-03, TD-SYS-01 (nesta ordem obrigatória)
 **Esforço estimado:** S (TD-SYS-19) + M (TD-SYS-02) + S (TD-QA-01) + L (TD-SYS-03) + XL (TD-SYS-01)
 **Owner:** @dev, com gate final de @qa
@@ -70,7 +72,8 @@ Os cinco débitos abaixo formam uma cadeia de dependência sequencial estrita (P
 ## Dependências
 
 - **Depende de:** Story 1.1 (estrutura `src/` estável, necessária para configuração de lint/build).
-- **Bloqueia:** Story 2.1 (StorageAdapter — precisa de toolchain de teste real para os testes de round-trip T1), Story 3.1 (baseline de caracterização T3 pressupõe toolchain funcional).
+- **Bloqueia:** Story 2.1 (StorageAdapter — precisa de toolchain de teste real para os testes de round-trip T1 e para as invariantes I1-I8), Story 3.1 (baseline de caracterização T3 pressupõe toolchain funcional), e **em cascata** a Story 2.2 (que depende da 2.1).
+- ⚠️ **Inversão de ordem em curso:** a Story 2.1 já está `InProgress` sem que esta story tenha sido concluída. É por isso que esta story foi elevada a TOP OF QUEUE — a ordem do epic não é arbitrária (ver §Riscos, "Risco de ordem").
 
 ## File List
 
@@ -81,3 +84,4 @@ Os cinco débitos abaixo formam uma cadeia de dependência sequencial estrita (P
 | Data | Autor | Mudança |
 |---|---|---|
 | 2026-09-07 | @pm (Morgan) | Criação da story — Fase 10 do Brownfield Discovery |
+| 2026-09-09 | @po (Pax) | **Elevada a TOP OF QUEUE (ação A5).** @pm flagou que esta story é pré-requisito **duro** da Story 2.1 — a toolchain é o único meio de validar as invariantes I1-I8 exigidas nos ACs da 2.1. Manter esta story em `Draft` enquanto a 2.1 está `InProgress` é uma inversão de ordem que o próprio assessment adverte contra. Prioridade reafirmada P0 e marcada como próxima da fila; dependência de bloqueio documentada em cascata (2.1 → 2.2). Status permanece `Draft` porque a transição `Draft → Ready` exige validação formal (`*validate-story-draft`) — a elevação é de **urgência/posição na fila**, não um atalho de gate. |

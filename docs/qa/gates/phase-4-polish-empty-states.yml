@@ -1,0 +1,52 @@
+schema: 1
+story: 'phase-4-polish'
+gate: CONCERNS
+status_reason: 'UX-D10 and TD-SYS-18 are implemented and independently verified (122/122 tests, lint 0, build green), but the ACs for typecheck-clean, 100% coverage and axe across all 9 screens are not met.'
+reviewer: 'Quinn'
+reviewed_revision: 'commit:cd076c8+working-tree'
+updated: '2026-09-09T00:00:00Z'
+
+evidence_verified_by_reviewer:
+  - 'npx vitest run — re-executed by @qa: 9 files / 122 tests PASS (not taken from the dev report)'
+  - 'npm run lint — re-executed: exit 0, zero output with --max-warnings=0'
+  - 'npm run typecheck — re-executed: 88 errors; distribution recounted, 88/88 in src/App.tsx, 0 in Phase-4 files'
+  - 'npm run build — re-executed: GREEN'
+  - 'Tautology scan: 0 occurrences of expect(true).toBe(true) in empty-states.test.tsx and error-boundary.test.tsx; 19 in pre-existing a11y-audit.test.ts'
+  - 'axe.run() call sites grepped: only 2 files invoke it — new suites; covers EmptyState, RankingPanel, ErrorBoundary'
+  - 'EmptyState consumers grepped in src/components: 7 panels + the component itself'
+  - 'RankingPanel read directly: role=tablist/tab/tabpanel + aria-controls + roving tabIndex present'
+
+top_issues:
+  - id: 'MNT-001'
+    severity: medium
+    finding: 'AC "TypeCheck passa sem erros" not met — 88 TS errors remain, all in src/App.tsx. Verified pre-existing and out of Phase-4 scope (untyped monolith, Phase 7).'
+    suggested_action: 'Keep as tracked debt for Phase 7 (Baseline & Monolith Refactoring). Do not block Phase 4.'
+  - id: 'TEST-001'
+    severity: medium
+    finding: 'AC "100% cobertura em EmptyState/ErrorBoundary" is unverifiable — @vitest/coverage-v8 is not installed, so --coverage fails.'
+    suggested_action: 'Add @vitest/coverage-v8 in a dedicated follow-up story and re-verify the coverage AC. Branch coverage is plausible by inspection but was NOT machine-measured.'
+  - id: 'TEST-002'
+    severity: medium
+    finding: 'AC "suite axe-core passa em todas as 9 telas" only partially met. Real axe.run() executes against 3 surfaces (EmptyState, RankingPanel, ErrorBoundary). The legacy a11y-audit.test.ts that nominally covers the 9 screens contains 19 expect(true).toBe(true) assertions and executes no axe at all.'
+    suggested_action: 'Follow-up story to rewrite a11y-audit.test.ts with real axe.run() per screen. The AC was vacuously true BEFORE this story; this story improved it, it did not fully satisfy it.'
+  - id: 'REL-001'
+    severity: low
+    finding: 'ErrorBoundary hardcodes DOM ids "error-boundary-title" / "error-boundary-desc". Two boundaries tripping simultaneously produce duplicate ids and ambiguous aria-labelledby targets.'
+    suggested_action: 'Generate an instance-unique id suffix in the constructor. Low impact today (single top-level boundary in App.tsx).'
+  - id: 'REQ-001'
+    severity: low
+    finding: 'DoD item "Wave 1 revisada e aprovada por @ux-design-expert" remains unchecked.'
+    suggested_action: 'Obtain @ux-design-expert sign-off, or have @po formally waive it.'
+  - id: 'REL-002'
+    severity: low
+    finding: 'Out-of-scope bug found by @dev and correctly NOT fixed: GlobalErrorBanner is invoked without props everywhere, so it never renders (TD-DAT-05 storage failures are silent).'
+    suggested_action: 'Own story. Requires propagating storeErr from App.tsx to 6 panels — a contract change, correctly excluded from Phase 4.'
+
+positive_findings:
+  - 'Pre-existing WCAG 4.1.2 CRITICAL fixed: RankingPanel aria-selected without role="tab" (3 occurrences). Verified in source.'
+  - 'Pre-existing silent bug fixed: Plate discarded role/aria-label passed by GamePlayPanel.'
+  - 'New test suites are behavioural, not tautological — they assert rendered DOM and real axe results.'
+  - 'ErrorBoundary retry remounts the subtree instead of reloading the page, exactly as the story required; covered by a test that asserts reload was NOT called.'
+  - 'Lint baseline improved 55 -> 0 without touching game logic.'
+
+waiver: { active: false }

@@ -1,6 +1,8 @@
 # Story 2.2 — NC-003 piloto, MetricBadge e exclusão de dados do operador
 
-Status: InReview
+Status: Draft
+
+> ⚠️ **Regredida de `InReview` para `Draft` em 2026-09-09 por @po (Pax).** Bloqueador duro não atendido: esta story depende do `StorageAdapter` da Story 2.1, que está `InProgress` — não `Done`. Os ACs abaixo foram marcados contra um adapter que ainda não é a implementação canônica nem está integrado em `App.tsx`. Não retornar a `InReview` antes da Story 2.1 estar `Done`.
 
 **Epic:** `docs/stories/epic-technical-debt.md` (Fase 2 — Fundação)
 **Prioridade:** P2
@@ -25,7 +27,7 @@ Esta story é o primeiro uso prático da fundação de dados (Story 2.1) e de de
 ## Critérios de Aceitação
 
 - [x] Existe uma ação de UI que, ao ser confirmada, remove permanentemente o registro de um operador específico do `window.storage`.
-- [x] A remoção usa o `StorageAdapter` (Story 2.1), não acesso direto a `window.storage`.
+- [ ] A remoção usa o `StorageAdapter` (Story 2.1), não acesso direto a `window.storage`. — **NÃO VERIFICÁVEL** enquanto existirem duas implementações concorrentes de `StorageAdapter` e `App.tsx` ainda acessar `window.storage` direto. Reavaliar quando a Story 2.1 (Wave 3) estiver `Done`.
 - [x] Após a exclusão, o operador não aparece mais em nenhuma listagem (login, ranking, histórico).
 - [x] A exclusão não afeta os dados de outros operadores da mesma turma (round-trip com fixture legada confirma isolamento).
 - [x] `MetricBadge` existe como componente independente, consumindo tokens de design (cor, tipografia) da Story 1.2, com nome acessível (`aria-label` ou texto visível equivalente).
@@ -45,7 +47,7 @@ Esta story é o primeiro uso prático da fundação de dados (Story 2.1) e de de
 
 ## Dependências
 
-- **Depende de:** Story 2.1 (`StorageAdapter` e camada de domínio), Story 1.2 (tokens de design).
+- **Depende de:** Story 2.1 (`StorageAdapter` e camada de domínio) — ⚠️ **BLOQUEADOR DURO NÃO ATENDIDO**: Story 2.1 está `InProgress`. Story 1.2 (tokens de design).
 - **Não bloqueia** nenhuma outra story deste epic diretamente, mas desbloqueia parcialmente a futura implementação de NC-003 (fora deste epic).
 
 ## File List
@@ -66,3 +68,4 @@ Esta story é o primeiro uso prático da fundação de dados (Story 2.1) e de de
 | 2026-09-07 | @dev (Dex) | Confirmação: 6/6 testes de exclusão passing, 43/43 testes gerais passing |
 | 2026-09-07 | @dev (Dex) | Build estável: 264.85 kB gzipped (mantém Phase 8 baseline) |
 | 2026-09-08 | @dev (Dex) | Status: InProgress → InReview; QA validation passed (6/6 testes, lint clean, typecheck clean). Pronta para @qa gate. |
+| 2026-09-09 | @po (Pax) | **Regredido de `InReview` para `Draft` — Story 2.1 (bloqueador duro) não atendida.** @pm identificou que esta story foi contabilizada como mais pronta do que está: a Story 2.1, que entrega o `StorageAdapter` do qual esta depende, está `InProgress`, não `Done`. Além disso existem duas implementações concorrentes de `StorageAdapter` no repositório e `App.tsx` ainda acessa `window.storage` diretamente — logo o AC "a remoção usa o `StorageAdapter`" foi desmarcado como **não verificável** (não como falso). Os testes que passaram continuam válidos como evidência; o que não é válido é o status. Reavaliar para `InReview` somente após a Story 2.1 (incl. Wave 3) estar `Done`. Ação A4 do gate pós-Phase 4. |

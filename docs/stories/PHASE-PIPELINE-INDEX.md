@@ -1,21 +1,85 @@
-# 📊 Debt Resolution Pipeline - Complete Index
+# 📊 Debt Resolution Pipeline — Index (TRACK APOSENTADO)
 
-**Status:** Phase 0 ✅ | Phase 1-4 Ready | Phase 5 Backlog  
-**Total Effort:** 140+ hours across 5 phases  
-**Timeline:** 8-12 weeks (3 devs or 12+ weeks 1 dev)
+> ## ⚠️ ESTE TRACK FOI APOSENTADO — 2026-09-09
+>
+> **Decisão:** [`docs/adr/ADR-001-single-source-of-truth-story-track.md`](../adr/ADR-001-single-source-of-truth-story-track.md)
+>
+> O track `phase-*.md` era um **re-empacotamento paralelo** do epic de débito técnico,
+> sem rastreabilidade aos 47 débitos do assessment. Ele gerou status divergentes para o
+> mesmo trabalho (Phase 4 `Ready` vs Story 2.4 `Draft`; Phase 5 `Draft` vs Story 2.1
+> `InProgress`) e culminou no conflito escalado por @po.
+>
+> ### Fonte de verdade a partir de agora
+>
+> - **Epic:** `docs/stories/epic-technical-debt.md`
+> - **Stories:** `docs/stories/story-0.1-*.md` … `story-3.2-*.md`
+>
+> **Nenhum novo arquivo `phase-*.md` deve ser criado.** Escopo novo entra como Wave ou
+> story dentro do epic, com ID de débito rastreável (Constitution, Artigo IV).
+>
+> ### Exceção em voo
+>
+> **Phase 4 (`phase-4-polish.md`) segue até o fim.** Está sendo implementada por @dev com
+> aprovação de @po (10/10). Ao passar pelo QA Gate, o resultado é reconciliado em
+> `story-2.4-empty-state-error-boundary.md` e o arquivo vira histórico.
 
 ---
 
-## 🎯 Quick Navigation
+## 🔀 Mapa de Reconciliação Phase → Story
 
-| Phase | Title | Duration | Status | Story File |
-|-------|-------|----------|--------|-----------|
-| **0** | P0-SAFETY & P0-DATA | 4h | ✅ DONE | `git commit dbec26e` |
-| **1** | Foundation | 2 weeks | ⏳ READY | `phase-1-foundation.md` |
-| **2** | Architecture | 2 weeks | ✅ DONE | `phase-2-architecture.md` |
-| **3** | A11y | 2-3 weeks | 📋 READY | `phase-3-a11y.md` |
-| **4** | Quality Gates | 1 week | 📋 PENDING | `phase-4-gates.md` (TODO) |
-| **5** | Remaining | 3-4 weeks | 📚 BACKLOG | `phase-5-remaining.md` (TODO) |
+| Phase | Arquivo | Corresponde a | Situação |
+|---|---|---|---|
+| 0 | `git commit dbec26e` | `story-0.1-seguranca-imediata.md` | Parcial — ver ressalva abaixo |
+| 1 | `phase-1-foundation.md` | `story-1.1`, `story-1.3` | Histórico |
+| 2 | `phase-2-architecture.md` | `story-3.1` (parcial) | Histórico |
+| 3 | `phase-3-a11y.md` | `story-2.3-a11y-parada-1.md` | Histórico (Done) |
+| 4 | `phase-4-polish.md` | `story-2.4-empty-state-error-boundary.md` | **Em voo** — concluir e reconciliar |
+| 5 | `phase-5-storage-adapter.md` | `story-2.1-storage-adapter-dominio.md` | ❌ **CANCELADA** (ADR-001) |
+
+### ⚠️ Ressalva sobre "Phase 0 ✅"
+
+A afirmação abaixo de que TD-DAT-01/02 estão resolvidos por "StorageAdapter
+backup/restore" **é otimista demais**. Verificado em 2026-09-09:
+
+- Existem **dois** StorageAdapters: `src/adapters/StorageAdapter.ts` e
+  `src/domain/storage/{StorageAdapter,WindowStorageAdapter}.ts`.
+- **Nenhum dos dois é importado por `src/App.tsx`** — são código morto; os únicos
+  importadores são arquivos de teste.
+- `src/App.tsx` (737 linhas) ainda acessa `window.storage` diretamente em 4 pontos.
+- `src/adapters/StorageAdapter.ts` usa `window.localStorage` (12 ocorrências), violando
+  a invariante de produto declarada na Story 2.1.
+
+A consolidação real é escopo da **Story 2.1** (ADR-001, D5).
+
+---
+
+## 🚦 Estado real do pipeline (fonte: track de stories)
+
+| Story | Título | Status | Nota |
+|---|---|---|---|
+| 0.1 | Segurança imediata | ver arquivo | Parcial (ressalva acima) |
+| 1.1 | Fronteira código/build | Draft | |
+| 1.2 | Design tokens | Draft | |
+| 1.3 | Toolchain lint/test/typecheck | **Draft** | ⚠️ pré-requisito duro de 2.1, precisa subir |
+| 2.1 | StorageAdapter + domínio | **InProgress** | Absorve escopo da ex-Phase 5 |
+| 2.2 | NC-003 piloto | **InReview** | ⚠️ deve regredir — 2.1 ainda não está Done |
+| 2.3 | A11y Parada 1 | — | Coberta pela Phase 3 (Done) |
+| 2.4 | Empty states / ErrorBoundary | Draft | Reconciliar após Phase 4 |
+| 2.5 | Decisão T5.1 NC-002 | Draft | |
+| 3.1 | Baseline + monolito | Draft | |
+| 3.2 | Pseudonimização + higiene | Draft | |
+
+**Stories de produto NC-001 / NC-002 / NC-003: `Blocked`** — permanecem bloqueadas.
+O desbloqueio proposto pela Phase 5 foi **revogado** (ADR-001, D6).
+
+---
+
+## 📜 Conteúdo histórico abaixo
+
+> O restante deste documento descreve o track aposentado e contém informação
+> **desatualizada** (ex.: "Phase 4 = Quality Gates", "Phase 5 = Remaining backlog",
+> referências a `phase-4-gates.md` e `phase-5-remaining.md`, que nunca existiram).
+> Mantido para auditoria. Não usar para planejamento.
 
 ---
 

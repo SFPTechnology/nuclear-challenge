@@ -1,6 +1,27 @@
 # Phase 5: StorageAdapter & Domain Layer — Data Integrity Foundation
 
-**Status:** Draft
+> ## ⛔ CANCELADA — NÃO IMPLEMENTAR
+>
+> **Status:** `Cancelled` (2026-09-09, @pm/Morgan)
+> **Decisão:** [`docs/adr/ADR-001-single-source-of-truth-story-track.md`](../adr/ADR-001-single-source-of-truth-story-track.md)
+>
+> Esta story duplicava `docs/stories/story-2.1-storage-adapter-dominio.md`, que está
+> `InProgress` desde 2026-09-08 para os mesmos débitos (TD-SYS-09, TD-SYS-07).
+>
+> **Fonte de verdade:** `docs/stories/story-2.1-storage-adapter-dominio.md`.
+>
+> Do conteúdo abaixo, apenas **versionamento de schema para migrations** foi aproveitado
+> (vira Wave 3 da Story 2.1). Zod, retry/backoff, fallback em memória, aggregates OO
+> (`Player`/`StudySession`/`RankingRecord`), metas de performance e todo uso de
+> `localStorage` foram **rejeitados** (invenção sem rastreabilidade / violação de
+> invariante de produto — o produto usa `window.storage`).
+>
+> **NC-001/002/003 permanecem `Blocked`.** A seção "Bloqueio Removido" abaixo está revogada.
+>
+> Documento mantido apenas como registro histórico. Os `[x]` abaixo nunca refletiram
+> trabalho executado.
+
+**Status:** Cancelled (era: Draft)
 **Epic:** `docs/stories/epic-technical-debt.md` (Fase 2 — Fundação)
 **Prioridade:** P1 (TD-SYS-09, TD-SYS-07)
 **Débitos endereçados:** TD-SYS-09, TD-SYS-07
@@ -96,6 +117,8 @@ Phase 4 (Empty States & Error Boundary) completou o polimento visual e tratament
 
 | Data | Autor | Mudança |
 |---|---|---|
+| 2026-09-09 | @pm (Morgan) | **CANCELADA.** Escalação de @po resolvida via ADR-001. Causa raiz: dois tracks de planejamento paralelos (phase-* vs story-N.M) para o mesmo trabalho. Track de stories do epic é a única fonte de verdade. Escopo novo válido (schema versioning + unificação dos dois adapters existentes) migrado para Story 2.1. Bloqueadores adicionais encontrados: 2 StorageAdapters coexistem em código e ambos são código morto (não importados por App.tsx); `src/adapters/StorageAdapter.ts` usa `window.localStorage` em produção (violação real, não só documental). |
+| 2026-09-09 | @po (Pax) | Validation **NO-GO** (6/10). Status permanece **Draft**. Bloqueadores: (1) duplica Story 2.1 que está `InProgress` para os mesmos débitos TD-SYS-09/TD-SYS-07; (2) premissa factual errada — `src/adapters/StorageAdapter.ts` e `src/domain/` já existem desde Phase 0; (3) viola a invariante de produto "nenhum uso de localStorage" declarada na Story 2.1; (4) inventa dependência Zod (ausente do package.json) e entidades Player/StudySession/RankingRecord sem rastreabilidade; (5) caminhos de arquivo conflitam com os módulos existentes; (6) todos os checkboxes de Escopo/AC pré-marcados `[x]` em story Draft. Ver relatório de validação. |
 | 2026-09-09 | @aiox-master (Orion) | Criação da story — Phase 5 StorageAdapter & Domain Layer |
 
 ---
