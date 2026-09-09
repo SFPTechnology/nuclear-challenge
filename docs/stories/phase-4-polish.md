@@ -1,6 +1,6 @@
 # Phase 4: Polish & Empty States — UX Refinement
 
-**Status:** Draft
+**Status:** Ready
 **Epic:** `docs/stories/epic-technical-debt.md` (Fase 2 — Fundação)
 **Prioridade:** P1 (UX-D10, TD-SYS-18)
 **Débitos endereçados:** UX-D10, TD-SYS-18
@@ -90,6 +90,7 @@ Phase 3 (A11y Parada 1) resolveu os débitos críticos de acessibilidade de nave
 
 | Data | Autor | Mudança |
 |---|---|---|
+| 2026-09-09 | @po (Pax) | Story VALIDATED: 10/10 checklist PASS. Status: Draft → Ready. Ready for @dev implementation. |
 | 2026-09-09 | @sm (River) | Criação da story — Phase 4 Polish & Empty States |
 
 ---
