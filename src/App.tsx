@@ -99,6 +99,7 @@ function App() {
   const [fb, setFb] = useState(null);
   const [evt, setEvt] = useState(null);
   const [melt, setMelt] = useState(0);
+  const [showLegend, setShowLegend] = useState(false);
 
   // Refs
   const hotRef = useRef(0), vel = useRef(0), frz = useRef(null), recent = useRef([]), saved = useRef(false);
@@ -414,10 +415,18 @@ function App() {
   useEffect(() => {
     if (mode !== 'play') return;
     const onKey = e => {
+      // Keyboard legend (global, UX-D25)
+      if (e.key === '?') { e.preventDefault(); setShowLegend(true); return; }
+      if (e.key === 'Escape') {
+        if (showLegend) { setShowLegend(false); return; }
+        if (mode === 'play') press('C');
+      }
+
+      // Gameplay keys
+      if (mode !== 'play') return;
       if (picked === null) { if (e.key === '1') pick(0); else if (e.key === '2') pick(1); return; }
       if (e.key >= '0' && e.key <= '9') press(e.key);
       else if (e.key === 'Backspace') press('⌫');
-      else if (e.key === 'Escape') press('C');
       else if (e.key === 'Enter') check();
     };
     window.addEventListener('keydown', onKey);
@@ -541,165 +550,186 @@ function App() {
   const shellStyle = { '--nc-scale': viewportScale };
 
   if (mode === 'login') return (
-    <LoginPanel
-      nameInput={nameInput}
-      setNameInput={setNameInput}
-      players={players}
-      loading={loading}
-      player={player}
-      setPlayer={setPlayer}
-      setMode={setMode}
-      createPlayer={createPlayer}
-      storeErr={storeErr}
-      selectedOperatorToExclude={selectedOperatorToExclude}
-      setSelectedOperatorToExclude={setSelectedOperatorToExclude}
-      handleExcludeOperator={handleExcludeOperator}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-    />
-  );
-
-  if (mode === 'ranking') return (
-    <RankingPanel
-      players={players}
-      matches={matches}
-      player={player}
-      tab={tab}
-      setTab={setTab}
-      DIFF={DIFF}
-      TITLES={TITLES}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-      triggerButtonRef={triggerButtonRef}
-      setMode={setMode}
-    />
-  );
-
-  if (mode === 'analise') return (
-    <AnalisePanel
-      player={player}
-      players={players}
-      calendarCursor={calendarCursor}
-      setCalendarCursor={setCalendarCursor}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-      setMode={setMode}
-    />
-  );
-
-  if (mode === 'nc003') return (
-    <NC003Panel
-      player={player}
-      players={players}
-      heat={heat}
-      integrity={integrity}
-      coolant={coolant}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-      setMode={setMode}
-      start={start}
-    />
-  );
-
-  if (mode === 'menu') return (
-    <MenuPanel
-      player={player}
-      players={players}
-      diff={diff}
-      setDiff={setDiff}
-      snd={snd}
-      setSnd={setSnd}
-      setMode={setMode}
-      setPlayer={setPlayer}
-      initA={initA}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-    />
-  );
-
-  if (mode === 'win' || mode === 'lose' || mode === 'quit' || mode === 'pause')
-    return (
-      <EndGamePanel
-        mode={mode as 'win' | 'lose' | 'quit' | 'pause'}
-        diff={diff}
-        player={player || ''}
-        rank={rank}
-        elapsed={elapsed}
-        pts={pts}
-        tot={tot}
-        corr={corr}
-        bestStrk={bestStrk}
-        integrity={integrity}
+    <>
+      <LoginPanel
+        nameInput={nameInput}
+        setNameInput={setNameInput}
         players={players}
+        loading={loading}
+        player={player}
+        setPlayer={setPlayer}
         setMode={setMode}
-        start={start}
-        resumeGame={resumeGame}
-        continueGame={continueGame}
+        createPlayer={createPlayer}
+        storeErr={storeErr}
+        selectedOperatorToExclude={selectedOperatorToExclude}
+        setSelectedOperatorToExclude={setSelectedOperatorToExclude}
+        handleExcludeOperator={handleExcludeOperator}
         bg={bg}
         css={css}
         shellClass={shellClass}
         shellStyle={shellStyle}
       />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} context="login" />
+    </>
+  );
+
+  if (mode === 'ranking') return (
+    <>
+      <RankingPanel
+        players={players}
+        matches={matches}
+        player={player}
+        tab={tab}
+        setTab={setTab}
+        DIFF={DIFF}
+        TITLES={TITLES}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+        triggerButtonRef={triggerButtonRef}
+        setMode={setMode}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+    </>
+  );
+
+  if (mode === 'analise') return (
+    <>
+      <AnalisePanel
+        player={player}
+        players={players}
+        calendarCursor={calendarCursor}
+        setCalendarCursor={setCalendarCursor}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+        setMode={setMode}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+    </>
+  );
+
+  if (mode === 'nc003') return (
+    <>
+      <NC003Panel
+        player={player}
+        players={players}
+        heat={heat}
+        integrity={integrity}
+        coolant={coolant}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+        setMode={setMode}
+        start={start}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+    </>
+  );
+
+  if (mode === 'menu') return (
+    <>
+      <MenuPanel
+        player={player}
+        players={players}
+        diff={diff}
+        setDiff={setDiff}
+        snd={snd}
+        setSnd={setSnd}
+        setMode={setMode}
+        setPlayer={setPlayer}
+        initA={initA}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+    </>
+  );
+
+  if (mode === 'win' || mode === 'lose' || mode === 'quit' || mode === 'pause')
+    return (
+      <>
+        <EndGamePanel
+          mode={mode as 'win' | 'lose' | 'quit' | 'pause'}
+          diff={diff}
+          player={player || ''}
+          rank={rank}
+          elapsed={elapsed}
+          pts={pts}
+          tot={tot}
+          corr={corr}
+          bestStrk={bestStrk}
+          integrity={integrity}
+          players={players}
+          setMode={setMode}
+          start={start}
+          resumeGame={resumeGame}
+          continueGame={continueGame}
+          bg={bg}
+          css={css}
+          shellClass={shellClass}
+          shellStyle={shellStyle}
+        />
+        <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+      </>
     );
 
   return (
-    <GamePlayPanel
-      heat={heat}
-      integrity={integrity}
-      coolant={coolant}
-      melt={melt}
-      evt={evt}
-      shownTemp={shownTemp}
-      delta={delta}
-      frozen={frozen}
-      rank={rank}
-      snd={snd}
-      initA={initA}
-      setSnd={setSnd}
-      st={st}
-      power={power}
-      ventCd={ventCd}
-      VENT_CD={VENT_CD}
-      boronCd={boronCd}
-      BORON_CD={BORON_CD}
-      scrm={scrm}
-      doVent={doVent}
-      doBoron={doBoron}
-      doScram={doScram}
-      picked={picked}
-      locked={locked}
-      grace={grace}
-      pair={pair}
-      pick={pick}
-      prob={prob}
-      fb={fb}
-      ringPct={(tmr / DIFF[diff].time) * 100}
-      ringCol={(tmr / DIFF[diff].time) * 100 < 25 ? '#dc2626' : (tmr / DIFF[diff].time) * 100 < 55 ? '#f59e0b' : '#06b6d4'}
-      ans={ans}
-      check={check}
-      press={press}
-      pts={pts}
-      goal={goal}
-      strk={strk}
-      elapsed={elapsed}
-      pauseGame={pauseGame}
-      quit={quit}
-      shakeCls={shakeCls}
-      bg={bg}
-      css={css}
-      shellClass={shellClass}
-      shellStyle={shellStyle}
-    />
+    <>
+      <GamePlayPanel
+        heat={heat}
+        integrity={integrity}
+        coolant={coolant}
+        melt={melt}
+        evt={evt}
+        shownTemp={shownTemp}
+        delta={delta}
+        frozen={frozen}
+        rank={rank}
+        snd={snd}
+        initA={initA}
+        setSnd={setSnd}
+        st={st}
+        power={power}
+        ventCd={ventCd}
+        VENT_CD={VENT_CD}
+        boronCd={boronCd}
+        BORON_CD={BORON_CD}
+        scrm={scrm}
+        doVent={doVent}
+        doBoron={doBoron}
+        doScram={doScram}
+        picked={picked}
+        locked={locked}
+        grace={grace}
+        pair={pair}
+        pick={pick}
+        prob={prob}
+        fb={fb}
+        ringPct={(tmr / DIFF[diff].time) * 100}
+        ringCol={(tmr / DIFF[diff].time) * 100 < 25 ? '#dc2626' : (tmr / DIFF[diff].time) * 100 < 55 ? '#f59e0b' : '#06b6d4'}
+        ans={ans}
+        check={check}
+        press={press}
+        pts={pts}
+        goal={goal}
+        strk={strk}
+        elapsed={elapsed}
+        pauseGame={pauseGame}
+        quit={quit}
+        shakeCls={shakeCls}
+        bg={bg}
+        css={css}
+        shellClass={shellClass}
+        shellStyle={shellStyle}
+      />
+      <KeyboardLegendModal visible={showLegend} onClose={() => setShowLegend(false)} context="gameplay" />
+    </>
   );
 }
 
