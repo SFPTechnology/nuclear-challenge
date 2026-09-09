@@ -1,4 +1,5 @@
 import React, { Ref } from 'react';
+import { tokens } from '@design/tokens';
 import { EmptyState } from './EmptyState';
 import { GlobalErrorBanner } from './GlobalErrorBanner';
 import { Label } from './Label';
@@ -10,8 +11,8 @@ const DS = {
   recess: 'inset 0 3px 8px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06)',
 };
 
-const axisStyle = { fontSize: 8, fill: '#c5cdd8' };
-const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: 10, color: '#cbd5e1' };
+const axisStyle = { fontSize: tokens.typography.fontSize.micro, fill: '#c5cdd8' };
+const tipStyle = { background: '#0a1418', border: '1px solid #0891b2', borderRadius: 4, fontSize: tokens.typography.fontSize['0.5xs'], color: '#cbd5e1' };
 
 interface AnalisePanelProps {
   player: string | null;
@@ -72,14 +73,14 @@ export function AnalisePanel({
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="p-3 mb-2 text-center">
           <Label>Análise de Desempenho</Label>
-          <div className="font-mono font-bold mt-1" style={{ fontSize: 13, color: '#7dd3fc' }}>{player}</div>
-          <div style={{ fontSize: 9, color: '#a1aab8' }}>{totalOps} operações analisadas</div>
+          <div className="font-mono font-bold mt-1" style={{ fontSize: tokens.typography.fontSize.xs_lg, color: '#7dd3fc' }}>{player}</div>
+          <div style={{ fontSize: tokens.typography.fontSize.tiny, color: '#a1aab8' }}>{totalOps} operações analisadas</div>
         </Plate>
 
         <Plate className="p-2 mb-1.5">
           <div className="flex justify-between items-center mb-1.5">
             <button onClick={() => setCalendarCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))} aria-label="Mês anterior" className="rounded" style={{ padding: '3px 8px', color: '#7dd3fc', background: '#0a1418' }}>‹</button>
-            <div className="text-center"><Label>Registro de treino</Label><div className="font-mono font-bold" style={{ fontSize: 11, color: '#cbd5e1', textTransform: 'capitalize' }}>{monthLabel}</div></div>
+            <div className="text-center"><Label>Registro de treino</Label><div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.xs0, color: '#cbd5e1', textTransform: 'capitalize' }}>{monthLabel}</div></div>
             <button onClick={() => setCalendarCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))} aria-label="Próximo mês" className="rounded" style={{ padding: '3px 8px', color: '#7dd3fc', background: '#0a1418' }}>›</button>
           </div>
           <div className="grid grid-cols-7 gap-1 mb-1">
@@ -90,7 +91,7 @@ export function AnalisePanel({
               const record = day && studyLog[day.key];
               const accuracy = record ? Math.round((record.hits / Math.max(1, record.total)) * 100) : null;
               return <div key={i} style={{ minHeight: 35, borderRadius: 4, padding: '3px 2px', background: record ? colOf(accuracy) : '#0a1418', opacity: day ? 1 : .35, border: record ? '1px solid rgba(255,255,255,.12)' : '1px solid #171b1f' }}>
-                {day && <><div className="font-mono font-bold" style={{ fontSize: 9, color: '#fff' }}>{day.day}</div>{record && <div className="font-mono" style={{ fontSize: 6.5, color: '#fff' }}>{record.hits}/{record.total}</div>}</>}
+                {day && <><div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.tiny, color: '#fff' }}>{day.day}</div>{record && <div className="font-mono" style={{ fontSize: tokens.typography.fontSize['2xs'], color: '#fff' }}>{record.hits}/{record.total}</div>}</>}
               </div>;
             })}
           </div>
@@ -101,16 +102,16 @@ export function AnalisePanel({
           <Label className="mb-1.5">Prioridade de estudo</Label>
           {priority.map((item, index) => <div key={item.key} className="flex items-center gap-1.5 mb-1">
             <div className="font-mono font-bold" style={{ width: 18, textAlign: 'center', color: index < 2 ? '#f87171' : '#fbbf24' }}>{index + 1}</div>
-            <div style={{ flex: 1 }}><div style={{ fontSize: 8.5, color: '#cbd5e1' }}>{item.label}</div><div style={{ height: 4, marginTop: 2, borderRadius: 3, background: '#0a0e11', overflow: 'hidden' }}><div style={{ height: '100%', width: `${100 - item.accuracy}%`, background: item.accuracy < 60 ? 'repeating-linear-gradient(45deg, #dc2626, #dc2626 2px, #991b1b 2px, #991b1b 4px)' : 'repeating-linear-gradient(45deg, #f59e0b, #f59e0b 2px, #b45309 2px, #b45309 4px)' }} /></div></div>
-            <span className="font-mono" style={{ width: 76, textAlign: 'right', fontSize: 8, color: item.accuracy < 60 ? '#f87171' : '#fbbf24' }}>{item.accuracy}% · {item.misses} erros</span>
+            <div style={{ flex: 1 }}><div style={{ fontSize: tokens.typography.fontSize['0xs'], color: '#cbd5e1' }}>{item.label}</div><div style={{ height: 4, marginTop: 2, borderRadius: 3, background: '#0a0e11', overflow: 'hidden' }}><div style={{ height: '100%', width: `${100 - item.accuracy}%`, background: item.accuracy < 60 ? 'repeating-linear-gradient(45deg, #dc2626, #dc2626 2px, #991b1b 2px, #991b1b 4px)' : 'repeating-linear-gradient(45deg, #f59e0b, #f59e0b 2px, #b45309 2px, #b45309 4px)' }} /></div></div>
+            <span className="font-mono" style={{ width: 76, textAlign: 'right', fontSize: tokens.typography.fontSize.micro, color: item.accuracy < 60 ? '#f87171' : '#fbbf24' }}>{item.accuracy}% · {item.misses} erros</span>
           </div>)}
-          <div style={{ fontSize: 8, color: '#c5cdd8', marginTop: 5 }}>A ordem combina erros acumulados, taxa de acerto e volume praticado.</div>
+          <div style={{ fontSize: tokens.typography.fontSize.micro, color: '#c5cdd8', marginTop: 5 }}>A ordem combina erros acumulados, taxa de acerto e volume praticado.</div>
         </Plate>}
 
         {totalOps < 10 ? (
           <Plate className="p-4 text-center">
             <Label>Dados insuficientes</Label>
-            <div style={{ fontSize: 11, color: '#c5cdd8', marginTop: 6 }}>Jogue algumas partidas para que a análise identifique seus pontos fortes e fracos.</div>
+            <div style={{ fontSize: tokens.typography.fontSize.xs0, color: '#c5cdd8', marginTop: 6 }}>Jogue algumas partidas para que a análise identifique seus pontos fortes e fracos.</div>
           </Plate>
         ) : (
           <>
@@ -121,8 +122,8 @@ export function AnalisePanel({
                   const v = S.tabs[n], p = pctOf(v), tries = v ? v.h + v.m : 0;
                   return (
                     <div key={n} style={{ width: 'calc(14.28% - 4px)', textAlign: 'center', borderRadius: 4, padding: '4px 0', background: colOf(p), opacity: tries === 0 ? .25 : 1, boxShadow: 'inset 0 -2px 4px rgba(0,0,0,.4)' }}>
-                      <div className="font-mono font-bold" style={{ fontSize: 11, color: '#fff' }}>{n}</div>
-                      <div className="font-mono" style={{ fontSize: 7, color: '#ffffffcc' }}>{p === null ? '—' : `${p}%`}</div>
+                      <div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.xs0, color: '#fff' }}>{n}</div>
+                      <div className="font-mono" style={{ fontSize: tokens.typography.fontSize.xs2, color: '#ffffffcc' }}>{p === null ? '—' : `${p}%`}</div>
                     </div>
                   );
                 })}
@@ -151,16 +152,16 @@ export function AnalisePanel({
                 <Label className="mb-1.5">Reforçar com prioridade</Label>
                 {fracos.map(r => (
                   <div key={r.k} className="flex items-center gap-2 mb-1">
-                    <div className="font-mono font-bold" style={{ width: 26, textAlign: 'center', fontSize: 12, color: '#fff', background: colOf(r.p), borderRadius: 3, padding: '2px 0' }}>{r.k}</div>
+                    <div className="font-mono font-bold" style={{ width: 26, textAlign: 'center', fontSize: tokens.typography.fontSize.xs, color: '#fff', background: colOf(r.p), borderRadius: 3, padding: '2px 0' }}>{r.k}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ height: 5, borderRadius: 3, background: '#0a0e11', boxShadow: DS.recess, overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${r.p}%`, background: colOf(r.p) }} />
                       </div>
                     </div>
-                    <span className="font-mono" style={{ fontSize: 9, color: '#c5cdd8', width: 62, textAlign: 'right' }}>{r.p}% · {r.m} erro{r.m === 1 ? '' : 's'}</span>
+                    <span className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: '#c5cdd8', width: 62, textAlign: 'right' }}>{r.p}% · {r.m} erro{r.m === 1 ? '' : 's'}</span>
                   </div>
                 ))}
-                <div style={{ fontSize: 9, color: '#c5cdd8', marginTop: 4, lineHeight: 1.4 }}>
+                <div style={{ fontSize: tokens.typography.fontSize.tiny, color: '#c5cdd8', marginTop: 4, lineHeight: 1.4 }}>
                   Treine a tabuada do <b style={{ color: '#f87171' }}>{fracos[0].k}</b> antes da próxima partida — é onde você mais perde calor do reator.
                 </div>
               </Plate>
@@ -172,8 +173,8 @@ export function AnalisePanel({
                 <div className="flex gap-1">
                   {fortes.map(r => (
                     <div key={r.k} style={{ flex: 1, textAlign: 'center', background: '#0a1418', boxShadow: DS.recess, borderRadius: 4, padding: '4px 0' }}>
-                      <div className="font-mono font-bold" style={{ fontSize: 13, color: '#4ade80' }}>{r.k}</div>
-                      <div className="font-mono" style={{ fontSize: 8, color: '#c5cdd8' }}>{r.p}% · {r.n}x</div>
+                      <div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.xs_lg, color: '#4ade80' }}>{r.k}</div>
+                      <div className="font-mono" style={{ fontSize: tokens.typography.fontSize.micro, color: '#c5cdd8' }}>{r.p}% · {r.n}x</div>
                     </div>
                   ))}
                 </div>
@@ -191,7 +192,7 @@ export function AnalisePanel({
                     <div style={{ flex: 1, height: 7, borderRadius: 3, background: '#0a0e11', boxShadow: DS.recess, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${p}%`, background: colOf(p), transition: 'width .4s' }} />
                     </div>
-                    <span className="font-mono" style={{ fontSize: 9, color: '#c5cdd8', width: 66, textAlign: 'right' }}>{p}% · {v.h + v.m} ops</span>
+                    <span className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: '#c5cdd8', width: 66, textAlign: 'right' }}>{p}% · {v.h + v.m} ops</span>
                   </div>
                 );
               })}
@@ -205,8 +206,8 @@ export function AnalisePanel({
                 return (
                   <div key={k} className="mb-1.5">
                     <div className="flex justify-between mb-0.5">
-                      <span style={{ fontSize: 8.5, color: '#c5cdd8' }}>{l}</span>
-                      <span className="font-mono" style={{ fontSize: 9, color: colOf(p) }}>{p}%</span>
+                      <span style={{ fontSize: tokens.typography.fontSize['0xs'], color: '#c5cdd8' }}>{l}</span>
+                      <span className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: colOf(p) }}>{p}%</span>
                     </div>
                     <div style={{ height: 5, borderRadius: 3, background: '#0a0e11', boxShadow: DS.recess, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${p}%`, background: colOf(p) }} />
@@ -219,7 +220,7 @@ export function AnalisePanel({
                   ? Math.round((((S.forms.left || { h: 0, m: 0 }).h + (S.forms.right || { h: 0, m: 0 }).h) / Math.max(1, (S.forms.left || { h: 0, m: 0 }).h + (S.forms.left || { h: 0, m: 0 }).m + (S.forms.right || { h: 0, m: 0 }).h + (S.forms.right || { h: 0, m: 0 }).m)) * 100) : null;
                 if (r === null || inv === null) return null;
                 const gap = r - inv;
-                return <div style={{ fontSize: 9, color: '#c5cdd8', lineHeight: 1.4, marginTop: 2 }}>
+                return <div style={{ fontSize: tokens.typography.fontSize.tiny, color: '#c5cdd8', lineHeight: 1.4, marginTop: 2 }}>
                   {gap > 15
                     ? <>Você acerta {gap} pontos a mais quando o resultado está oculto. Isso indica que a <b style={{ color: '#fbbf24' }}>operação inversa</b> ainda não está automática — vale treinar "qual número vezes 8 dá 56?".</>
                     : gap < -15
