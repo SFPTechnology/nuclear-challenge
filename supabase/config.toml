@@ -1,0 +1,14 @@
+project_id = "nuclear-challenge-local"
+
+[db]
+major_version = 17
+
+[api]
+enabled = true
+
+[auth]
+enabled = true
+
+[realtime]
+enabled = false
+

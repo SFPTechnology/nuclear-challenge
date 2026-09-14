@@ -1,0 +1,33 @@
+run_id: acompanhamento-pedagogico-2026-09-10
+nodes:
+  - id: baseline
+    status: done
+  - id: storage-contract
+    owner: architect
+    depends_on: [baseline]
+  - id: storage-adapter
+    owner: dev
+    depends_on: [storage-contract]
+  - id: domain-consolidation
+    owner: dev
+    depends_on: [baseline]
+  - id: app-integration
+    owner: dev
+    depends_on: [storage-adapter, domain-consolidation]
+  - id: analysis-regression
+    owner: dev
+    depends_on: [app-integration]
+  - id: quality-gates
+    owner: qa
+    depends_on: [analysis-regression]
+edges:
+  - from: storage-contract
+    to: storage-adapter
+  - from: storage-adapter
+    to: app-integration
+  - from: domain-consolidation
+    to: app-integration
+  - from: app-integration
+    to: analysis-regression
+  - from: analysis-regression
+    to: quality-gates

@@ -5,6 +5,7 @@ import { GlobalErrorBanner } from './GlobalErrorBanner';
 import { Label } from './Label';
 import { Plate } from './Plate';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend, LineChart, Line, Cell } from 'recharts';
+import type { AppMode } from '@hooks/useUIState';
 
 const CHART_COLORS = ['#06b6d4', '#f59e0b', '#a3e635', '#f472b6', '#818cf8', '#fb923c', '#2dd4bf', '#e879f9'];
 const axisStyle = { fontSize: tokens.typography.fontSize.micro, fill: '#c5cdd8' };
@@ -27,12 +28,57 @@ interface RankingPanelProps {
   shellClass: string;
   shellStyle: React.CSSProperties;
   triggerButtonRef: Ref<HTMLButtonElement>;
-  setMode: (mode: string) => void;
+  setMode: (mode: AppMode) => void;
+  resumeAvailable?: boolean;
+  resumeGame?: () => void;
+  storeErr: boolean;
+}
+
+function RankingActionButton({
+  children,
+  onClick,
+  ariaLabel,
+  primary = false,
+  buttonRef,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  ariaLabel: string;
+  primary?: boolean;
+  buttonRef?: Ref<HTMLButtonElement>;
+}) {
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className="w-full transition-transform active:translate-y-px"
+      style={{
+        minHeight: 44,
+        padding: '10px 12px',
+        borderRadius: tokens.borderRadius.md,
+        border: primary ? '1px solid #083344' : '1px solid #14181c',
+        background: primary
+          ? 'linear-gradient(180deg,#0e7490,#155e75 55%,#0c4a5e)'
+          : 'linear-gradient(180deg,#46515d,#2c3540 55%,#1c2229)',
+        boxShadow: primary
+          ? '0 1px 0 rgba(255,255,255,.2) inset,0 4px 8px #000,0 0 16px rgba(6,182,212,.35)'
+          : '0 1px 0 rgba(255,255,255,.2) inset,0 4px 8px #000,0 0 16px rgba(148,163,184,.18)',
+        color: primary ? '#e0f2fe' : '#e2e8f0',
+        fontSize: tokens.typography.fontSize.xs0,
+        fontWeight: tokens.typography.fontWeight.bold,
+        letterSpacing: tokens.typography.letterSpacing.wide,
+      }}
+    >
+      {children}
+    </button>
+  );
 }
 
 export function RankingPanel({
   players, matches, player, tab, setTab, DIFF, TITLES,
-  bg, css, shellClass, shellStyle, triggerButtonRef, setMode
+  bg, css, shellClass, shellStyle, triggerButtonRef, setMode, resumeAvailable = false, resumeGame, storeErr
 }: RankingPanelProps) {
   const rows = Object.entries(players).map(([n, d]: [string, any]) => ({
     n,
@@ -49,7 +95,7 @@ export function RankingPanel({
 
   return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
-      <GlobalErrorBanner />
+      <GlobalErrorBanner visible={storeErr} />
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="p-2 mb-2">
           <div className="text-center mb-1.5"><Label>Ranking dos Operadores</Label></div>
@@ -84,16 +130,16 @@ export function RankingPanel({
               </div>
               <div className="flex gap-1">
                 {[['TOTAL', r.total], ['ACERTO', `${r.acc}%`], ['SEQ', r.streak], ['VITÓRIAS', `${r.wins}/${r.games}`]].map(([l, v], j) => (
-                  <div key={j} style={{ flex: 1, textAlign: 'center', background: '#0a1418', boxShadow: DS.recess, borderRadius: 4, padding: '3px 0' }}>
-                    <div style={{ fontSize: 6.5, color: '#a1aab8', letterSpacing: '.1em' }}>{l}</div>
+                  <div key={j} style={{ flex: 1, textAlign: 'center', background: '#0a1418', boxShadow: DS.recess, borderRadius: 4, padding: '5px 0' }}>
+                    <div style={{ fontSize: tokens.typography.fontSize['3xs'], color: '#a1aab8', letterSpacing: '.06em', lineHeight: tokens.typography.lineHeight.tight }}>{l}</div>
                     <div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: '#cbd5e1' }}>{v}</div>
                   </div>
                 ))}
               </div>
               <div className="flex gap-1 mt-1">
                 {[1,2,3,4,5].map(k => (
-                  <div key={k} style={{ flex: 1, textAlign: 'center', borderRadius: 3, padding: '2px 0', background: r.best[k] ? 'rgba(6,182,212,.12)' : 'transparent', border: '1px solid #1c2126' }}>
-                    <div style={{ fontSize: tokens.typography.fontSize['3xs'], color: '#a1aab8' }}>{DIFF[k].name.slice(0, 5)}</div>
+                  <div key={k} style={{ flex: 1, textAlign: 'center', borderRadius: 3, padding: '4px 0', background: r.best[k] ? 'rgba(6,182,212,.12)' : 'transparent', border: '1px solid #1c2126' }}>
+                    <div style={{ fontSize: tokens.typography.fontSize['3xs'], lineHeight: tokens.typography.lineHeight.tight, color: '#a1aab8', overflowWrap: 'anywhere' }}>{DIFF[k].name}</div>
                     <div className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: r.best[k] ? '#7dd3fc' : '#3f464e' }}>{r.best[k] || '—'}</div>
                   </div>
                 ))}
@@ -118,10 +164,10 @@ export function RankingPanel({
                 <div style={{ width: 26, textAlign: 'right' }}><Label size={6}>Seq</Label></div>
               </div>
               {matches.slice(0, 20).map((m, i) => (
-                <div key={m.ts + '' + i} className="flex items-center px-1" style={{ padding: '3px 4px', borderRadius: 3, background: m.n === player ? 'rgba(6,182,212,.10)' : 'transparent' }}>
+                <div key={m.ts + '' + i} className="flex items-center px-1" style={{ padding: '5px 4px', borderRadius: 3, background: m.n === player ? 'rgba(6,182,212,.10)' : 'transparent' }}>
                   <div style={{ width: 22 }}><span className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: medal(i) }}>{i + 1}º</span></div>
-                  <div style={{ flex: 1, overflow: 'hidden' }}><span className="font-mono" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: m.n === player ? '#7dd3fc' : '#e2e8f0' }}>{m.n}</span></div>
-                  <div style={{ width: 42 }}><span style={{ fontSize: tokens.typography.fontSize.xs1, color: m.d === 5 ? '#f87171' : '#c5cdd8' }}>{DIFF[m.d].name.slice(0, 6)}</span></div>
+                  <div style={{ flex: 1, minWidth: 0 }}><span className="font-mono" style={{ fontSize: tokens.typography.fontSize['0.5xs'], lineHeight: tokens.typography.lineHeight.snug, color: m.n === player ? '#7dd3fc' : '#e2e8f0', overflowWrap: 'anywhere' }}>{m.n}</span></div>
+                  <div style={{ width: 42 }}><span style={{ fontSize: tokens.typography.fontSize.xs1, lineHeight: tokens.typography.lineHeight.tight, color: m.d === 5 ? '#f87171' : '#c5cdd8', overflowWrap: 'anywhere' }}>{DIFF[m.d].name}</span></div>
                   <div style={{ width: 34, textAlign: 'right' }}><span className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: '#fbbf24' }}>{m.pts}</span></div>
                   <div style={{ width: 30, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: m.acc >= 80 ? '#4ade80' : '#c5cdd8' }}>{m.acc}%</span></div>
                   <div style={{ width: 26, textAlign: 'right' }}><span className="font-mono" style={{ fontSize: tokens.typography.fontSize.tiny, color: '#c5cdd8' }}>{m.streak}</span></div>
@@ -142,7 +188,7 @@ export function RankingPanel({
           : (() => {
             const top = rows.slice(0, 8);
             const radarData = [1,2,3,4,5].map(k => {
-              const o: Record<string, any> = { fase: DIFF[k].name.slice(0, 6) };
+              const o: Record<string, any> = { fase: DIFF[k].name };
               top.slice(0, 4).forEach(r => { o[r.n] = r.best[k] || 0; });
               return o;
             });
@@ -247,9 +293,18 @@ export function RankingPanel({
           })())}
         </div>
 
-        <button ref={triggerButtonRef} onClick={() => setMode(player ? 'menu' : 'login')} className="w-full mt-1.5" aria-label="Voltar para menu anterior">
-          <Plate className="py-2 text-center"><Label>Voltar</Label></Plate>
-        </button>
+        {resumeAvailable && resumeGame && (
+          <div className="mt-1.5">
+            <RankingActionButton onClick={resumeGame} ariaLabel="Retornar ao jogo" primary>
+              RETORNAR AO JOGO
+            </RankingActionButton>
+          </div>
+        )}
+        <div className="mt-1.5">
+          <RankingActionButton buttonRef={triggerButtonRef} onClick={() => setMode(player ? 'menu' : 'login')} ariaLabel="Voltar para menu anterior">
+            VOLTAR
+          </RankingActionButton>
+        </div>
       </div>
     </div>
   );

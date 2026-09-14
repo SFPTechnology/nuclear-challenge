@@ -1,6 +1,6 @@
 # Story 1.3 — Qualidade real: globals, lint, runner de teste, testes comportamentais e typecheck
 
-Status: Draft — 🔺 **TOP OF QUEUE**
+Status: Draft
 
 > 🔺 **TOP OF QUEUE (elevada por @po em 2026-09-09, ação A5).** Esta é a **próxima story a ser trabalhada**, à frente de qualquer outra do roadmap. Motivo: é **pré-requisito duro da Story 2.1**, que já está `InProgress` — a toolchain de teste desta story é o único meio de validar as invariantes I1-I8 que a Story 2.1 precisa nos seus ACs. Enquanto esta story ficar em `Draft`, a Story 2.1 não pode ir a `Done` e a Story 2.2 permanece bloqueada em cascata. Requer validação de @po (`Draft → Ready`) com urgência.
 
@@ -9,6 +9,25 @@ Status: Draft — 🔺 **TOP OF QUEUE**
 **Débitos endereçados:** TD-SYS-19, TD-SYS-02, TD-QA-01, TD-SYS-03, TD-SYS-01 (nesta ordem obrigatória)
 **Esforço estimado:** S (TD-SYS-19) + M (TD-SYS-02) + S (TD-QA-01) + L (TD-SYS-03) + XL (TD-SYS-01)
 **Owner:** @dev, com gate final de @qa
+
+## Executor Assignment
+
+```yaml
+executor: "@dev"
+quality_gate: "@architect"
+quality_gate_tools:
+  - "architecture_review"
+  - "code_review"
+  - "pattern_validation"
+```
+
+**Nota de reconciliação:** o template v2 mapeia trabalho de código/lógica com executor `@dev` para quality gate `@architect`; por isso este campo não declara `@qa`. O veredito de QA e a execução dos comandos de qualidade continuam registrados nas seções próprias e não são dispensados por este ajuste.
+
+## Story
+
+**Como** mantenedor do Nuclear Challenge,
+**quero** que lint, typecheck e testes comportamentais validem o código de aplicação real,
+**para que** regressões de física, progresso, persistência, geração de operações e pausa não sejam aprovadas por gates vacuosos.
 
 ## Contexto / Motivação
 
@@ -44,6 +63,19 @@ Os cinco débitos abaixo formam uma cadeia de dependência sequencial estrita (P
 
 5. Remover `@ts-nocheck` do arquivo de aplicação principal; ativar `strict: true` e `checkJs: true` no `tsconfig` (TD-SYS-01).
 
+## Baseline factual reconciliado em 2026-09-10
+
+Esta seção registra a árvore e as configurações verificadas durante a preparação; não conclui nenhum critério de aceitação.
+
+- `package.json` já declara `vitest`, `happy-dom` e `@testing-library/react`; seus scripts atuais são `lint: eslint src --max-warnings=0`, `typecheck: tsc --noEmit` e `test: vitest`.
+- `vitest.config.ts` já usa `happy-dom`, `globals: true`, aliases para `src/` e inclui `src/**/*.{test,spec}.{ts,tsx}`. A implementação deve validar/ajustar esta configuração existente, não criar uma segunda toolchain.
+- `tsconfig.json` já contém `strict: true`, mas não declara `checkJs: true`; `src/App.tsx` não contém `@ts-nocheck`.
+- `eslint.config.js` já cobre `src/**/*.{ts,tsx}`, mas não declara plugins React Hooks, `jsx-a11y` ou segurança. O script de lint executa somente sobre `src/`.
+- Há um único teste regex rastreado: `tests/pause-contract.test.mjs`, ainda apontando para `Arquivos_Diversos/nuclear-challenge-app.tsx`. Nenhum segundo equivalente foi localizado; ele não deve ser presumido ou removido sem identificação factual.
+- `src/__tests__/core-invariants.test.ts` nomeia I1–I8, mas seus cenários usam valores e objetos locais, sem chamar os contratos reais em `src/App.tsx`, hooks, utilitários ou domínio. Logo, não é evidência suficiente dos ACs comportamentais.
+
+Os requisitos desta story permanecem inalterados. A implementação deve produzir evidência contra o código real e só então atualizar seus checkboxes.
+
 ## Critérios de Aceitação
 
 - [ ] ESLint config com `globals` completos, sem falsos negativos de variável indefinida.
@@ -63,6 +95,84 @@ Os cinco débitos abaixo formam uma cadeia de dependência sequencial estrita (P
 - [ ] QA Gate (@qa) executado e com verdicto PASS/CONCERNS antes de mover para Done.
 - [ ] Status da story atualizado para `Ready` por @po antes do início da implementação.
 
+## Tasks / Subtasks
+
+- [ ] 1. Confirmar o baseline e respeitar a sequência TD-SYS-19 → TD-SYS-02 → TD-QA-01 → TD-SYS-03 → TD-SYS-01. (AC: todos) [Fonte: `docs/prd/technical-debt-assessment.md` §3.3.1]
+  - [ ] 1.1 Inventariar os globals consumidos pelos arquivos sob lint antes de mudar regras. (AC: globals)
+  - [ ] 1.2 Confirmar novamente a inexistência de um segundo teste regex antes de remover testes. (AC: deleção de regex)
+- [ ] 2. Ajustar o lint da configuração existente. (AC: globals; cobertura lint)
+  - [ ] 2.1 Completar globals sem suprimir violações reais.
+  - [ ] 2.2 Ativar React Hooks, `jsx-a11y` e segurança básica sobre o código de aplicação.
+  - [ ] 2.3 Executar `npm run lint` e corrigir ou registrar os achados sem reduzir o escopo do comando.
+- [ ] 3. Consolidar a execução de testes com a configuração Vitest existente. (AC: runner)
+  - [ ] 3.1 Validar componentes em `happy-dom` e contratos de domínio sem dependência de DOM quando aplicável.
+  - [ ] 3.2 Validar execução finita por `npm test -- --run` e o padrão de inclusão dos testes.
+- [ ] 4. Trocar a falsa evidência por testes comportamentais. (AC: regex, I1–I8, mutação)
+  - [ ] 4.1 Implementar I6 contra o fluxo real antes de remover `tests/pause-contract.test.mjs`.
+  - [ ] 4.2 Reescrever I1–I8 para chamar módulos, hooks ou fluxo de UI responsáveis pela regra; valores sintéticos não substituem o contrato.
+  - [ ] 4.3 Reaplicar os mutantes A e B, reverter as alterações controladas e anexar comando, resultado esperado e resultado obtido.
+- [ ] 5. Tornar o typecheck efetivo sem supressão. (AC: `@ts-nocheck`, strict/checkJs, T6)
+  - [ ] 5.1 Declarar `checkJs: true`, preservar `strict: true` e confirmar a ausência de `@ts-nocheck` em `src/App.tsx`.
+  - [ ] 5.2 Implementar e testar o ratchet T6 contra uma baseline versionada.
+  - [ ] 5.3 Executar `npm run typecheck`; se houver dívida pré-existente, documentar e priorizar sem mascará-la.
+- [ ] 6. Executar gates e preparar o handoff. (AC: todos)
+  - [ ] 6.1 Executar `npm run lint`, `npm run typecheck`, `npm test -- --run` e `npm run build`.
+  - [ ] 6.2 Atualizar checkboxes, File List, Dev Agent Record e evidência de mutação.
+  - [ ] 6.3 Solicitar QA Gate de @qa antes de propor `Done`.
+
+## Dev Notes
+
+### Referências e locais relevantes
+
+- Requisitos e decisão de saída: `docs/prd/technical-debt-assessment.md` §3.3.1 e §4.3 — runner Vitest + `happy-dom`, proibição de regex e invariantes I1–I8.
+- Configurações existentes: `eslint.config.js`, `vitest.config.ts`, `tsconfig.json` e scripts de `package.json`.
+- Fluxos e contratos atualmente relevantes: `src/App.tsx`, `src/utils/studyLog.ts`, `src/hooks/`, `src/domain/core/` e `src/domain/storage/`.
+- Não há orientação adicional atualizada específica para esta correção nos documentos de arquitetura: `docs/architecture/system-architecture.md` descreve a estrutura anterior à migração para `src/` e serve apenas como baseline histórico.
+
+### Restrições técnicas
+
+- O critério de saída de TD-SYS-03 são as invariantes I1–I8, e não cobertura percentual. [Fonte: `docs/prd/technical-debt-assessment.md` §4.3]
+- Não reintroduzir `@ts-nocheck`; T6 deve impedir aumento das supressões. [Fonte: `docs/prd/technical-debt-assessment.md` §3.3.1]
+- Esta story não autoriza requisito de produto novo, mudança da Story 1.1 ou alteração de `core-config.yaml`.
+
+## Testing
+
+- Componentes: Vitest + `happy-dom` e Testing Library, verificando interações e estado observável.
+- Domínio: Vitest sem acoplamento a DOM quando o contrato sob teste não o requer.
+- I1–I8: cada teste deve chamar a implementação real; fixtures e asserts devem observar entrada e estado/saída resultante.
+- Mutação: registrar os mutantes A e B, o resultado anterior e a inversão exigida (A reprovado, B aprovado), revertendo a alteração controlada após a execução.
+- Gates finais: `npm run lint`, `npm run typecheck`, `npm test -- --run` e `npm run build`.
+
+## 🤖 CodeRabbit Integration
+
+> **CodeRabbit Integration: Unconfigured**
+>
+> `coderabbit_integration.enabled` não está declarado em `.aiox-core/core-config.yaml`; por isso não há comando CodeRabbit configurado para esta story. Até decisão de @po/@devops, a revisão será manual pelos quality-gate tools. Esta story não autoriza modificar a configuração global.
+
+**Story Type Analysis**
+
+- **Primary Type:** Architecture
+- **Secondary Type(s):** Frontend, Security
+- **Complexity:** High — configurações transversais e rede de segurança para múltiplos fluxos.
+
+**Specialized Agent Assignment**
+
+- **Primary Agents:** @dev, @qa
+- **Supporting Agents:** @architect (somente se houver decisão de padrão fora do escopo), @devops (somente para PR/CI, se aplicável).
+
+**Quality Gate Tasks**
+
+- [ ] Pre-Commit (@dev): executar quality-gate tools e documentar mutação.
+- [ ] Pre-PR (@devops): executar a revisão configurada para PR, se a story alcançar esse estágio.
+- [ ] CodeRabbit: não aplicável enquanto a chave estiver ausente; registrar a decisão de @po/@devops, se houver.
+
+**Focus Areas**
+
+- Cobertura real do lint e globals sem falsos positivos.
+- Regras de hooks, acessibilidade e segurança sem silenciar violações.
+- I1–I8 contra implementações reais e remoção do teste regex legado.
+- Ausência de nova supressão TypeScript e eficácia do ratchet T6.
+
 ## Riscos
 
 - **R1** (Alta→Confirmada, Crítico): esta story é a mitigação direta e completa de R1.
@@ -77,11 +187,53 @@ Os cinco débitos abaixo formam uma cadeia de dependência sequencial estrita (P
 
 ## File List
 
-- [ ] A definir durante a implementação (`eslint.config.js`, `vitest.config.*`, `tsconfig.json`, arquivos de teste).
+### Planejados para implementação por @dev
+
+- [ ] `eslint.config.js` — globals e regras/plugins de lint.
+- [ ] `package.json` — scripts/dependências somente se a configuração existente exigir ajuste para os gates.
+- [ ] `vitest.config.ts` — validar/ajustar somente a execução necessária.
+- [ ] `tsconfig.json` — `checkJs: true` e typecheck efetivo.
+- [ ] `tests/pause-contract.test.mjs` — remover depois da substituição comportamental I6.
+- [ ] `src/__tests__/core-invariants.test.ts` e/ou testes próximos aos contratos reais — substituir cenários sintéticos pela evidência I1–I8.
+- [ ] Arquivo do mecanismo T6 e respectiva chamada em `package.json`, se necessário — caminho a confirmar durante a implementação; não criar sem necessidade comprovada.
+
+### Atualizado nesta preparação
+
+- [x] `docs/stories/story-1.3-qualidade-lint-testes-typecheck.md` — estrutura, planejamento e baseline factual; quality gate reconciliado com o mapeamento do template e Change Log versionado com marcações pendentes.
+
+## Dev Agent Record
+
+### Context Reference
+
+- `docs/stories/epic-technical-debt.md` — requisitos da Story 1.3.
+- `docs/prd/technical-debt-assessment.md` §3.3.1 e §4.3 — decisão de runner, proibição de regex e invariantes.
+- `package.json`, `vitest.config.ts`, `tsconfig.json`, `eslint.config.js` e árvore `src/` — baseline factual de 2026-09-10.
+
+### Agent Model Used
+
+Não iniciado.
+
+### Debug Log References
+
+Não iniciado.
+
+### Completion Notes
+
+Não iniciado. Esta preparação não alterou código nem configuração de aplicação.
+
+### File List
+
+Ver seção **File List** desta story.
+
+## QA Results
+
+Não executado. Reservado para o veredito formal de @qa após a implementação e os gates.
 
 ## Change Log
 
-| Data | Autor | Mudança |
-|---|---|---|
-| 2026-09-07 | @pm (Morgan) | Criação da story — Fase 10 do Brownfield Discovery |
-| 2026-09-09 | @po (Pax) | **Elevada a TOP OF QUEUE (ação A5).** @pm flagou que esta story é pré-requisito **duro** da Story 2.1 — a toolchain é o único meio de validar as invariantes I1-I8 exigidas nos ACs da 2.1. Manter esta story em `Draft` enquanto a 2.1 está `InProgress` é uma inversão de ordem que o próprio assessment adverte contra. Prioridade reafirmada P0 e marcada como próxima da fila; dependência de bloqueio documentada em cascata (2.1 → 2.2). Status permanece `Draft` porque a transição `Draft → Ready` exige validação formal (`*validate-story-draft`) — a elevação é de **urgência/posição na fila**, não um atalho de gate. |
+| Data | Versão | Descrição | Autor |
+|---|---|---|---|
+| 2026-09-07 | Pendente — versão inicial não registrada | Criação da story — Fase 10 do Brownfield Discovery. | @pm (Morgan) |
+| 2026-09-09 | Pendente — baseline semântica não registrada | Elevada a TOP OF QUEUE (ação A5); urgência/posição na fila não altera o status, que permanece `Draft` até validação formal. | @po (Pax) |
+| 2026-09-10 | Pendente — baseline semântica não registrada | Reestruturada para nova validação: Story, executor/quality gate/tools, Tasks/Subtasks, Dev Notes, Testing, CodeRabbit, Dev Agent Record, QA Results e File List. Baseline factual preservado; status mantido `Draft` enquanto a Story 1.1 permanece `Draft`. | @sm (River) |
+| 2026-09-10 | Pendente — baseline semântica não registrada | Quality gate ajustado de `@qa` para `@architect`, conforme o mapeamento do template v2 para trabalho de código/lógica. O veredito de QA permanece registrado separadamente; requer confirmação do @po se houver conflito de governança. | @sm (River) |

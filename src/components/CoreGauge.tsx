@@ -43,14 +43,14 @@ export function CoreGauge({ temp, delta, danger, frozen }: CoreGaugeProps) {
 
   return (
     <Plate className="p-1.5" glow={danger ? 'rgba(239,68,68,.35)' : frozen ? 'rgba(56,189,248,.35)' : undefined}>
-      <div className="flex justify-center">
-        <Label size={8}>{frozen ? 'Núcleo · Boro Ativo' : 'Temperatura do Núcleo'}</Label>
+      <div className="flex justify-center mb-1">
+        <Label size={9}>{frozen ? 'Núcleo · Boro Ativo' : 'Temperatura do Núcleo'}</Label>
       </div>
       <div
         className="mx-auto rounded-full relative"
         style={{
-          width: 168,
-          height: 124,
+          width: 174,
+          height: 128,
           background: DS.bezel,
           boxShadow: DS.raised,
           padding: 5,

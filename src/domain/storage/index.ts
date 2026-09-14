@@ -1,9 +1,16 @@
-// Type augmentation for window.storage
-declare global {
-  interface Window {
-    storage: Record<string, string>;
-  }
-}
-
-export { IStorageAdapter, MergePolicy } from './StorageAdapter';
+export {
+  StorageAdapter,
+  storageAdapter,
+  decodeStoredValue,
+  encodeStoredValue,
+  type HostStorage,
+  type HostStorageResult,
+  type IStorageAdapter,
+  type MergePolicy,
+  type StorageAuditEntry,
+  type StorageEnvelope,
+  type StorageHealth,
+  type StorageStatus,
+} from './StorageAdapter';
 export { WindowStorageAdapter } from './WindowStorageAdapter';
+export { SupabaseStorageAdapter } from './SupabaseStorageAdapter';

@@ -5,6 +5,8 @@ interface MetricBadgeProps {
   showIcon?: boolean;
 }
 
+import { tokens } from '@design/tokens';
+
 export function MetricBadge({
   label,
   value,
@@ -12,9 +14,9 @@ export function MetricBadge({
   showIcon = true,
 }: MetricBadgeProps) {
   const statusColors = {
-    ok: { bg: '#dcfce7', text: '#166534' },      // Green
-    warning: { bg: '#fef3c7', text: '#92400e' }, // Yellow
-    alert: { bg: '#fee2e2', text: '#991b1b' },   // Red
+    ok: { bg: '#0a1418', text: tokens.visual.status.success },
+    warning: { bg: '#1c1608', text: tokens.visual.status.warning },
+    alert: { bg: '#1a0505', text: tokens.visual.status.danger },
   };
 
   const statusIcons = {
@@ -33,12 +35,12 @@ export function MetricBadge({
         display: 'flex',
         alignItems: 'center',
         gap: '0.5rem',
-        padding: '0.5rem 1rem',
+        padding: `${tokens.spacing.sm} ${tokens.spacing.md}`,
         borderRadius: '0.375rem',
         backgroundColor: colors.bg,
         color: colors.text,
         fontWeight: 500,
-        fontSize: '0.875rem',
+        fontSize: tokens.typography.fontSize.sm,
       }}
     >
       {showIcon && <span>{statusIcons[status]}</span>}

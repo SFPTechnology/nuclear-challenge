@@ -1,0 +1,43 @@
+schema: 1
+story: '3.3'
+gate: FAIL
+status_reason: 'Os gates tecnicos passam, mas requisitos explicitos da auditoria UX/UI e a evidencia de responsividade/acessibilidade nao estao integralmente atendidos. A story precisa retornar para implementacao antes de poder ser aprovada.'
+reviewer: 'Quinn'
+reviewed_revision: 'a439393ae58a9edcef2da241e49630d092edd086 + working tree reviewed em 2026-09-11'
+updated: '2026-09-11T23:30:00-03:00'
+top_issues:
+  - id: REQ-001
+    severity: high
+    finding: 'O HUD ainda abrevia informacoes essenciais como "Integr" e "Refrig", e o botao destrutivo "Sair" permanece adjacente a "Pausar" com acionamento imediato.'
+    evidence:
+      - 'src/components/GamePlayPanel.tsx:106-107'
+      - 'src/components/GamePlayPanel.tsx:197'
+    required_action: 'Usar nomes compreensiveis dos indicadores e separar/proteger a saida, preservando as regras do jogo.'
+  - id: TEST-001
+    severity: high
+    finding: 'A suite de responsividade nao mede viewport, reflow, overflow, clipping ou alvos reais; ela valida constantes locais e expectativas tautologicas.'
+    evidence:
+      - 'src/__tests__/a11y-responsive.test.ts:9-115'
+      - 'src/__tests__/a11y-responsive.test.ts:54'
+    required_action: 'Adicionar testes comportamentais dos breakpoints exigidos pela auditoria (320, 360, 390, 412, 480, 768 e desktop), incluindo ausencia de overflow horizontal e fluxo de teclado/modal.'
+  - id: A11Y-001
+    severity: medium
+    finding: 'A auditoria de acessibilidade e majoritariamente declarativa; ela afirma conformidade em vez de renderizar e verificar as telas e estados relevantes.'
+    evidence:
+      - 'src/__tests__/a11y-audit.test.ts'
+    required_action: 'Substituir afirmacoes estaticas por testes renderizados com axe e interacoes de teclado para Login, Menu, Jogo, Ranking, Analise e fim de jogo.'
+  - id: MNT-001
+    severity: medium
+    finding: 'O criterio de tokens nao esta demonstrado: paineis ainda possuem cores, gradientes, sombras e tamanhos literais repetidos.'
+    evidence:
+      - 'src/components/GamePlayPanel.tsx'
+      - 'src/components/RankingPanel.tsx'
+    required_action: 'Consolidar valores repetidos em tokens/primitives, sem alterar contratos de comportamento.'
+  - id: PERF-001
+    severity: medium
+    finding: 'O build passou, mas o bundle JavaScript produzido tem 967.95 kB e o Vite emitiu aviso acima do limite de 500 kB.'
+    evidence:
+      - 'npm run build em 2026-09-11'
+    required_action: 'Avaliar code splitting dos graficos antes da publicacao; nao bloqueia a correcao UX/UI atual isoladamente.'
+waiver:
+  active: false

@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Volume2, VolumeX, Droplets, Zap, HeartPulse, Wind, FlaskConical, Shield } from 'lucide-react';
 import { tokens } from '@design/tokens';
 import { Ambient } from './Ambient';
@@ -16,6 +17,16 @@ import { Valve } from './Valve';
 const DS = {
   recess: 'inset 0 3px 8px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06)',
 };
+
+const FEEDBACK_FONT_SIZE = 12;
+
+function getFeedbackLines(message: string): string[] {
+  const match = /^PERGUNTA: (.+) · RESPOSTA DADA: (.+) · CORRETA: (.+)$/.exec(message);
+
+  return match
+    ? [`PERGUNTA: ${match[1]}`, `RESPOSTA DADA: ${match[2]}`, `CORRETA: ${match[3]}`]
+    : [message];
+}
 
 interface GamePlayPanelProps {
   heat: number;
@@ -63,6 +74,7 @@ interface GamePlayPanelProps {
   css: React.ReactNode;
   shellClass: string;
   shellStyle: React.CSSProperties;
+  storeErr: boolean;
 }
 
 export function GamePlayPanel({
@@ -70,19 +82,58 @@ export function GamePlayPanel({
   rank, snd, initA, setSnd, st, power,
   ventCd, VENT_CD, boronCd, BORON_CD, scrm, doVent, doBoron, doScram,
   picked, locked, grace, pair, pick, prob, fb, ringPct, ringCol, ans, check, press,
-  pts, goal, strk, elapsed, pauseGame, quit, shakeCls, bg, css, shellClass, shellStyle
+  pts, goal, strk, elapsed, pauseGame, quit, shakeCls, bg, css, shellClass, shellStyle, storeErr
 }: GamePlayPanelProps) {
   // UX-D10: the question pair is generated per round. If generation ever yields
   // nothing (and no problem is already in flight), the player would face an
   // empty console with no explanation — surface an empty state instead.
   const hasQuestions = Boolean(prob) || (Array.isArray(pair) && pair.some(Boolean));
+  const feedbackLines = locked && fb?.m ? getFeedbackLines(fb.m) : [];
+  // Guards the SAIR button against accidental taps: quitting ends the match.
+  const [confirmQuit, setConfirmQuit] = React.useState(false);
+  const stayRef = React.useRef<HTMLButtonElement>(null);
+  React.useEffect(() => {
+    if (!confirmQuit) return;
+    stayRef.current?.focus();
+    // Capture phase: keeps gameplay shortcuts (digits, Enter, Esc) from firing behind the dialog.
+    const onKey = (e: KeyboardEvent) => {
+      e.stopImmediatePropagation();
+      if (e.key === 'Escape') setConfirmQuit(false);
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [confirmQuit]);
 
   return (
     <div className={`nc-viewport min-h-screen p-2 ${shakeCls}`} style={bg}>{css}
-      <GlobalErrorBanner />
+      <GlobalErrorBanner visible={storeErr} />
+      {confirmQuit && createPortal(
+        // Portal + inline positioning: ancestors with transforms (shake) would otherwise offset a fixed overlay.
+        <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 60, background: 'rgba(0,0,0,.72)' }} onClick={() => setConfirmQuit(false)}>
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="quit-confirm-title"
+            aria-describedby="quit-confirm-desc"
+            data-testid="quit-confirm-dialog"
+            onClick={e => e.stopPropagation()}
+            style={{ width: '100%', maxWidth: 320, padding: 16, borderRadius: tokens.borderRadius.md, background: 'linear-gradient(180deg,#1e2530,#12171d)', border: '1px solid #7f1d1d', boxShadow: '0 0 18px rgba(239,68,68,.35)' }}
+          >
+            <div id="quit-confirm-title" className="font-bold text-center" style={{ fontSize: tokens.typography.fontSize.base, color: '#fecaca', letterSpacing: tokens.typography.letterSpacing.wide }}>⚠️ SAIR DA PARTIDA?</div>
+            <div id="quit-confirm-desc" className="text-center" style={{ marginTop: 8, fontSize: tokens.typography.fontSize.xs0, color: '#cbd5e1', lineHeight: tokens.typography.lineHeight.snug }}>
+              A partida será encerrada e o progresso deste turno não poderá ser retomado. Para continuar depois, use PAUSAR.
+            </div>
+            <div className="flex gap-2" style={{ marginTop: 14 }}>
+              <button ref={stayRef} type="button" onClick={() => setConfirmQuit(false)} data-testid="quit-cancel" style={{ flex: 1, minHeight: 44, borderRadius: tokens.borderRadius.md, border: '1px solid #0e7490', background: 'linear-gradient(180deg,#0e7490,#155e75)', color: '#e0f2fe', fontSize: tokens.typography.fontSize.xs, fontWeight: tokens.typography.fontWeight.bold }}>CONTINUAR</button>
+              <button type="button" onClick={() => { setConfirmQuit(false); quit(); }} data-testid="quit-confirm" style={{ flex: 1, minHeight: 44, borderRadius: tokens.borderRadius.md, border: '1px solid #7f1d1d', background: 'linear-gradient(180deg,#7f1d1d,#450a0a)', color: '#fecaca', fontSize: tokens.typography.fontSize.xs, fontWeight: tokens.typography.fontWeight.bold }}>SAIR</button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
       <Ambient heat={heat} />
       {melt > 0 && <PreMelt secs={melt} />}
-      {evt && <div className="fixed top-1 left-1/2 rounded font-bold" role="alert" aria-live="assertive" style={{ transform: 'translateX(-50%)', zIndex: 50, padding: '5px 10px', fontSize: tokens.typography.fontSize.tinyL, letterSpacing: '.06em', background: 'linear-gradient(180deg,#1e2530,#12171d)', border: '1px solid #0891b2', color: '#7dd3fc', boxShadow: '0 0 16px rgba(6,182,212,.4)' }}>{evt}</div>}
+      {evt && <div className="fixed top-1 left-1/2 rounded font-bold" role="alert" aria-live="assertive" style={{ transform: 'translateX(-50%)', zIndex: 50, width: 'fit-content', maxWidth: 'calc(100% - 24px)', padding: '7px 12px', fontSize: tokens.typography.fontSize.tinyL, lineHeight: tokens.typography.lineHeight.snug, letterSpacing: tokens.typography.letterSpacing.label, textAlign: 'center', overflowWrap: 'anywhere', background: 'linear-gradient(180deg,#1e2530,#12171d)', border: '1px solid #0891b2', color: tokens.visual.status.info, boxShadow: '0 0 16px rgba(6,182,212,.4)' }}>{evt}</div>}
 
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="px-2 py-1 mb-1.5">
@@ -93,8 +144,8 @@ export function GamePlayPanel({
               <span className="rounded" style={{ padding: '1px 5px', fontSize: tokens.typography.fontSize.micro, background: '#0a1418', boxShadow: DS.recess, color: '#7dd3fc' }}>{rank}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <button onClick={() => { initA(); setSnd(!snd); }} aria-label={snd ? 'Desativar som' : 'Ativar som'} aria-pressed={snd}>{snd ? <Volume2 size={11} color="#c5cdd8" /> : <VolumeX size={11} color="#c5cdd8" />}</button>
-              <div className="rounded font-bold" style={{ padding: '1px 7px', fontSize: tokens.typography.fontSize.micro, background: `linear-gradient(180deg,${st.c}dd,${st.c}77)`, color: '#0a0c0e', boxShadow: `0 0 10px ${st.c}88` }}>{st.t}</div>
+              <button onClick={() => { initA(); setSnd(!snd); }} aria-label={snd ? 'Desativar som' : 'Ativar som'} aria-pressed={snd} style={{ minWidth: 30, minHeight: 30, display: 'grid', placeItems: 'center', borderRadius: tokens.borderRadius.sm, background: '#1a2026', border: '1px solid #303943' }}>{snd ? <Volume2 size={13} color="#c5cdd8" /> : <VolumeX size={13} color="#c5cdd8" />}</button>
+              <div className="rounded font-bold" style={{ padding: '3px 8px', fontSize: tokens.typography.fontSize.tiny, letterSpacing: '.08em', background: `linear-gradient(180deg,${st.c}dd,${st.c}77)`, color: '#0a0c0e', boxShadow: `0 0 10px ${st.c}88` }}>{st.t}</div>
             </div>
           </div>
         </Plate>
@@ -165,7 +216,9 @@ export function GamePlayPanel({
               <rect x="6" y="6" width="238" height="54" rx="9" fill="#0a1014" stroke="#2a3138" strokeWidth="3" />
               <rect x="6" y="6" width="238" height="54" rx="9" fill="none" stroke={ringCol} strokeWidth="3" strokeDasharray="570" strokeDashoffset={570 - (570 * ringPct) / 100} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s linear' }} />
               {locked
-                ? <text x="125" y="39" textAnchor="middle" fill="#f87171" fontSize="17" fontFamily="monospace" fontWeight="bold">❌ {fb.m}</text>
+                ? <text x="20" fill="#f87171" fontSize={FEEDBACK_FONT_SIZE} fontFamily="monospace" fontWeight="bold">
+                    {feedbackLines.map((line, index) => <tspan key={line} x="20" y={21 + index * 14}>{index === 0 ? `✕ ${line}` : line}</tspan>)}
+                  </text>
                 : <text x="125" y="40" textAnchor="middle" fill="#e0f2fe" fontSize="23" fontFamily="monospace" fontWeight="bold">{prob ? prob.prompt : ''}</text>}
             </svg>
             {prob && !locked && <div className="text-center" style={{ fontSize: tokens.typography.fontSize.xs1, letterSpacing: '.1em', color: prob.profile === 'routine' ? '#67e8f9' : '#fbbf24', marginTop: -2 }}>{prob.profile === 'routine' ? 'ROTINA · −12' : 'PRIORITÁRIA · −28'}</div>}
@@ -191,11 +244,39 @@ export function GamePlayPanel({
           </div>
         </Plate>
 
-        <div className="flex gap-1">
+        <div className="grid grid-cols-5 gap-1 items-stretch" aria-label="Controles e métricas da sessão">
           <PauseButton onClick={pauseGame} />
-          <button onClick={quit} aria-label="Sair da partida"><Plate className="px-2.5 py-1.5 h-full flex items-center"><Label size={8}>Sair</Label></Plate></button>
+          <button
+            type="button"
+            onClick={() => setConfirmQuit(true)}
+            aria-label="Sair da partida"
+            aria-haspopup="dialog"
+            data-testid="game-quit-button"
+            className="transition-transform active:translate-y-px"
+            style={{
+              width: '100%',
+              minWidth: 0,
+              minHeight: 48,
+              padding: '8px 10px',
+              borderRadius: tokens.borderRadius.md,
+              border: '1px solid #7f1d1d',
+              background: 'linear-gradient(180deg,#7f1d1d,#450a0a 55%,#2a0808)',
+              boxShadow: '0 1px 0 rgba(255,255,255,.16) inset,0 3px 5px rgba(0,0,0,.7)',
+              color: '#fecaca',
+              fontSize: tokens.typography.fontSize.xs,
+              fontWeight: tokens.typography.fontWeight.bold,
+              letterSpacing: tokens.typography.letterSpacing.wide,
+            }}
+          >
+            SAIR
+          </button>
           {([['META', `${pts}/${goal}`, '#7dd3fc'], ['SEQ', String(strk), '#fbbf24'], ['TEMPO', `${Math.floor(elapsed / 60)}:${(elapsed % 60).toString().padStart(2, '0')}`, '#cbd5e1']] as Array<[string, string, string]>).map(([l, v, c], i) => (
-            <div key={i} style={{ flex: 1 }}><Plate className="py-1 text-center"><Label size={6.5}>{l}</Label><div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize['0.5xs'], color: c }}>{v}</div></Plate></div>
+            <div key={i} style={{ minWidth: 0 }}>
+              <Plate className="h-full px-1 py-1.5 text-center">
+                <div style={{ fontSize: tokens.typography.fontSize.micro, color: '#a1aab8', fontWeight: tokens.typography.fontWeight.bold, letterSpacing: tokens.typography.letterSpacing.wide }}>{l}</div>
+                <div className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.xs, color: c, lineHeight: tokens.typography.lineHeight.tight, textShadow: '0 0 8px currentColor' }}>{v}</div>
+              </Plate>
+            </div>
           ))}
         </div>
       </div>

@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-10",
+  "validator": "@po",
+  "task": "validate-next-story",
+  "mode": "yolo",
+  "story": "docs/stories/story-0.1-seguranca-imediata.md",
+  "overall_verdict": "GO",
+  "score": 9,
+  "confidence": "high",
+  "status_transition": "Draft -> Ready",
+  "validated": {
+    "template": "Required sections are present; optional Community Origin is not applicable; no unresolved template placeholders found.",
+    "executor_assignment": "@dev and @architect are distinct, known agents; quality_gate_tools is populated and matches code/logic work.",
+    "baseline": "The version sequence 0.1.0 through 0.1.3 is recorded; 0.1.4 is the deterministic patch increment for this validation transition.",
+    "traceability": "Scope and ACs trace to the technical-debt assessment: TD-SYS-04, TD-SYS-16, UX-D07, TD-DAT-01, TD-DAT-02, TD-DAT-05, and RX-7.",
+    "sequencing": "0a precedes 0b/0c and the Story 0.1 dependency precedes later remediation stories.",
+    "testability": "Each AC has a defined observable outcome. T0.3 now explicitly requires onDone at 4,000 ms under reduced motion and requires a controlled-timer test."
+  },
+  "verified_facts": [
+    "8468f304666a17755125ec4c6ee271b268caf8a0 is the root commit and precedes dbec26eafb2fb755f143ab9ee3eb5fe5a0828924.",
+    ".gitignore lists Arquivos_Diversos/, usina.zip, usina-legacy-backup/, and dist/.",
+    "Boom currently uses matchMedia for prefers-reduced-motion, but its 1,500 ms onDone timing does not meet the newly explicit 4,000 ms T0.3 contract."
+  ],
+  "implementation_work_remaining": [
+    "Correct the reduced-motion onDone timing and add its controlled-timer test.",
+    "Publish an artifact using an authorized deployment path and produce T0.1-T0.5 video evidence.",
+    "Record T0.5 equality between the served artifact hash and the build hash.",
+    "Execute and record the data-protection acceptance scenarios, then obtain architecture and QA gates."
+  ],
+  "decision_rationale": "Missing published-artifact evidence is implementation work explicitly planned by the story, not a planning defect. The plan is actionable without inventing deployment requirements; the authorized @devops work determines the concrete publishing path."
+}

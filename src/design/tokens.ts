@@ -84,6 +84,38 @@ export const tokens = {
   },
 
   // ============================================================================
+  // NUCLEAR CONSOLE SEMANTICS - Visual language of the reference artifact
+  // ============================================================================
+  visual: {
+    consoleBackground: 'radial-gradient(ellipse at 50% 0%,#171b1f,#0a0c0e 75%)',
+    metalSurface: 'linear-gradient(160deg,#3a4149 0%,#2b3138 40%,#22272d 70%,#2e343b 100%)',
+    bezelSurface: 'linear-gradient(145deg,#4a525b 0%,#2a2f35 45%,#1c2126 100%)',
+    lcdSurface: 'linear-gradient(180deg,#0a1418,#050b0e)',
+    glassSurface: 'linear-gradient(160deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,.03) 34%,transparent 55%)',
+    brushTexture: 'repeating-linear-gradient(94deg,rgba(255,255,255,.022) 0px,rgba(255,255,255,.022) 1px,transparent 1px,transparent 3px)',
+    consoleBorder: '1px solid #171b1f',
+    recessShadow: 'inset 0 3px 8px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06)',
+    raisedShadow: '0 1px 0 rgba(255,255,255,.09), 0 3px 6px rgba(0,0,0,.6)',
+    focusRing: '0 0 0 2px #0a0c0e, 0 0 0 4px #38bdf8',
+    status: {
+      info: '#7dd3fc',
+      infoBright: '#67e8f9',
+      muted: '#c5cdd8',
+      label: '#8d959e',
+      danger: '#f87171',
+      warning: '#fbbf24',
+      success: '#4ade80',
+      disabled: '#4b5563',
+    },
+    text: {
+      primary: '#e2e8f0',
+      secondary: '#c5cdd8',
+      muted: '#a1aab8',
+      inverse: '#ffffff',
+    },
+  },
+
+  // ============================================================================
   // SPACING - 8px Base Grid System
   // ============================================================================
   spacing: {
@@ -104,20 +136,20 @@ export const tokens = {
     // Font Sizes (all in rem, base 16px = 1rem)
     fontSize: {
       // Micro/Tiny (for very small UI elements)
-      '3xs': '0.375rem',       // 6px
-      '2xs': '0.40625rem',     // 6.5px
-      xs2: '0.4375rem',        // 7px
-      xs1: '0.46875rem',       // 7.5px
-      micro: '0.5rem',         // 8px
-      '0xs': '0.53125rem',     // 8.5px
+      '3xs': '0.625rem',       // 10px
+      '2xs': '0.625rem',       // 10px
+      xs2: '0.6875rem',        // 11px
+      xs1: '0.6875rem',        // 11px
+      micro: '0.75rem',        // 12px
+      '0xs': '0.75rem',        // 12px
       // Small sizes
-      tiny: '0.5625rem',       // 9px
-      tinyL: '0.59375rem',     // 9.5px
-      '0.5xs': '0.625rem',     // 10px
-      xs0: '0.6875rem',        // 11px
-      xs: '0.75rem',           // 12px
-      xs_lg: '0.8125rem',      // 13px
-      sm: '0.875rem',          // 14px
+      tiny: '0.75rem',         // 12px
+      tinyL: '0.8125rem',      // 13px
+      '0.5xs': '0.8125rem',    // 13px
+      xs0: '0.875rem',         // 14px
+      xs: '0.9375rem',         // 15px
+      xs_lg: '1rem',           // 16px
+      sm: '1rem',              // 16px
       // Base sizes
       base: '1rem',            // 16px
       lg: '1.125rem',          // 18px
@@ -142,8 +174,8 @@ export const tokens = {
 
     // Line Height
     lineHeight: {
-      tight: 1.2,
-      snug: 1.375,
+      tight: 1.3,
+      snug: 1.45,
       normal: 1.5,
       relaxed: 1.625,
       loose: 2,
@@ -153,6 +185,7 @@ export const tokens = {
     letterSpacing: {
       tight: '-0.025em',
       normal: '0em',
+      label: '.08em',          // Compact enough for small, uppercase labels
       wide: '.16em',           // Standard label spacing
       wider: '.18em',          // Wider label spacing
       widest: '.25em',         // Widest label spacing

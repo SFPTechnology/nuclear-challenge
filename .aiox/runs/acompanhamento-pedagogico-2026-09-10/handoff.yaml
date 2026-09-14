@@ -1,0 +1,29 @@
+run_id: acompanhamento-pedagogico-2026-09-10
+workflow: docs/workflows/workflow-master-acompanhamento-pedagogico-yolo.md
+status: PARTIAL
+story: docs/stories/story-2.1-storage-adapter-dominio.md
+story_status: Ready for Review
+implementation:
+  adapter: canonical async adapter over window.storage
+  schema: v1 envelope with legacy read compatibility
+  performance: extracted pure consolidation and round-trip test
+  app: direct storage calls replaced by adapter
+  pause: not persisted as final match
+gates:
+  lint: PASS
+  typecheck: PASS
+  tests: PASS
+  test_count: 127
+  build: PASS
+  diff_check: PASS
+  validate_structure: UNAVAILABLE_SCRIPT
+  validate_agents: UNAVAILABLE_SCRIPT
+  sync_ide_check: UNAVAILABLE_SCRIPT
+qa_verdict: PENDING
+pending:
+  - Formal QA review and verdict
+  - Optional addition of missing repository validation scripts by the owning agent
+next_agent: qa
+rollback_notes:
+  - Existing unrelated worktree changes were preserved.
+  - No remote operations were performed.
