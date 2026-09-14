@@ -1,0 +1,18 @@
+run_id: acompanhamento-pedagogico-2026-09-10
+workflow: docs/workflows/workflow-master-acompanhamento-pedagogico-yolo.md
+source_of_truth: docs/estrutura-acompanhamento.md
+story_id: docs/stories/story-2.1-storage-adapter-dominio.md
+mode: yolo
+orchestrator: aiox-master
+budget_ceiling_usd: 5
+started_at: 2026-09-10T00:00:00-03:00
+status: partial
+initial_branch: master
+initial_commit: a439393
+initial_commit_message: docs: Phase 4 DONE (CONCERNS) + story amendments and ADR-001
+delegation:
+  architecture: architect
+  implementation: dev
+  story_management: sm-po
+  quality_verdict: qa
+  remote_operations: devops

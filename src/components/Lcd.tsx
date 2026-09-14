@@ -7,20 +7,20 @@ interface LcdProps {
   size?: number;
 }
 
-export function Lcd({ value, unit, color = '#7dd3fc', size = 13 }: LcdProps) {
+export function Lcd({ value, unit, color = tokens.visual.status.info, size = 13 }: LcdProps) {
   return (
     <div
       className="rounded"
       style={{
-        background: 'linear-gradient(180deg,#0a1418,#050b0e)',
-        boxShadow: 'inset 0 3px 8px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06)',
-        padding: '2px 6px',
+        background: tokens.visual.lcdSurface,
+        boxShadow: tokens.visual.recessShadow,
+        padding: `${tokens.spacing.xs} ${tokens.spacing.sm}`,
       }}
     >
       <span
         className="font-mono font-bold"
         style={{
-          fontSize: size,
+          fontSize: `${size / 16}rem`,
           color,
           textShadow: `0 0 6px ${color}90`,
         }}
@@ -33,7 +33,7 @@ export function Lcd({ value, unit, color = '#7dd3fc', size = 13 }: LcdProps) {
           style={{
             fontSize: tokens.typography.fontSize.micro,
             marginLeft: 2,
-            color: '#4b5563',
+            color: tokens.visual.status.disabled,
           }}
         >
           {unit}

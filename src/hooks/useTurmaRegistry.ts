@@ -14,7 +14,7 @@ export interface PlayerData {
   streak: number;
   rank: number;
   wins: number;
-  stats?: { tabs: Record<string, { h: number; m: number }>; ops: Record<string, { h: number; m: number }>; forms: Record<string, { h: number; m: number }> };
+  stats?: { tabs: Record<string, { h: number; m: number }>; ops: Record<string, { h: number; m: number }>; forms: Record<string, { h: number; m: number }>; mistakes?: Record<string, { expression: string; errors: number; correct: number; lastSeen: number }> };
   studyLog?: Record<string, any>;
   [key: string]: any; // Forward-compatible: allow unknown fields
 }

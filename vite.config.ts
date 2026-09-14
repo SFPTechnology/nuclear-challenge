@@ -6,11 +6,29 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  // Browser code receives only explicitly public VITE_* variables.
+  envPrefix: 'VITE_',
+  plugins: [
+    react(),
+    {
+      name: 'local-storage-host',
+      transformIndexHtml: {
+        order: 'pre',
+        handler(html, ctx) {
+          if (!ctx.server) return html;
+          return {
+            html,
+            tags: [{ tag: 'script', attrs: { type: 'module', src: '/src/dev/localStorageHost.entry.ts' }, injectTo: 'head-pre' }],
+          };
+        },
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@components': path.resolve(__dirname, './src/components'),
+      '@constants': path.resolve(__dirname, './src/constants'),
       '@design': path.resolve(__dirname, './src/design'),
       '@domain': path.resolve(__dirname, './src/domain'),
       '@hooks': path.resolve(__dirname, './src/hooks'),

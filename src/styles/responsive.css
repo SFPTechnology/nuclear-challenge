@@ -9,7 +9,7 @@
   --viewport-padding: 8px;
   --panel-gap: 8px;
   --font-scale: 1;
-  --component-width: 100%;
+  --component-width: min(100%, 24rem);
 }
 
 .nc-viewport {
@@ -38,7 +38,7 @@
   }
 
   .nc-shell {
-    max-width: 90%;
+    max-width: var(--component-width);
   }
 }
 
@@ -50,7 +50,7 @@
   }
 
   .nc-shell {
-    max-width: 85%;
+    max-width: var(--component-width);
   }
 
   .nc-tablet {
@@ -66,7 +66,7 @@
   }
 
   .nc-shell {
-    max-width: 1100px;
+    max-width: var(--component-width);
   }
 
   .nc-desktop {
@@ -82,7 +82,7 @@
   }
 
   .nc-shell {
-    max-width: 1280px;
+    max-width: var(--component-width);
   }
 }
 
@@ -94,7 +94,7 @@
   }
 
   .nc-shell {
-    max-width: 1400px;
+    max-width: var(--component-width);
   }
 }
 

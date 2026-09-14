@@ -4,6 +4,7 @@ import { EmptyState } from './EmptyState';
 import { Label } from './Label';
 import { Plate } from './Plate';
 import { OperatorExclusionDialog } from './OperatorExclusionDialog';
+import type { AppMode } from '@hooks/useUIState';
 
 const TITLES = ['👷 Estagiário', '📋 Téc. Competente', '🔧 Op. Exemplar', '⭐ Eng. Nuclear', '🎖️ Dir. Segurança', '🏅 Herói Nacional'];
 
@@ -18,7 +19,7 @@ interface LoginPanelProps {
   loading: boolean;
   player: string | null;
   setPlayer: (name: string) => void;
-  setMode: (mode: string) => void;
+  setMode: (mode: AppMode) => void;
   createPlayer: () => void;
   storeErr: boolean;
   selectedOperatorToExclude: { id: string; name: string } | null;
@@ -38,14 +39,14 @@ export function LoginPanel({
   return (
     <div className="nc-viewport min-h-screen p-3 flex flex-col justify-center" style={bg}>{css}
       <div className={`${shellClass} mx-auto w-full`} style={shellStyle}>
-        <Plate className="p-4 mb-3 text-center">
-          <div style={{ fontSize: tokens.typography.fontSize['4xl_'] }}>☢️</div>
-          <div className="font-bold" style={{ fontSize: tokens.typography.fontSize.lg, letterSpacing: '.2em', color: '#cbd5e1' }}>USINA NUCLEAR</div>
-          <Label className="mt-1">Identificação do Operador</Label>
+        <Plate className="p-5 mb-3 text-center">
+          <div style={{ fontSize: tokens.typography.fontSize['4xl_'], lineHeight: 1 }}>☢️</div>
+          <div className="font-bold mt-2" style={{ fontSize: tokens.typography.fontSize.lg, letterSpacing: '.2em', color: '#e2e8f0' }}>USINA NUCLEAR</div>
+          <div className="mt-1" style={{ fontSize: tokens.typography.fontSize.tinyL, letterSpacing: tokens.typography.letterSpacing.wide, color: tokens.visual.status.label }}>IDENTIFICAÇÃO DO OPERADOR</div>
         </Plate>
 
-        <Plate className="p-3 mb-2">
-          <Label className="mb-1.5">Novo Crachá</Label>
+        <Plate className="p-3 mb-3">
+          <Label className="mb-2">Novo Crachá</Label>
           <div className="flex gap-1.5">
             <input
               value={nameInput}
@@ -55,8 +56,8 @@ export function LoginPanel({
               maxLength={14}
               className="flex-1 rounded font-mono focus:outline-none"
               style={{
-                padding: '7px 10px',
-                fontSize: tokens.typography.fontSize.xs_lg,
+                padding: '9px 11px',
+                fontSize: tokens.typography.fontSize.sm,
                 background: 'linear-gradient(180deg,#0a1418,#050b0e)',
                 boxShadow: DS.recess,
                 color: '#7dd3fc',
@@ -70,7 +71,7 @@ export function LoginPanel({
               className="rounded font-bold"
               aria-label={`Criar operador: ${nameInput.trim() || 'nome requerido'}`}
               style={{
-                padding: '0 16px',
+                padding: '0 17px',
                 fontSize: tokens.typography.fontSize.xs0,
                 letterSpacing: '.1em',
                 background: nameInput.trim()
@@ -78,7 +79,7 @@ export function LoginPanel({
                   : 'linear-gradient(180deg,#2a2f35,#1a1e23)',
                 color: nameInput.trim() ? '#e0f2fe' : '#4b5563',
                 border: '1px solid #083344',
-                boxShadow: '0 3px 5px #000'
+                boxShadow: nameInput.trim() ? '0 0 12px rgba(6,182,212,.28),0 1px 0 rgba(255,255,255,.16) inset,0 3px 5px #000' : 'inset 0 2px 5px #000'
               }}
             >
               ENTRAR
@@ -87,7 +88,7 @@ export function LoginPanel({
         </Plate>
 
         <Plate className="p-3">
-          <div className="flex justify-between items-center mb-1.5">
+          <div className="flex justify-between items-center mb-2">
             <Label>Operadores Registrados</Label>
             <span style={{ fontSize: tokens.typography.fontSize.micro, color: '#a1aab8' }}>{Object.keys(players).length}</span>
           </div>
@@ -102,7 +103,7 @@ export function LoginPanel({
               size="md"
             />
           ) : (
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {Object.entries(players)
                 .sort(
                   (a: [string, any], b: [string, any]) =>
@@ -123,23 +124,26 @@ export function LoginPanel({
                       <div
                         className="flex justify-between items-center rounded"
                         style={{
-                          padding: '6px 9px',
+                          minHeight: 44,
+                          padding: '8px 10px',
                           background: 'linear-gradient(180deg,#0a1418,#070f13)',
                           boxShadow: DS.recess,
                           border: player === n ? '1px solid #0891b2' : '1px solid #1c2126'
                         }}
                       >
-                        <span className="font-mono font-bold" style={{ fontSize: 12, color: '#e2e8f0', letterSpacing: '.06em' }}>
+                        <span className="font-mono font-bold" style={{ fontSize: tokens.typography.fontSize.xs_lg, color: '#e2e8f0', letterSpacing: '.06em' }}>
                           {n}
                         </span>
-                        <span style={{ fontSize: tokens.typography.fontSize.tiny, color: '#7dd3fc' }}>{TITLES[d.rank || 0]}</span>
+                        <span style={{ fontSize: tokens.typography.fontSize.xs0, color: '#7dd3fc' }}>{TITLES[d.rank || 0]}</span>
                       </div>
                     </button>
                     <button
                       onClick={() => setSelectedOperatorToExclude({ id: n, name: n })}
                       aria-label={`Remover operador ${n}`}
                       style={{
-                        padding: '6px 9px',
+                        minWidth: 44,
+                        minHeight: 44,
+                        padding: '8px 10px',
                         borderRadius: 4,
                         background: 'linear-gradient(180deg,#7f1d1d,#450a0a)',
                         border: '1px solid #7f1d1d',
@@ -164,12 +168,14 @@ export function LoginPanel({
               <div
                 className="rounded text-center font-bold"
                 style={{
-                  padding: '7px 0',
-                  fontSize: 10,
+                  minHeight: 44,
+                  padding: '10px 0',
+                  fontSize: tokens.typography.fontSize.xs0,
                   letterSpacing: '.12em',
                   background: 'linear-gradient(180deg,#3f464e,#23282e)',
                   color: '#cbd5e1',
-                  border: '1px solid #14181c'
+                  border: '1px solid #14181c',
+                  boxShadow: '0 1px 0 rgba(255,255,255,.14) inset,0 3px 5px rgba(0,0,0,.7)'
                 }}
               >
                 COMPARAR DESEMPENHO

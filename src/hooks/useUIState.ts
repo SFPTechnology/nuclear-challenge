@@ -17,6 +17,7 @@ export function useUIState() {
   // The union previously omitted 'ranking' | 'nc003' | 'win' | 'lose' even though
   // App.tsx routes to all of them, which made every setMode call a type error.
   const [mode, setMode] = useState<AppMode>('login');
+  const [analysisReturnMode, setAnalysisReturnMode] = useState<AppMode>('menu');
   const [boom, setBoom] = useState(false);
   const [diff, setDiff] = useState(3);
   const [selectedOperatorToExclude, setSelectedOperatorToExclude] = useState<{
@@ -48,6 +49,11 @@ export function useUIState() {
 
   return {
     mode, setMode,
+    analysisReturnMode,
+    openAnalysis: (returnMode: AppMode = 'menu') => {
+      setAnalysisReturnMode(returnMode);
+      setMode('analise');
+    },
     boom, setBoom,
     diff, setDiff,
     selectedOperatorToExclude, setSelectedOperatorToExclude,

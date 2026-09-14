@@ -244,6 +244,28 @@ describe('RankingPanel empty states', () => {
     );
     expect(await seriousViolations(container)).toEqual([]);
   });
+
+  it('renders return and back actions with the elevated control treatment', () => {
+    render(
+      <RankingPanel
+        {...(baseProps as any)}
+        player="ANA"
+        players={{ ANA: { best: {}, games: 1, ops: 2, hits: 1, streak: 1, rank: 0, wins: 0 } }}
+        matches={[]}
+        tab="geral"
+        setTab={() => {}}
+        resumeAvailable
+        resumeGame={() => {}}
+      />
+    );
+
+    ['Retornar ao jogo', 'Voltar para menu anterior'].forEach((name) => {
+      const action = screen.getByRole('button', { name });
+      expect(action.style.background).toContain('linear-gradient');
+      expect(action.style.boxShadow).toContain('inset');
+      expect(action.style.minHeight).toBe('44px');
+    });
+  });
 });
 
 describe('MenuPanel empty states', () => {
@@ -279,6 +301,25 @@ describe('MenuPanel empty states', () => {
     );
     expect(screen.queryByText('Nenhuma partida salva')).toBeNull();
   });
+
+  it('renders menu actions as elevated, high-contrast controls', () => {
+    render(
+      <MenuPanel
+        {...(baseProps as any)}
+        player="ANA"
+        players={{ ANA: { best: {}, games: 1, rank: 0 } }}
+        resumeAvailable
+        resumeGame={() => {}}
+      />
+    );
+
+    ['Ir para análise de desempenho', 'Ir para ranking de operadores', 'Trocar operador', 'Retornar ao jogo', 'Ativar som'].forEach((name) => {
+      const action = screen.getByRole('button', { name });
+      expect(action.style.background).toContain('linear-gradient');
+      expect(action.style.boxShadow).toContain('inset');
+      expect(action.style.minHeight).toBe('44px');
+    });
+  });
 });
 
 describe('NC003Panel empty states', () => {
@@ -301,6 +342,21 @@ describe('NC003Panel empty states', () => {
     render(<NC003Panel {...(baseProps as any)} players={{ ANA: { games: 4, ops: 20, hits: 15 } }} />);
     expect(screen.queryByText('Sem dados de taxa ponderada')).toBeNull();
     expect(screen.getByText(/Informações da Turma/)).toBeTruthy();
+  });
+
+  it('uses the elevated action treatment for return to the paused game', () => {
+    render(
+      <NC003Panel
+        {...(baseProps as any)}
+        players={{ ANA: { games: 4, ops: 20, hits: 15 } }}
+        resumeAvailable
+        resumeGame={() => {}}
+      />
+    );
+    const action = screen.getByRole('button', { name: 'Retornar ao jogo' });
+    expect(action.style.background).toContain('linear-gradient');
+    expect(action.style.boxShadow).toContain('inset');
+    expect(action.style.minHeight).toBe('44px');
   });
 
   it('CTA on the empty state starts a match', () => {
@@ -340,5 +396,60 @@ describe('EndGamePanel empty states', () => {
     render(<EndGamePanel {...(baseProps as any)} tot={10} corr={7} />);
     expect(screen.queryByText('Nenhuma estatística registrada')).toBeNull();
     expect(screen.getByText('Relatório de Desempenho')).toBeTruthy();
+  });
+
+  it('highlights every end-of-turn action using the restart button pattern', () => {
+    render(<EndGamePanel {...(baseProps as any)} tot={10} corr={7} />);
+
+    [
+      'Ver análise de desempenho',
+      'Ver ranking de operadores',
+      'Voltar para menu principal',
+      'Solicitar reinício da partida no mesmo nível',
+    ].forEach((name) => {
+      const button = screen.getByRole('button', { name });
+      expect(button.className).toContain('active:translate-y-px');
+      expect(button.style.background).toContain('linear-gradient');
+      expect(button.style.boxShadow).toContain('inset');
+      expect(button.style.minHeight).toBe('40px');
+    });
+  });
+
+  it('requires an explicit confirmation before abandoning the current turn', () => {
+    const start = vi.fn();
+    render(<EndGamePanel {...(baseProps as any)} start={start} tot={10} corr={7} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Solicitar reinício da partida no mesmo nível' }));
+
+    const dialog = screen.getByRole('alertdialog', { name: 'Reiniciar turno?' });
+    expect(dialog.textContent).toContain('O progresso do turno atual será abandonado');
+    const confirmationCard = screen.getByTestId('restart-confirmation-card');
+    expect(confirmationCard.style.width).toBe('24rem');
+    expect(confirmationCard.style.maxWidth).toBe('100%');
+    expect(start).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Cancelar reinício e manter turno atual' })).toBe(document.activeElement);
+
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+    expect(start).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Solicitar reinício da partida no mesmo nível' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar reinício e manter turno atual' }));
+    expect(start).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Solicitar reinício da partida no mesmo nível' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar reinício e abandonar turno atual' }));
+    expect(start).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the elevated continuing-button treatment for every navigation action', () => {
+    render(<NC003Panel {...(baseProps as any)} players={{ ANA: { games: 4, ops: 20, hits: 15 } }} />);
+
+    ['Voltar para menu', 'Ver análise de desempenho', 'Continuar para jogo'].forEach((name) => {
+      const action = screen.getByRole('button', { name });
+      expect(action.style.background).toContain('linear-gradient');
+      expect(action.style.boxShadow).toContain('inset');
+      expect(action.style.minHeight).toBe('44px');
+    });
   });
 });

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { tokens } from '@design/tokens';
+import { MIN_VISIBLE_FEEDBACK_MS } from '@constants/timing';
 
 interface BoomProps {
   onDone: () => void;
@@ -9,14 +10,23 @@ export function Boom({ onDone }: BoomProps) {
   const [dots, setDots] = useState<any[]>([]);
   const [step, setStep] = useState(0);
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const onDoneRef = useRef(onDone);
+
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
 
   useEffect(() => {
     if (prefersReducedMotion) {
-      setTimeout(() => {
-        setStep(3);
-        setTimeout(onDone, 1500);
-      }, 500);
-      return;
+      const staticStateTimer = window.setTimeout(() => setStep(3), 500);
+      // The visual alternative is static, but the semantic meltdown cycle
+      // remains visible for the same minimum duration as the standard path.
+      const completionTimer = window.setTimeout(() => onDoneRef.current(), MIN_VISIBLE_FEEDBACK_MS);
+
+      return () => {
+        window.clearTimeout(staticStateTimer);
+        window.clearTimeout(completionTimer);
+      };
     }
 
     const d = [];
@@ -34,11 +44,14 @@ export function Boom({ onDone }: BoomProps) {
       });
     }
     setDots(d);
-    setTimeout(() => setStep(1), 80);
-    setTimeout(() => setStep(2), 400);
-    setTimeout(() => setStep(3), 1200);
-    setTimeout(onDone, 4000);
-  }, [onDone, prefersReducedMotion]);
+    const timers = [
+      window.setTimeout(() => setStep(1), 80),
+      window.setTimeout(() => setStep(2), 400),
+      window.setTimeout(() => setStep(3), 1200),
+      window.setTimeout(() => onDoneRef.current(), MIN_VISIBLE_FEEDBACK_MS),
+    ];
+    return () => timers.forEach(timer => window.clearTimeout(timer));
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
     if (prefersReducedMotion) return;

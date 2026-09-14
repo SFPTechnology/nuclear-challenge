@@ -6,6 +6,7 @@ import { Plate } from './Plate';
 import { Label } from './Label';
 import { Lcd } from './Lcd';
 import { GlobalErrorBanner } from './GlobalErrorBanner';
+import type { AppMode } from '@hooks/useUIState';
 
 const TITLES = ['👷 Estagiário', '📋 Téc. Competente', '🔧 Op. Exemplar', '⭐ Eng. Nuclear', '🎖️ Dir. Segurança', '🏅 Herói Nacional'];
 const DIFF = {
@@ -16,6 +17,53 @@ const DIFF = {
   5: { name: 'CHERNOBYL', sub: 'Boa sorte...', time: 12 }
 };
 
+const menuActionTones = {
+  primary: { background: 'linear-gradient(180deg,#0e7490,#155e75 55%,#0c4a5e)', border: '#083344', color: '#e0f2fe', glow: 'rgba(6,182,212,.35)' },
+  secondary: { background: 'linear-gradient(180deg,#46515d,#2c3540 55%,#1c2229)', border: '#14181c', color: '#e2e8f0', glow: 'rgba(148,163,184,.18)' },
+} as const;
+
+function MenuActionButton({
+  children,
+  onClick,
+  ariaLabel,
+  tone = 'secondary',
+  fullWidth = false,
+  pressed,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  ariaLabel: string;
+  tone?: keyof typeof menuActionTones;
+  fullWidth?: boolean;
+  pressed?: boolean;
+}) {
+  const colors = menuActionTones[tone];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      aria-pressed={pressed}
+      className={`transition-transform active:translate-y-px${fullWidth ? ' w-full' : ''}`}
+      style={{
+        width: fullWidth ? '100%' : undefined,
+        minHeight: 44,
+        padding: '9px 12px',
+        borderRadius: tokens.borderRadius.md,
+        border: `1px solid ${colors.border}`,
+        background: colors.background,
+        boxShadow: `0 1px 0 rgba(255,255,255,.2) inset,0 4px 8px #000,0 0 16px ${colors.glow}`,
+        color: colors.color,
+        fontSize: tokens.typography.fontSize.xs0,
+        fontWeight: tokens.typography.fontWeight.bold,
+        letterSpacing: tokens.typography.letterSpacing.wide,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 interface MenuPanelProps {
   player: string | null;
   players: Record<string, any>;
@@ -23,7 +71,10 @@ interface MenuPanelProps {
   setDiff: (value: number) => void;
   snd: boolean;
   setSnd: (value: boolean) => void;
-  setMode: (mode: string) => void;
+  setMode: (mode: AppMode) => void;
+  resumeAvailable?: boolean;
+  resumeGame?: () => void;
+  storeErr: boolean;
   setPlayer: (name: string | null) => void;
   initA: () => void;
   bg: React.CSSProperties;
@@ -33,7 +84,7 @@ interface MenuPanelProps {
 }
 
 export function MenuPanel({
-  player, players, diff, setDiff, snd, setSnd, setMode, setPlayer, initA,
+  player, players, diff, setDiff, snd, setSnd, setMode, setPlayer, initA, resumeAvailable = false, resumeGame, storeErr,
   bg, css, shellClass, shellStyle
 }: MenuPanelProps) {
   const operatorList = Object.keys(players);
@@ -53,7 +104,7 @@ export function MenuPanel({
 
   return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
-      <GlobalErrorBanner />
+      <GlobalErrorBanner visible={storeErr} />
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="p-3 mb-2">
           <div className="flex justify-between items-center">
@@ -67,27 +118,21 @@ export function MenuPanel({
               </div>
             </div>
             <div className="flex flex-col gap-1">
-              <button onClick={() => setMode('analise')} aria-label="Ir para análise de desempenho">
-                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: tokens.typography.fontSize.micro, letterSpacing: '.1em', background: 'linear-gradient(180deg,#0e7490,#0c4a5e)', color: '#e0f2fe', border: '1px solid #083344' }}>
-                  ANÁLISE
-                </div>
-              </button>
-              <button onClick={() => setMode('ranking')} aria-label="Ir para ranking de operadores">
-                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: tokens.typography.fontSize.micro, letterSpacing: '.1em', background: 'linear-gradient(180deg,#3f464e,#23282e)', color: '#cbd5e1', border: '1px solid #14181c' }}>
-                  RANKING
-                </div>
-              </button>
-              <button
+              <MenuActionButton onClick={() => setMode('analise')} ariaLabel="Ir para análise de desempenho" tone="primary">
+                ANÁLISE
+              </MenuActionButton>
+              <MenuActionButton onClick={() => setMode('ranking')} ariaLabel="Ir para ranking de operadores">
+                RANKING
+              </MenuActionButton>
+              <MenuActionButton
                 onClick={() => {
                   setPlayer(null);
                   setMode('login');
                 }}
-                aria-label="Trocar operador"
+                ariaLabel="Trocar operador"
               >
-                <div className="rounded text-center" style={{ padding: '4px 10px', fontSize: tokens.typography.fontSize.micro, letterSpacing: '.1em', background: 'linear-gradient(180deg,#2a2f35,#1a1e23)', color: '#c5cdd8', border: '1px solid #14181c' }}>
-                  TROCAR
-                </div>
-              </button>
+                TROCAR
+              </MenuActionButton>
             </div>
           </div>
         </Plate>
@@ -101,6 +146,14 @@ export function MenuPanel({
               size="sm"
               testId="empty-state-menu"
             />
+          </div>
+        )}
+
+        {resumeAvailable && resumeGame && (
+          <div className="mb-2">
+            <MenuActionButton onClick={resumeGame} ariaLabel="Retornar ao jogo" tone="primary" fullWidth>
+              RETORNAR AO JOGO
+            </MenuActionButton>
           </div>
         )}
 
@@ -140,13 +193,13 @@ export function MenuPanel({
           })}
         </div>
 
-        <div className="flex gap-2 mt-3">
-          <button onClick={() => { initA(); setSnd(!snd); }} style={{ flex: 1 }} aria-label={snd ? 'Desativar som' : 'Ativar som'} aria-pressed={snd}>
-            <Plate className="py-2 flex items-center justify-center gap-2">
-              {snd ? <Volume2 size={13} color="#c5cdd8" /> : <VolumeX size={13} color="#c5cdd8" />}
-              <Label>{snd ? 'Áudio On' : 'Áudio Off'}</Label>
-            </Plate>
-          </button>
+        <div className="mt-3">
+          <MenuActionButton onClick={() => { initA(); setSnd(!snd); }} ariaLabel={snd ? 'Desativar som' : 'Ativar som'} pressed={snd} fullWidth>
+            <span className="inline-flex items-center justify-center gap-2">
+              {snd ? <Volume2 size={14} /> : <VolumeX size={14} />}
+              {snd ? 'ÁUDIO ON' : 'ÁUDIO OFF'}
+            </span>
+          </MenuActionButton>
         </div>
       </div>
     </div>

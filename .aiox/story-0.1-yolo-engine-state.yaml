@@ -1,0 +1,68 @@
+engine_state:
+  workflow_id: story-0.1-remediation
+  workflow_name: Story 0.1 remediation cascade
+  mode: yolo
+  started_at: '2026-09-10'
+  updated_at: '2026-09-10'
+  status: blocked
+  budget_ceiling_usd: 5.00
+  current_phase: '1 - Story 0.1 closure (QA partial review)'
+  last_completed_step: qa_review_full_local_gates
+  action_steps_completed: 2
+  action_steps_total: 4
+  step_results:
+    define_changelog_baseline:
+      status: completed
+      outputs:
+        baseline: '0.1.0'
+        latest_document_version: '0.1.3'
+        artifact: docs/stories/story-0.1-seguranca-imediata.md
+    validate_local_t0:
+      status: superseded_by_t0_3_remediation
+      outputs:
+        verified:
+          - 'rumble and rumbleHard use 0.34s durations in src/App.tsx'
+          - 'src/components/Boom.tsx checks prefers-reduced-motion'
+          - 'src/App.tsx contains storage read/write guards and error state'
+        blockers:
+          - 'No published-artifact URL, deployment configuration, or automated deployment path exists for T0.1-T0.5 and T0.5 hash comparison.'
+    qa_review_reduced_motion:
+      status: failed
+      verdict: FAIL
+      scope: 'Story 0.1 working-tree review: reduced-motion Boom implementation and controlled timer test'
+      outputs:
+        passes:
+          - 'T0.3 focused test passed: 1/1.'
+          - 'lint passed.'
+          - 'full test suite passed: 123/123.'
+          - 'production build passed.'
+        blockers:
+          - 'npm run typecheck completed with exit code 1 because of existing errors in src/App.tsx.'
+          - 'No published-artifact URL, T0.1-T0.5 video, or served-artifact-to-build hash comparison was supplied.'
+          - 'Data-guard acceptance scenarios 0c were not re-executed in this partial review.'
+    qa_review_full_local_gates:
+      status: failed
+      verdict: FAIL
+      scope: 'Story 0.1 local full-gate review, including reduced-motion and 0c focused tests'
+      outputs:
+        passes:
+          - 'npm run lint passed.'
+          - 'npm run typecheck passed.'
+          - 'npm test -- --run passed: 11 test files, 126 tests.'
+          - 'npm run build passed; dist/assets/index-BqTQ7x--.js generated locally.'
+          - 'Boom focused test passed: 1/1 at the 4,000 ms onDone contract.'
+          - 'Data-safety focused test passed: 3/3 for unknown-field preservation, read-failure write guard, and storeErr visibility.'
+        blockers:
+          - 'No published-artifact URL, T0.1-T0.5 video, or served-artifact-to-build hash comparison exists.'
+          - 'Local build is not evidence of the published artifact required by T0.5/RX-7.'
+    auto_dispatch:
+      status: authorized_for_this_workflow
+      outputs:
+        temporary_budget_ceiling_usd: 5.00
+        persistent_configuration_owner: '@devops'
+  decisions:
+    - step: define_changelog_baseline
+      decision: 'Adopt 0.1.0 for story creation and sequential patch versions for subsequent documented process changes.'
+    - step: validate_local_t0
+      decision: 'Do not represent a local preview as the published artifact required by T0.5.'
+  next_action: 'Publish the built artifact to a traceable target; attach T0.1-T0.5 video and served-artifact-to-build hash comparison; then request QA re-review. Local gates and 0c scenarios are green.'

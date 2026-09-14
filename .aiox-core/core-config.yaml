@@ -105,6 +105,9 @@ boundary:
     - .aiox-core/development/agents/*/MEMORY.md
     - .aiox-core/core/config/schemas/**
     - .aiox-core/core/config/template-overrides.js
+model_routing:
+  # @devops-owned persistent ceiling for automated work bound to Story 0.1.
+  budget_ceiling_usd: 5.00
 agentIdentity:
   greeting:
     contextDetection: true

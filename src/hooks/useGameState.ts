@@ -2,14 +2,16 @@ import { useState, useCallback, useRef } from 'react';
 import { useTurmaRegistry } from './useTurmaRegistry';
 import { usePhysics } from './usePhysics';
 import { useScore } from './useScore';
+import { MIN_VISIBLE_FEEDBACK_MS } from '@constants/timing';
+import { buildQuestionCandidates, LEVEL_GOAL_POINTS, LEVEL_QUESTION_RANGES, pickQuestion, questionFactKey, ROUTINE_REINFORCEMENT_INTERVAL } from '@domain/core/QuestionPolicy';
 
 // Constants for game flow
 const DIFF = {
-  1: { name: 'TRAINEE', sub: 'Primeiro dia', ops: ['*'], range: [2,5], time: 35, init: 10, err: 0, ok: -25, passive: 2, interval: 9000, scram: 5 },
-  2: { name: 'JÚNIOR', sub: 'Aprendendo', ops: ['*','/'], range: [2,7], time: 30, init: 20, err: 15, ok: -20, passive: 3, interval: 8000, scram: 4 },
-  3: { name: 'PLENO', sub: 'Turno normal', ops: ['*','/'], range: [2,10], time: 25, init: 30, err: 20, ok: -18, passive: 4, interval: 7000, scram: 3 },
-  4: { name: 'SÊNIOR', sub: 'Crise nacional', ops: ['*','/'], range: [2,12], time: 20, init: 40, err: 25, ok: -15, passive: 5, interval: 6000, scram: 2 },
-  5: { name: 'CHERNOBYL', sub: 'Boa sorte...', ops: ['*','/'], range: [3,15], time: 12, init: 50, err: 30, ok: -12, passive: 6, interval: 5000, scram: 1, events: true }
+  1: { name: 'TRAINEE', sub: 'Primeiro dia', ops: ['*'], range: LEVEL_QUESTION_RANGES[1].routine, time: 35, init: 10, err: 0, ok: -25, passive: 2, interval: 9000, scram: 5 },
+  2: { name: 'JÚNIOR', sub: 'Aprendendo', ops: ['*','/'], range: LEVEL_QUESTION_RANGES[2].routine, time: 30, init: 20, err: 15, ok: -20, passive: 3, interval: 8000, scram: 4 },
+  3: { name: 'PLENO', sub: 'Turno normal', ops: ['*','/'], range: LEVEL_QUESTION_RANGES[3].routine, time: 25, init: 30, err: 20, ok: -18, passive: 4, interval: 7000, scram: 3 },
+  4: { name: 'SÊNIOR', sub: 'Crise nacional', ops: ['*','/'], range: LEVEL_QUESTION_RANGES[4].routine, time: 20, init: 40, err: 25, ok: -15, passive: 5, interval: 6000, scram: 2 },
+  5: { name: 'CHERNOBYL', sub: 'Boa sorte...', ops: ['*','/'], range: LEVEL_QUESTION_RANGES[5].routine, time: 12, init: 50, err: 30, ok: -12, passive: 6, interval: 5000, scram: 1, events: true }
 };
 
 const VENT_CD = 12, BORON_CD = 30, FREEZE_MS = 14000;
@@ -30,6 +32,7 @@ interface SessionData {
   tabs: Record<string, { h: number; m: number }>;
   ops: Record<string, { h: number; m: number }>;
   forms: Record<string, { h: number; m: number }>;
+  mistakes?: Record<string, { expression: string; errors: number; correct: number; lastSeen: number }>;
   daily: Record<string, any>;
 }
 
@@ -71,10 +74,13 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
   const hotRef = useRef(0);
   const vel = useRef(0);
   const frz = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const seenFacts = useRef<Set<string>>(new Set());
+  const reinforceFacts = useRef<Set<string>>(new Set());
 
   // Helper to track question performance
   const bump = (q: Question, hit: boolean) => {
     const s = sess.current, k = hit ? 'h' : 'm';
+    if (!hit) reinforceFacts.current.add(questionFactKey(q));
     q.factors.forEach(f => {
       s.tabs[f] = s.tabs[f] || { h: 0, m: 0 };
       s.tabs[f][k]++;
@@ -83,67 +89,29 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     s.ops[q.sym][k]++;
     s.forms[q.hidden] = s.forms[q.hidden] || { h: 0, m: 0 };
     s.forms[q.hidden][k]++;
+    const mistakes = s.mistakes || (s.mistakes = {});
+    const mistake = mistakes[q.full] || { expression: q.full, errors: 0, correct: 0, lastSeen: 0 };
+    if (hit) mistake.correct++;
+    else mistake.errors++;
+    mistake.lastSeen = Date.now();
+    mistakes[q.full] = mistake;
   };
 
-  // Question generation
-  const makeOne = useCallback((d: number, profile: 'routine' | 'priority', surge: boolean = false): Question => {
-    const s = DIFF[d as keyof typeof DIFF];
-    const op = s.ops[Math.floor(Math.random() * s.ops.length)];
-    const [lo, hi] = s.range, span = hi - lo;
-    const useHigh = profile === 'priority' || surge;
-    const [mn, mx] = d === 1
-      ? (useHigh ? [6, 10] : [2, 7])
-      : useHigh
-        ? [Math.min(hi - 1, Math.round(lo + span * .35)), hi]
-        : [lo, Math.max(lo + 1, Math.round(lo + span * .65))];
-
-    let a, b, r, sym: '×' | '÷';
-    if (op === '*') {
-      a = Math.floor(Math.random() * (mx - mn + 1)) + mn;
-      b = Math.floor(Math.random() * (mx - mn + 1)) + mn;
-      r = a * b;
-      sym = '×';
-    } else {
-      b = Math.floor(Math.random() * (mx - mn + 1)) + mn;
-      r = Math.floor(Math.random() * (mx - mn + 1)) + mn;
-      a = b * r;
-      sym = '÷';
-    }
-
-    const slots = d <= 2 ? ['result'] : profile === 'routine' ? ['result', 'result', 'right'] : ['result', 'left', 'right'];
-    const hidden = slots[Math.floor(Math.random() * slots.length)] as 'result' | 'left' | 'right';
-    const prompt = hidden === 'result' ? `${a} ${sym} ${b} = ?` : hidden === 'left' ? `? ${sym} ${b} = ${r}` : `${a} ${sym} ? = ${r}`;
-
-    return {
-      profile,
-      surge,
-      prompt,
-      key: `${a}${sym}${b}${hidden}`,
-      answer: hidden === 'result' ? r : hidden === 'left' ? a : b,
-      full: `${a} ${sym} ${b} = ${r}`,
-      sym,
-      hidden,
-      factors: sym === '×' ? [a, b] : [b, r]
-    };
-  }, []);
-
+  // Each profile/range consumes a shuffled deck of every valid question. A
+  // deck is only recreated after every one of its possibilities was shown.
   const build = useCallback((d: number, profile: 'routine' | 'priority', avoid: string[] = [], surge: boolean = false): Question => {
-    let q: Question | null = null;
-    for (let i = 0; i < 25; i++) {
-      q = makeOne(d, profile, surge);
-      if (!recent.current.includes(q.key) && !avoid.includes(q.key)) break;
-    }
-    if (q) {
-      recent.current = [...recent.current, q.key].slice(-14);
-    }
-    return q!;
-  }, [makeOne]);
+    const operations = DIFF[d as keyof typeof DIFF].ops as Array<'*' | '/'>;
+    const candidates = buildQuestionCandidates(d, operations, profile, surge) as Question[];
+    const question = pickQuestion(candidates, seenFacts.current, avoid, Math.random, reinforceFacts.current);
+    recent.current = [...recent.current, question.key].slice(-14);
+    return question;
+  }, []);
 
   const newPair = useCallback((d: number) => {
     roundNo.current += 1;
-    const surge = (d === 1 && roundNo.current % 3 === 0) || (d === 2 && roundNo.current % 4 === 0);
+    const surge = roundNo.current % ROUTINE_REINFORCEMENT_INTERVAL === 0;
     const a = build(d, 'routine', [], surge);
-    const b = build(d, 'priority', [a.key]);
+    const b = build(d, 'priority', [questionFactKey(a)]);
     setPair([a, b]);
     setPicked(null);
     setAns('');
@@ -160,7 +128,7 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     setShownTemp(280 + s.init * 4.2);
     setDelta(0);
     setPts(0);
-    setGoal(1000);
+    setGoal(LEVEL_GOAL_POINTS);
     setStrk(0);
     setBestStrk(0);
     promote(0);
@@ -179,7 +147,9 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     recent.current = [];
     saved.current = false;
     roundNo.current = 0;
-    sess.current = { tabs: {}, ops: {}, forms: {}, daily: {} };
+    seenFacts.current = new Set();
+    reinforceFacts.current = new Set();
+    sess.current = { tabs: {}, ops: {}, forms: {}, mistakes: {}, daily: {} };
     newPair(currentDiff);
     setMode('play');
   }, [initA, newPair, setMode, setHeat, setIntegrity, setCoolant, setShownTemp, setDelta, setPts, setGoal, setStrk, setBestStrk, promote, setScrm]);
@@ -190,7 +160,7 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     setHeat(Math.max(s.init - 10, 5));
     setCoolant(c => Math.min(100, c + 25));
     promote(nd - 1);
-    setGoal(g => g + 1000);
+    setGoal(g => g + LEVEL_GOAL_POINTS);
     setScrm(p => p + s.scram);
     setVentCd(0);
     setBoronCd(0);
@@ -199,7 +169,7 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     vel.current = 0;
     recent.current = [];
     setEvt(`PROMOÇÃO — ${s.name} | ${title}`);
-    setTimeout(() => setEvt(null), 3000);
+    setTimeout(() => setEvt(null), MIN_VISIBLE_FEEDBACK_MS);
     newPair(nd);
     setMode('play');
   }, [setMode, setHeat, setCoolant, promote, setGoal, setScrm, newPair]);
@@ -252,21 +222,21 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
         promote(Math.floor(ns / 10));
         setEvt(`SEQUÊNCIA DE ${ns} — REFRIGERANTE REPOSTO · +1 SCRAM · +50 PTS`);
         scrmSnd();
-        setTimeout(() => setEvt(null), 3000);
+        setTimeout(() => setEvt(null), MIN_VISIBLE_FEEDBACK_MS);
       }
 
       newPair(diff);
-      setTimeout(() => setFb(null), 900);
+      setTimeout(() => setFb(null), MIN_VISIBLE_FEEDBACK_MS);
     } else {
       addHeat(prio ? Math.round(DIFF[diff as keyof typeof DIFF].err * 1.5) : DIFF[diff as keyof typeof DIFF].err);
       setStrk(0);
-      setFb({ t: 'err', m: prob.full });
+      setFb({ t: 'err', m: `PERGUNTA: ${prob.prompt} · RESPOSTA DADA: ${ans} · CORRETA: ${prob.answer}` });
       errSnd();
       setAns('');
       setTimeout(() => {
         setFb(null);
         newPair(diff);
-      }, 1400);
+      }, MIN_VISIBLE_FEEDBACK_MS);
     }
   }, [ans, picked, pair, coolant, strk, setHeat, setPts, setStrk, setBestStrk, setCorr, setFb, addHeat, newPair, diff, setCoolant, setScrm, promote, scrmSnd]);
 
@@ -296,7 +266,7 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     tone(320, .5, 'sawtooth', .2);
     setTimeout(() => tone(260, .4, 'sawtooth', .15), 200);
     setEvt('ALÍVIO DE PRESSÃO · −18 CALOR · −12 REFRIGERANTE');
-    setTimeout(() => setEvt(null), 1800);
+    setTimeout(() => setEvt(null), MIN_VISIBLE_FEEDBACK_MS);
   }, [ventCd, coolant, setHeat, setCoolant, tone]);
 
   const doBoron = useCallback(() => {
@@ -308,7 +278,7 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     tone(180, .8, 'sine', .25);
     setTimeout(() => tone(240, .6, 'sine', .2), 300);
     setEvt('INJEÇÃO DE BORO · CALOR CONGELADO POR 8s · −8 INTEGRIDADE');
-    setTimeout(() => setEvt(null), 2200);
+    setTimeout(() => setEvt(null), MIN_VISIBLE_FEEDBACK_MS);
     if (frz.current) clearTimeout(frz.current);
     frz.current = setTimeout(() => setFrozen(false), FREEZE_MS);
   }, [boronCd, integrity, setHeat, setIntegrity, tone]);
@@ -321,7 +291,7 @@ export function useGameState(diff: number, setMode: (mode: string) => void, tone
     setCoolant(c => Math.min(100, c + 10));
     setEvt('SCRAM - BARRAS INSERIDAS - -70 CALOR - -3 INTEGRIDADE');
     scrmSnd();
-    setTimeout(() => setEvt(null), 2000);
+    setTimeout(() => setEvt(null), MIN_VISIBLE_FEEDBACK_MS);
   }, [scrm, setHeat, setIntegrity, setCoolant, scrmSnd]);
 
   const prob = picked === null ? null : pair[picked];

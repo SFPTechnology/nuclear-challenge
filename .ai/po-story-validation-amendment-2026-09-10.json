@@ -1,0 +1,39 @@
+{
+  "date": "2026-09-10",
+  "validator": "@po",
+  "task": "validate-next-story-revalidation",
+  "overall_verdict": "NO-GO",
+  "decision": {
+    "quality_gate_interpretation": "The @architect quality_gate in Story 1.3 satisfies the active template's code/logic mapping. The later quality verdict remains exclusively @qa, in accordance with the Constitution."
+  },
+  "stories": [
+    {
+      "path": "docs/stories/story-0.1-seguranca-imediata.md",
+      "score": 6,
+      "status": "Draft",
+      "validated_improvements": [
+        "Required structural sections and a four-column Change Log are present.",
+        "Historical code and Git evidence is recorded without marking unproven acceptance criteria complete."
+      ],
+      "blocking_items": [
+        "T0.1-T0.5 evidence against the published artifact, including T0.5 served-artifact hash equality, is still absent.",
+        "A semantic-version baseline was never recorded; the Change Log therefore identifies its versions as pending and cannot support a deterministic lifecycle transition.",
+        "No @qa verdict exists."
+      ]
+    },
+    {
+      "path": "docs/stories/story-1.3-qualidade-lint-testes-typecheck.md",
+      "score": 6,
+      "status": "Draft",
+      "validated_improvements": [
+        "Required implementation-planning sections are present.",
+        "The executor/quality-gate separation now matches the active code/logic template mapping."
+      ],
+      "blocking_items": [
+        "Required predecessor docs/stories/story-1.1-fronteira-codigo-build.md remains Draft.",
+        "A semantic-version baseline was never recorded; the Change Log therefore identifies its versions as pending and cannot support a deterministic lifecycle transition."
+      ]
+    }
+  ],
+  "status_transition": "Not applied. Both stories remain Draft."
+}

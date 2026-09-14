@@ -1,35 +1,21 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { StorageAdapter } from '../adapters/StorageAdapter';
+import { describe, expect, it, vi } from 'vitest';
+import { StorageAdapter, type HostStorage } from '@domain/storage/StorageAdapter';
 
-/**
- * Tests for StorageAdapter — TD-SYS-09
- * Validando: merge aditivo (preserva campos desconhecidos), operações básicas
- */
+describe('StorageAdapter health transitions', () => {
+  it('returns to healthy after clearError and a successful read', async () => {
+    const host: HostStorage = {
+      get: vi.fn(async () => ({ value: '{broken' })),
+      set: vi.fn(async () => true),
+    };
+    const adapter = new StorageAdapter(host);
 
-describe('StorageAdapter', () => {
-  let adapter: StorageAdapter;
+    await adapter.read('record');
+    expect(adapter.getHealth().status).toBe('degraded');
 
-  beforeEach(() => {
-    adapter = new StorageAdapter();
-  });
-
-  it('should handle missing window.storage', () => {
-    const orig = window.localStorage;
-    delete (window as any).localStorage;
-
-    expect(adapter.read('test')).toBeNull();
-    expect(adapter.write('test', { x: 1 })).toBe(false);
-    expect(adapter.delete('test')).toBe(false);
-    expect(adapter.clear()).toBe(false);
-
-    (window as any).localStorage = orig;
-  });
-
-  it('should have StorageAdapter available', () => {
-    expect(adapter).toBeDefined();
-    expect(typeof adapter.read).toBe('function');
-    expect(typeof adapter.write).toBe('function');
-    expect(typeof adapter.delete).toBe('function');
-    expect(typeof adapter.clear).toBe('function');
+    adapter.clearError();
+    expect(adapter.getHealth().status).toBe('healthy');
+    host.get = vi.fn(async () => ({ value: JSON.stringify({ ok: true }) }));
+    await expect(adapter.read('record')).resolves.toEqual({ ok: true });
+    expect(adapter.getHealth().status).toBe('healthy');
   });
 });

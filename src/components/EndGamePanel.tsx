@@ -3,6 +3,8 @@ import { tokens } from '@design/tokens';
 import { EmptyState } from './EmptyState';
 import { Plate } from './Plate';
 import { Label } from './Label';
+import { GlobalErrorBanner } from './GlobalErrorBanner';
+import type { AppMode } from '@hooks/useUIState';
 
 const DIFF = {
   1: { name: 'TRAINEE' },
@@ -16,6 +18,50 @@ const DS = {
   recess: 'inset 0 3px 8px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06)',
 };
 
+const actionTones = {
+  info: { background: 'linear-gradient(180deg,#0e7490,#155e75)', border: '#0e7490', color: '#e0f2fe', glow: 'rgba(6,182,212,.3)' },
+  success: { background: 'linear-gradient(180deg,#16a34a,#15803d)', border: '#15803d', color: '#dcfce7', glow: 'rgba(34,197,94,.32)' },
+  warning: { background: 'linear-gradient(180deg,#b45309,#78350f)', border: '#b45309', color: '#fef3c7', glow: 'rgba(245,158,11,.3)' },
+} as const;
+
+function EndGameActionButton({
+  children,
+  onClick,
+  ariaLabel,
+  tone,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  ariaLabel: string;
+  tone: keyof typeof actionTones;
+}) {
+  const colors = actionTones[tone];
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className="transition-transform active:translate-y-px"
+      style={{
+        flex: 1,
+        minHeight: 40,
+        padding: '10px 8px',
+        borderRadius: tokens.borderRadius.md,
+        border: `1px solid ${colors.border}`,
+        background: colors.background,
+        boxShadow: `0 0 14px ${colors.glow},0 1px 0 rgba(255,255,255,.18) inset,0 3px 6px #000`,
+        color: colors.color,
+        fontSize: tokens.typography.fontSize.xs0,
+        fontWeight: tokens.typography.fontWeight.bold,
+        letterSpacing: tokens.typography.letterSpacing.wide,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 interface EndGamePanelProps {
   mode: 'win' | 'lose' | 'quit' | 'pause';
   diff: number;
@@ -28,7 +74,7 @@ interface EndGamePanelProps {
   bestStrk: number;
   integrity: number;
   players: Record<string, any>;
-  setMode: (mode: string) => void;
+  setMode: (mode: AppMode) => void;
   start: () => void;
   resumeGame: () => void;
   continueGame: () => void;
@@ -36,14 +82,24 @@ interface EndGamePanelProps {
   css: React.ReactNode;
   shellClass: string;
   shellStyle: React.CSSProperties;
+  storeErr: boolean;
 }
 
 export function EndGamePanel({
   mode, diff, player, rank, elapsed, pts, tot, corr, bestStrk, integrity, players,
-  setMode, start, resumeGame, continueGame, bg, css, shellClass, shellStyle
+  setMode, start, resumeGame, continueGame, bg, css, shellClass, shellStyle, storeErr
 }: EndGamePanelProps) {
+  const [isRestartConfirmationOpen, setRestartConfirmationOpen] = React.useState(false);
+
+  const requestRestart = () => setRestartConfirmationOpen(true);
+  const confirmRestart = () => {
+    setRestartConfirmationOpen(false);
+    start();
+  };
+
   return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
+      <GlobalErrorBanner visible={storeErr} />
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="p-4 text-center mb-2">
           <div style={{ fontSize: tokens.typography.fontSize['4xl_'] }}>
@@ -132,72 +188,101 @@ export function EndGamePanel({
         )}
 
         <div className="flex gap-1.5 mb-1.5">
-          <button onClick={() => setMode('analise')} style={{ flex: 1 }} aria-label="Ver análise de desempenho">
-            <Plate className="py-2 text-center">
-              <Label>Análise de Desempenho</Label>
-            </Plate>
-          </button>
-          <button onClick={() => setMode('ranking')} style={{ flex: 1 }} aria-label="Ver ranking de operadores">
-            <Plate className="py-2 text-center">
-              <Label>Ranking</Label>
-            </Plate>
-          </button>
+          <EndGameActionButton onClick={() => setMode('analise')} ariaLabel="Ver análise de desempenho" tone="info">
+            ANÁLISE
+          </EndGameActionButton>
+          <EndGameActionButton onClick={() => setMode('ranking')} ariaLabel="Ver ranking de operadores" tone="info">
+            RANKING
+          </EndGameActionButton>
         </div>
 
         <div className="flex gap-1.5">
-          <button onClick={() => setMode('menu')} style={{ flex: 1 }} aria-label="Voltar para menu principal">
-            <Plate className="py-2 text-center">
-              <Label>Menu</Label>
-            </Plate>
-          </button>
+          <EndGameActionButton onClick={() => setMode('menu')} ariaLabel="Voltar para menu principal" tone="info">
+            MENU
+          </EndGameActionButton>
           {mode === 'pause' && (
-            <button type="button" onClick={resumeGame} style={{ flex: 1 }} aria-label="Retomar partida pausada">
-              <div
-                className="rounded-md text-center font-bold"
-                style={{
-                  padding: '10px 0',
-                  fontSize: tokens.typography.fontSize.xs0,
-                  background: 'linear-gradient(180deg,#16a34a,#15803d)',
-                  boxShadow: '0 0 14px rgba(34,197,94,.4),0 3px 6px #000',
-                  color: '#dcfce7'
-                }}
-              >
-                RETOMAR
-              </div>
-            </button>
+            <EndGameActionButton onClick={resumeGame} ariaLabel="Retomar partida pausada" tone="success">
+              RETOMAR
+            </EndGameActionButton>
           )}
           {mode === 'win' && diff < 5 && (
-            <button onClick={continueGame} style={{ flex: 1 }} aria-label="Continuar para próximo nível">
-              <div
-                className="rounded-md text-center font-bold"
-                style={{
-                  padding: '10px 0',
-                  fontSize: tokens.typography.fontSize.xs0,
-                  background: 'linear-gradient(180deg,#16a34a,#15803d)',
-                  boxShadow: '0 0 14px rgba(34,197,94,.4),0 3px 6px #000',
-                  color: '#dcfce7'
-                }}
-              >
-                CONTINUAR
-              </div>
-            </button>
+            <EndGameActionButton onClick={continueGame} ariaLabel="Continuar para próximo nível" tone="success">
+              CONTINUAR
+            </EndGameActionButton>
           )}
-          <button onClick={start} style={{ flex: 1 }} aria-label="Reiniciar partida no mesmo nível">
-            <div
-              className="rounded-md text-center font-bold"
-              style={{
-                padding: '10px 0',
-                fontSize: tokens.typography.fontSize.xs0,
-                background: 'linear-gradient(180deg,#0e7490,#155e75)',
-                boxShadow: '0 3px 6px #000',
-                color: '#e0f2fe'
-              }}
-            >
-              REINICIAR
-            </div>
-          </button>
+          <EndGameActionButton onClick={requestRestart} ariaLabel="Solicitar reinício da partida no mesmo nível" tone="info">
+            REINICIAR
+          </EndGameActionButton>
         </div>
       </div>
+
+      {isRestartConfirmationOpen && (
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="restart-confirmation-title"
+          aria-describedby="restart-confirmation-description"
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setRestartConfirmationOpen(false);
+          }}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: tokens.zIndex.modal,
+            display: 'grid',
+            placeItems: 'center',
+            padding: tokens.spacing.md,
+            background: 'rgba(0,0,0,.72)',
+          }}
+        >
+          <div data-testid="restart-confirmation-card" style={{ width: '24rem', maxWidth: '100%' }}>
+          <Plate className="w-full p-4" glow="rgba(248,113,113,.35)">
+            <h2
+              id="restart-confirmation-title"
+              className="m-0 font-bold"
+              style={{ fontSize: tokens.typography.fontSize.base, color: tokens.visual.status.danger }}
+            >
+              Reiniciar turno?
+            </h2>
+            <p
+              id="restart-confirmation-description"
+              className="mt-2 mb-4"
+              style={{ fontSize: tokens.typography.fontSize.sm, lineHeight: tokens.typography.lineHeight.normal, color: tokens.visual.status.muted }}
+            >
+              O progresso do turno atual será abandonado e uma nova partida começará no mesmo nível.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setRestartConfirmationOpen(false)}
+                autoFocus
+                style={{ flex: 1 }}
+                aria-label="Cancelar reinício e manter turno atual"
+              >
+                <Plate className="py-2 text-center"><Label>Cancelar</Label></Plate>
+              </button>
+              <button
+                type="button"
+                onClick={confirmRestart}
+                style={{
+                  flex: 1,
+                  borderRadius: tokens.borderRadius.md,
+                  border: tokens.borders.danger,
+                  background: 'linear-gradient(180deg,#991b1b,#450a0a)',
+                  color: '#fee2e2',
+                  fontSize: tokens.typography.fontSize.xs0,
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  letterSpacing: tokens.typography.letterSpacing.wide,
+                }}
+                aria-label="Confirmar reinício e abandonar turno atual"
+              >
+                REINICIAR
+              </button>
+            </div>
+          </Plate>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

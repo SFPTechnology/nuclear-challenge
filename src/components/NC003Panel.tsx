@@ -4,6 +4,7 @@ import { EmptyState } from './EmptyState';
 import { GlobalErrorBanner } from './GlobalErrorBanner';
 import { Label } from './Label';
 import { MetricBadge } from './MetricBadge';
+import type { AppMode } from '@hooks/useUIState';
 import { Plate } from './Plate';
 
 interface NC003PanelProps {
@@ -16,13 +17,50 @@ interface NC003PanelProps {
   css: React.ReactNode;
   shellClass: string;
   shellStyle: React.CSSProperties;
-  setMode: (mode: string) => void;
+  setMode: (mode: AppMode) => void;
+  resumeAvailable?: boolean;
+  resumeGame?: () => void;
   start: () => void;
+  storeErr: boolean;
+}
+
+function NC003ActionButton({
+  children,
+  onClick,
+  ariaLabel,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  ariaLabel: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className="transition-transform active:translate-y-px"
+      style={{
+        flex: 1,
+        minHeight: 44,
+        padding: '10px 8px',
+        borderRadius: tokens.borderRadius.md,
+        border: '1px solid #083344',
+        background: 'linear-gradient(180deg,#0e7490,#155e75 55%,#0c4a5e)',
+        boxShadow: '0 1px 0 rgba(255,255,255,.2) inset,0 4px 8px #000,0 0 16px rgba(6,182,212,.35)',
+        color: '#e0f2fe',
+        fontSize: tokens.typography.fontSize.xs0,
+        fontWeight: tokens.typography.fontWeight.bold,
+        letterSpacing: tokens.typography.letterSpacing.wide,
+      }}
+    >
+      {children}
+    </button>
+  );
 }
 
 export function NC003Panel({
   player, players, heat, integrity, coolant,
-  bg, css, shellClass, shellStyle, setMode, start
+  bg, css, shellClass, shellStyle, setMode, resumeAvailable = false, resumeGame, start, storeErr
 }: NC003PanelProps) {
   // UX-D10: NC-003 is a weighted-rate report. With zero recorded operations
   // there is nothing to weight, so show an explicit empty state instead of a
@@ -35,7 +73,7 @@ export function NC003Panel({
 
   return (
     <div className="nc-viewport min-h-screen p-3" style={bg}>{css}
-      <GlobalErrorBanner />
+      <GlobalErrorBanner visible={storeErr} />
       <div className={`${shellClass} mx-auto`} style={shellStyle}>
         <Plate className="p-3 mb-2 text-center">
           <Label>NC-003: Taxa de Sucesso</Label>
@@ -87,16 +125,23 @@ export function NC003Panel({
         </Plate>
         )}
 
+        {resumeAvailable && resumeGame && (
+          <div className="mb-1.5">
+            <NC003ActionButton onClick={resumeGame} ariaLabel="Retornar ao jogo">
+              RETORNAR AO JOGO
+            </NC003ActionButton>
+          </div>
+        )}
         <div className="flex gap-1.5">
-          <button onClick={() => setMode('menu')} style={{ flex: 1 }} aria-label="Voltar para menu">
-            <Plate className="py-2 text-center"><Label>← Voltar</Label></Plate>
-          </button>
-          <button onClick={() => setMode('analise')} style={{ flex: 1 }} aria-label="Ver análise de desempenho">
-            <Plate className="py-2 text-center"><Label>Análise</Label></Plate>
-          </button>
-          <button onClick={start} style={{ flex: 1 }} aria-label="Continuar para jogo">
-            <div className="rounded-md text-center font-bold" style={{ padding: '10px 0', fontSize: tokens.typography.fontSize.xs0, letterSpacing: '.1em', background: 'linear-gradient(180deg,#0e7490,#155e75 55%,#0c4a5e)', boxShadow: '0 1px 0 rgba(255,255,255,.2) inset,0 4px 8px #000,0 0 16px rgba(6,182,212,.35)', border: '1px solid #083344', color: '#e0f2fe' }}>Continuar</div>
-          </button>
+          <NC003ActionButton onClick={() => setMode('menu')} ariaLabel="Voltar para menu">
+            ← VOLTAR
+          </NC003ActionButton>
+          <NC003ActionButton onClick={() => setMode('analise')} ariaLabel="Ver análise de desempenho">
+            ANÁLISE
+          </NC003ActionButton>
+          <NC003ActionButton onClick={start} ariaLabel="Continuar para jogo">
+            CONTINUAR
+          </NC003ActionButton>
         </div>
       </div>
     </div>
